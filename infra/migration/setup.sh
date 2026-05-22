@@ -5,6 +5,7 @@ set -e
 echo "Kiểm tra môi trường phát triển..."
 echo "Phiên bản NodeJS: $(node -v)"
 echo "Phiên bản Docker: $(docker --version)"
+echo "Kiểm tra Flutter: $(flutter --version)"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
@@ -28,3 +29,15 @@ do
     < "$file"
 done
 echo "Xong!"
+
+cd "$ROOT_DIR/apps/backend"
+echo "Cài đặt dependencies cho backend..."
+npm install
+
+cd "$ROOT_DIR/apps/web"
+echo "Cài đặt dependencies cho frontend..."
+npm install
+
+cd "$ROOT_DIR/apps/mobile"
+echo "Cài đặt dependencies cho mobile..."
+flutter pub get
