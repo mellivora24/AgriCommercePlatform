@@ -1,0 +1,11 @@
+services:
+    tmdt_postgres:
+        image: postgres:15.3-alpine
+        container_name: tmdt_postgres
+        environment:
+            POSTGRES_DB: tmdt_database
+            POSTGRES_USER: postgres_user
+            POSTGRES_PASSWORD: postgres_password
+            POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+        ports:
+            - "5433:5432"
