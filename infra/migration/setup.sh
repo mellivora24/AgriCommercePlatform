@@ -34,6 +34,10 @@ cd "$ROOT_DIR/apps/backend"
 echo "Cài đặt dependencies cho backend..."
 npm install
 
+echo "Gen prisma client..."
+cd "$ROOT_DIR/apps/backend"
+npx prisma generate
+
 cd "$ROOT_DIR/apps/web"
 echo "Cài đặt dependencies cho frontend..."
 npm install
