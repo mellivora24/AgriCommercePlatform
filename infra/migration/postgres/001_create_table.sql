@@ -1,3 +1,4 @@
+-- Active: 1779298779123@@127.0.0.1@5433@tmdt_database
 --- Drop existing tables if they exist
 DROP TABLE IF EXISTS wallet_transactions CASCADE;
 DROP TABLE IF EXISTS wallet_journals CASCADE;
@@ -24,7 +25,7 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL,
     phone VARCHAR(20),
     password_hash TEXT NOT NULL,
-    role user_role NOT NULL,
+    role user_role DEFAULT 'BUYER',
     status account_status NOT NULL DEFAULT 'ACTIVE',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
