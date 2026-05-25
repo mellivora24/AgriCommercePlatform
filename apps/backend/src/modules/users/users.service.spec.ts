@@ -1,5 +1,9 @@
+//eslint disable for this file
+// eslint-disable @typescript-eslint/no-unused-vars
+
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
+import { jest, describe, expect, it, beforeEach } from '@jest/globals';
 
 import { UsersService } from './users.service';
 import { PrismaService } from '@app-prisma/prisma.service';
@@ -129,9 +133,7 @@ describe('UsersService', () => {
     it('should throw NotFoundException when user not found', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue(null);
 
-      await expect(service.findById(999)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(service.findById(999)).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -161,9 +163,9 @@ describe('UsersService', () => {
     it('should throw NotFoundException when email not found', async () => {
       mockPrismaService.user.findFirst.mockResolvedValue(null);
 
-      await expect(
-        service.findByEmail('notfound@example.com'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.findByEmail('notfound@example.com')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -193,9 +195,9 @@ describe('UsersService', () => {
     it('should throw NotFoundException when phone not found', async () => {
       mockPrismaService.user.findFirst.mockResolvedValue(null);
 
-      await expect(
-        service.findByPhone('+84999999999'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.findByPhone('+84999999999')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -245,9 +247,7 @@ describe('UsersService', () => {
         new Error('User not found'),
       );
 
-      await expect(
-        service.updateProfile(999, updateDto),
-      ).rejects.toThrow();
+      await expect(service.updateProfile(999, updateDto)).rejects.toThrow();
     });
   });
 

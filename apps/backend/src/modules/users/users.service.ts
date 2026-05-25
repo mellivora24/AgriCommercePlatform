@@ -50,7 +50,7 @@ export class UsersService {
       throw new NotFoundException(`Không tìm thấy người dùng: ${email}`);
     }
 
-    return UsersMapper.toResponse(user);
+    return user;
   }
 
   async findByPhone(phone: string) {
@@ -62,7 +62,17 @@ export class UsersService {
       throw new NotFoundException(`Không tìm thấy người dùng: ${phone}`);
     }
 
-    return UsersMapper.toResponse(user);
+    return user;
+  }
+
+  async findByEmailOrPhone(email: string, phone: string) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        OR: [{ email }, { phone }],
+      },
+    });
+
+    return user;
   }
 
   async updateProfile(id: number, dto: UpdateUsersProfileDto) {
@@ -75,6 +85,15 @@ export class UsersService {
     });
 
     return UsersMapper.toResponse(user);
+  }
+
+  async changePassword(id: number, newHashedPassword: string) {
+    await this.prisma.user.update({
+      where: { userId: id },
+      data: {
+        passwordHash: newHashedPassword,
+      },
+    });
   }
 
   async deleteUser(id: number) {
