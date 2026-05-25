@@ -3,11 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-type JwtPayload = {
-  sub: string;
-  email: string;
-  role: string;
-};
+import { JwtPayload, AuthUser } from '@module/auth/types/auth.type';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'access-token') {
@@ -19,11 +15,15 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'access-token') {
     });
   }
 
-  validate(payload: JwtPayload) {
+  validate(payload: JwtPayload): AuthUser {
     return {
-      userId: payload.sub,
+      userId: Number(payload.sub),
       email: payload.email,
       role: payload.role,
     };
   }
+
+  // Note:
+  // req.user = { userId: payload.sub, email: payload.email, role: payload.role }; => passport gắn user vào req sau khi xác thực thành công
+  // req.body = { ...req.body, userId: payload.sub }; => Đây là dữ liệu mà client gửi lên
 }
