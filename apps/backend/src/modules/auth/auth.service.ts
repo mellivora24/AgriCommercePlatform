@@ -20,21 +20,40 @@ export class AuthService {
       throw new BadRequestException('Email hoặc số điện thoại đã tồn tại');
     }
 
-    const user = await this.usersService.createUser(dto);
-    return user;
+    const result = await this.usersService.createUser(dto);
+
+    const accessToken = await bcrypt.hash(`${result.id}-${Date.now()}`, 10);
+    const refreshToken = await bcrypt.hash(
+      `${result.id}-${Date.now()}-refresh`,
+      10,
+    );
+
+    return {
+      accessToken,
+      refreshToken,
+      user: {
+        userId: result.id,
+        email: result.email,
+        phone: result.phone,
+        role: result.role,
+        status: result.account_status,
+        createdAt: result.created_at,
+        updatedAt: result.updated_at,
+      },
+    };
   }
 
   async login(dto: UserLoginDto) {
-    let user;
+    let result;
     if (dto.email) {
-      user = await this.usersService.findByEmail(dto.email);
+      result = await this.usersService.findByEmail(dto.email);
     } else if (dto.phone) {
-      user = await this.usersService.findByPhone(dto.phone);
+      result = await this.usersService.findByPhone(dto.phone);
     } else {
       throw new BadRequestException('Email hoặc số điện thoại là bắt buộc');
     }
 
-    const hashedPassword = user.passwordHash;
+    const hashedPassword = result.passwordHash;
 
     const isPasswordValid = await bcrypt.compare(dto.password, hashedPassword);
 
@@ -42,14 +61,24 @@ export class AuthService {
       throw new BadRequestException('Mật khẩu không đúng');
     }
 
+    const accessToken = await bcrypt.hash(`${result.userId}-${Date.now()}`, 10);
+    const refreshToken = await bcrypt.hash(
+      `${result.userId}-${Date.now()}-refresh`,
+      10,
+    );
+
     return {
-      userId: user.userId,
-      email: user.email,
-      phone: user.phone,
-      role: user.role,
-      status: user.status,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+      accessToken,
+      refreshToken,
+      user: {
+        userId: result.userId,
+        email: result.email,
+        phone: result.phone,
+        role: result.role,
+        status: result.status,
+        createdAt: result.createdAt,
+        updatedAt: result.updatedAt,
+      },
     };
   }
 
