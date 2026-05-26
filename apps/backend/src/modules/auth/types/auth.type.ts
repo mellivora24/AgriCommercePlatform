@@ -10,6 +10,10 @@ type AuthUser = {
   userId: number;
   email: string;
   role: string;
+  buyerId?: number;
+  sellerId?: number;
+  shipperId?: number;
+  adminId?: number;
 };
 
 type AuthRequest = Request & {
