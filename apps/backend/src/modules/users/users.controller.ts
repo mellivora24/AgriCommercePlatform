@@ -1,4 +1,12 @@
-import { Controller, Get, Put, UseGuards, Body, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Put,
+  UseGuards,
+  Body,
+  Delete,
+  Post,
+} from '@nestjs/common';
 
 import { AuthUser } from '@module/auth/types/auth.type';
 import { CurrentUser } from '@common/decorator';
@@ -29,5 +37,11 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   async deleteProfile(@CurrentUser() user: AuthUser) {
     return this.usersService.deleteUser(user.userId);
+  }
+
+  @Post('apply-seller')
+  @UseGuards(JwtAuthGuard)
+  async applySeller(@CurrentUser() user: AuthUser) {
+    return this.usersService.applySeller(user.userId);
   }
 }

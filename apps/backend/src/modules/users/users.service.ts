@@ -26,7 +26,17 @@ export class UsersService {
       throw new NotFoundException(`Lỗi khi tạo người dùng: ${dto.email}`);
     }
 
-    return UsersMapper.toResponse(user);
+    // Create BuyerProfile with name from registration
+    if (dto.name) {
+      await this.prisma.buyerProfile.create({
+        data: {
+          userId: user.userId,
+          fullName: dto.name,
+        },
+      });
+    }
+
+    return UsersMapper.toResponse(user, dto.name);
   }
 
   async findById(id: number) {
@@ -99,6 +109,23 @@ export class UsersService {
   async deleteUser(id: number) {
     await this.prisma.user.delete({
       where: { userId: id },
+    });
+  }
+
+  async applySeller(id: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { userId: id },
+    });
+    if (!user) throw new NotFoundException('Người dùng không tồn tại');
+
+    if (user.role === 'SELLER')
+      throw new NotFoundException('Bạn đã là người bán');
+
+    return this.prisma.user.update({
+      where: { userId: id },
+      data: {
+        role: 'SELLER',
+      },
     });
   }
 }

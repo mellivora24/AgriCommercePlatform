@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
-import { useAuthStore } from '../../../core/store';
-import { ROUTES } from '../../../core/router/routes';
+import { useAuthStore } from '@/core/store';
+import { ROUTES } from '@/core/router/routes';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -27,7 +27,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
   ];
 
   const links =
-    user?.role === 'seller' ? sellerLinks : adminLinks;
+    user?.role === 'SELLER' ? sellerLinks : adminLinks;
 
   return (
     <aside

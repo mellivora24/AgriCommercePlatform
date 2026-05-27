@@ -8,6 +8,7 @@ import { useAuthStore, useCartStore, useUIStore } from '@/core/store';
 export const Header: React.FC = () => {
   const { isAuthenticated, user, clearAuth } = useAuthStore();
   const totalCount = useCartStore((state) => state.totalCount);
+
   const { sidebarOpen, toggleSidebar } = useUIStore();
   const [searchFocused, setSearchFocused] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -24,7 +25,7 @@ export const Header: React.FC = () => {
           <div className="flex h-16 items-center gap-4">
 
             {/* Sidebar Toggle */}
-            <button
+            {/* <button
               onClick={toggleSidebar}
               className="group flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition-all duration-200 hover:border-green-300 hover:bg-green-50 hover:text-green-700"
               aria-label="Toggle sidebar"
@@ -32,10 +33,10 @@ export const Header: React.FC = () => {
               <span className="transition-transform duration-300 group-hover:scale-110">
                 {sidebarOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
               </span>
-            </button>
+            </button> */}
 
             {/* Logo */}
-            <Link to={ROUTES.HOME} className="group flex flex-shrink-0 items-center gap-2.5">
+            <Link to={ROUTES.GUEST_HOME} className="group flex flex-shrink-0 items-center gap-2.5">
               <div className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-green-500 to-emerald-700 shadow-md shadow-green-200 transition-shadow duration-300 group-hover:shadow-green-300">
                 <Leaf className="absolute -right-1 -top-1 h-5 w-5 rotate-12 text-white/20" />
                 <span className="relative z-10 text-sm font-black tracking-tight text-white">FA</span>
@@ -119,6 +120,7 @@ export const Header: React.FC = () => {
                       <div className="border-b border-gray-50 px-4 py-3">
                         <p className="text-xs text-gray-400">Đã đăng nhập với</p>
                         <p className="truncate text-sm font-semibold text-gray-800">{user?.name}</p>
+                        <p className="text-xs text-gray-400">Tài khoản</p>
                       </div>
                       <button
                         onClick={handleLogout}

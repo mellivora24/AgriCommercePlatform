@@ -26,6 +26,12 @@ VALUES
     '$2a$10$dummy',
     'SELLER',
     'ACTIVE'
+),
+(
+    'admin@gmail.com',
+    '$2a$10$dummy',
+    'ADMIN',
+    'ACTIVE'
 );
 
 -- =====================================================

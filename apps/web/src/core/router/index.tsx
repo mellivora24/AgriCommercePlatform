@@ -7,6 +7,8 @@ import { RoleGuard } from './guards/role.guard';
 import { AppLayout } from '@/shared/components/layout/AppLayout';
 import { AuthLayout } from '@/shared/components/layout/AuthLayout';
 import { DashboardLayout } from '@/shared/components/layout/DashboardLayout';
+import { BuyerHomePage } from '@/features/buyer/presentation/pages';
+import { GuestHomePage } from '@/features/guest/presentation/pages/GuestHomePage';
 import { ProductsListPage, ProductDetailPage } from '@/features/products/presentation/pages';
 import { LoginPage } from '@/features/auth/presentation/pages/LoginPage';
 import { RegisterPage } from '@/features/auth/presentation/pages/RegisterPage';
@@ -18,9 +20,14 @@ import { OrderDetailPage } from '@/features/orders/presentation/pages/OrderDetai
 export const Router: React.FC = () => (
   <BrowserRouter>
     <Routes>
+      {/* Guest Routes */}
+      <Route element={<AppLayout />}>
+        <Route path={ROUTES.GUEST_HOME} element={<GuestHomePage />} />
+      </Route>
+
       {/* App Layout Routes */}
       <Route element={<AppLayout />}>
-        <Route path={ROUTES.HOME} element={<ProductsListPage />} />
+        <Route path={ROUTES.BUYER_HOME} element={<AuthGuard><BuyerHomePage /></AuthGuard>} />
         <Route path={ROUTES.PRODUCTS} element={<ProductsListPage />} />
         <Route path={ROUTES.PRODUCT_DETAIL} element={<ProductDetailPage />} />
         <Route path={ROUTES.CART} element={<CartPage />} />
@@ -38,8 +45,8 @@ export const Router: React.FC = () => (
 
       {/* Dashboard Layout Routes */}
       <Route element={<DashboardLayout />}>
-        <Route path={ROUTES.SELLER_DASHBOARD} element={<RoleGuard allowedRoles={['seller']}><div>Seller Dashboard (TODO)</div></RoleGuard>} />
-        <Route path={ROUTES.ADMIN_DASHBOARD} element={<RoleGuard allowedRoles={['admin']}><div>Admin Dashboard (TODO)</div></RoleGuard>} />
+        <Route path={ROUTES.SELLER_DASHBOARD} element={<RoleGuard allowedRoles={['SELLER']}><div>Seller Dashboard (TODO)</div></RoleGuard>} />
+        <Route path={ROUTES.ADMIN_DASHBOARD} element={<RoleGuard allowedRoles={['ADMIN']}><div>Admin Dashboard (TODO)</div></RoleGuard>} />
       </Route>
 
       {/* 404 */}

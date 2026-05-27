@@ -13,7 +13,7 @@ export const GuestGuard: React.FC<GuestGuardProps> = ({ children }) => {
   );
 
   if (isAuthenticated) {
-    return <Navigate to={ROUTES.HOME} replace />;
+    return <Navigate to={ROUTES.BUYER_HOME} replace />;
   }
 
   return <>{children}</>;

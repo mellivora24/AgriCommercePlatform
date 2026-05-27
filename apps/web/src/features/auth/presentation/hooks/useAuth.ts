@@ -21,7 +21,7 @@ export const useLogin = () => {
     },
     onSuccess: (data) => {
       setAuth(data.accessToken, data.refreshToken, data.user as any);
-      navigate(ROUTES.HOME);
+      navigate(ROUTES.BUYER_HOME);
     },
     onError: (error: any) => {
       console.error('Login failed:', error.message);
@@ -39,7 +39,7 @@ export const useRegister = () => {
     },
     onSuccess: (data) => {
       setAuth(data.accessToken, data.refreshToken, data.user as any);
-      navigate(ROUTES.HOME);
+      navigate(ROUTES.BUYER_HOME);
     },
     onError: (error: any) => {
       console.error('Register failed:', error.message);

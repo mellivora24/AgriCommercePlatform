@@ -14,7 +14,7 @@ export class AuthService {
   async register(dto: UserRegisterDto) {
     const existingUser = await this.usersService.findByEmailOrPhone(
       dto.email,
-      dto.phone,
+      dto.phone || '',
     );
     if (existingUser) {
       throw new BadRequestException('Email hoặc số điện thoại đã tồn tại');
@@ -34,11 +34,9 @@ export class AuthService {
       user: {
         userId: result.id,
         email: result.email,
-        phone: result.phone,
+        name: result.name,
         role: result.role,
-        status: result.account_status,
         createdAt: result.created_at,
-        updatedAt: result.updated_at,
       },
     };
   }
@@ -67,17 +65,17 @@ export class AuthService {
       10,
     );
 
+    const name = result.email.split('@')[0];
+
     return {
       accessToken,
       refreshToken,
       user: {
         userId: result.userId,
         email: result.email,
-        phone: result.phone,
+        name: name,
         role: result.role,
-        status: result.status,
         createdAt: result.createdAt,
-        updatedAt: result.updatedAt,
       },
     };
   }

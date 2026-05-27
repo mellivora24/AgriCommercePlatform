@@ -1,10 +1,11 @@
 import { User } from '@prisma/client';
 
 export class UsersMapper {
-  static toResponse(user: User) {
+  static toResponse(user: User, nameOverride?: string) {
     return {
       id: user.userId,
       email: user.email,
+      name: nameOverride || user.email.split('@')[0], // Use name param or extract from email
       phone: user.phone,
       role: user.role,
       account_status: user.status,

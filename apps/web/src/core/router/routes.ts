@@ -1,10 +1,12 @@
 export const ROUTES = {
   // Public
-  HOME: '/',
   LOGIN: '/login',
   REGISTER: '/register',
   FORGOT_PASSWORD: '/forgot-password',
   RESET_PASSWORD: '/reset-password/:token',
+
+  // Guest
+  GUEST_HOME: '/',
   
   // Products
   PRODUCTS: '/products',
@@ -22,6 +24,7 @@ export const ROUTES = {
   ORDER_TRACKING: '/orders/:id/tracking',
   
   // Buyer Profile
+  BUYER_HOME: '/buyer',
   PROFILE: '/profile',
   PROFILE_SETTINGS: '/profile/settings',
   PROFILE_ADDRESSES: '/profile/addresses',
