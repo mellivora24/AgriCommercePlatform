@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X, ShoppingCart, Search, LogOut, ChevronDown, Leaf } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { ShoppingCart, Search, LogOut, ChevronDown, Leaf } from 'lucide-react';
 
 import { ROUTES } from '@/core/router/routes';
 import { useAuthStore, useCartStore, useUIStore } from '@/core/store';
@@ -9,13 +9,30 @@ export const Header: React.FC = () => {
   const { isAuthenticated, user, clearAuth } = useAuthStore();
   const totalCount = useCartStore((state) => state.totalCount);
 
-  const { sidebarOpen, toggleSidebar } = useUIStore();
-  const [searchFocused, setSearchFocused] = useState(false);
+  useUIStore();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [search, setSearch] = useState('');
+  const [searchFocused, setSearchFocused] = useState(false);
+
+  const location = useLocation();
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSearch('');
+    setSearchFocused(false);
+  }, [location.pathname]);
 
   const handleLogout = () => {
     clearAuth();
     setUserMenuOpen(false);
+  };
+
+  const handleSearch = () => {
+    // Implement search functionality here
+
+    // then clear search input and blur
+    setSearch('');
+    setSearchFocused(false);
   };
 
   return (
@@ -70,13 +87,17 @@ export const Header: React.FC = () => {
                   />
                   <input
                     type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
                     placeholder="Tìm kiếm rau củ, trái cây..."
                     className="w-full bg-transparent px-3 py-2 text-sm text-gray-700 placeholder-gray-400 outline-none"
                     onFocus={() => setSearchFocused(true)}
                     onBlur={() => setSearchFocused(false)}
                   />
                   {searchFocused && (
-                    <button className="mr-1.5 rounded-full bg-green-500 px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-green-600">
+                    <button 
+                    onClick={handleSearch}
+                    className="mr-1.5 rounded-full bg-green-500 px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-green-600">
                       Tìm
                     </button>
                   )}
