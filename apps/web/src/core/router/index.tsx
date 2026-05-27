@@ -7,8 +7,7 @@ import { RoleGuard } from './guards/role.guard';
 import { AppLayout } from '@/shared/components/layout/AppLayout';
 import { AuthLayout } from '@/shared/components/layout/AuthLayout';
 import { DashboardLayout } from '@/shared/components/layout/DashboardLayout';
-import { BuyerHomePage } from '@/features/buyer/presentation/pages';
-import { GuestHomePage } from '@/features/guest/presentation/pages/GuestHomePage';
+import { HomePage } from '@/features/home/presentation/pages/HomePage';
 import { ProductsListPage, ProductDetailPage } from '@/features/products/presentation/pages';
 import { LoginPage } from '@/features/auth/presentation/pages/LoginPage';
 import { RegisterPage } from '@/features/auth/presentation/pages/RegisterPage';
@@ -22,12 +21,11 @@ export const Router: React.FC = () => (
     <Routes>
       {/* Guest Routes */}
       <Route element={<AppLayout />}>
-        <Route path={ROUTES.GUEST_HOME} element={<GuestHomePage />} />
+        <Route path={ROUTES.HOME_PAGE} element={<HomePage />} />
       </Route>
 
       {/* App Layout Routes */}
       <Route element={<AppLayout />}>
-        <Route path={ROUTES.BUYER_HOME} element={<AuthGuard><BuyerHomePage /></AuthGuard>} />
         <Route path={ROUTES.PRODUCTS} element={<ProductsListPage />} />
         <Route path={ROUTES.PRODUCT_DETAIL} element={<ProductDetailPage />} />
         <Route path={ROUTES.CART} element={<CartPage />} />

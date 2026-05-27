@@ -15,10 +15,9 @@ export const CartPage: React.FC = () => {
   if (items.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-        <h1 className="text-3xl font-bold mb-4">Shopping Cart</h1>
-        <p className="text-gray-600 mb-8">Your cart is empty</p>
+        <p className="text-gray-600 mb-8">Giỏ hàng của bạn đang trống</p>
         <Link to={ROUTES.PRODUCTS}>
-          <Button>Continue Shopping</Button>
+          <Button>Mua sắm ngay!</Button>
         </Link>
       </div>
     );
@@ -36,7 +35,7 @@ export const CartPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
+      <h1 className="text-3xl font-bold mb-8">Giỏ hàng</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
@@ -112,25 +111,25 @@ export const CartPage: React.FC = () => {
 
         <div className="lg:col-span-1">
           <div className="border rounded-lg p-6 sticky top-20">
-            <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
+            <h2 className="text-lg font-semibold mb-4">Tóm tắt đơn hàng</h2>
 
             <div className="space-y-3 mb-4 pb-4 border-b">
               <div className="flex justify-between text-sm">
-                <span>Subtotal</span>
+                <span>Tổng tiền</span>
                 <span>{formatCurrency(total)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span>Shipping</span>
+                <span>Vận chuyển</span>
                 <span>{formatCurrency(0)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span>Tax</span>
+                <span>Thuế</span>
                 <span>{formatCurrency(0)}</span>
               </div>
             </div>
 
             <div className="flex justify-between font-bold mb-6 text-lg">
-              <span>Total</span>
+              <span>Số tiền cần thanh toán</span>
               <span className="text-red-600">
                 {formatCurrency(total)}
               </span>
@@ -141,12 +140,12 @@ export const CartPage: React.FC = () => {
               onClick={handleCheckout}
               className="mb-3"
             >
-              {isGuest ? 'Login to Checkout' : 'Proceed to Checkout'}
+              {isGuest ? 'Đăng nhập để thanh toán' : 'Tiến hành thanh toán'}
             </Button>
 
             <Link to={ROUTES.PRODUCTS}>
               <Button fullWidth variant="ghost">
-                Continue Shopping
+                Tiếp tục mua sắm
               </Button>
             </Link>
           </div>

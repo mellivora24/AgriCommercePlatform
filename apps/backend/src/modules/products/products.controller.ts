@@ -53,6 +53,20 @@ export class ProductsController {
     });
   }
 
+  @Get('seller/me')
+  @UseGuards(JwtAuthGuard)
+  getMyProducts(@CurrentUser() user: AuthUser) {
+    return this.service.getSellerProducts(user.sellerId!);
+  }
+
+  @Get('similar')
+  getSimilarProducts(
+    @Query('name') name: string,
+    @Query('limit') limit: string = '10',
+  ) {
+    return this.service.getSimilarProducts(name, Number(limit) || 10);
+  }
+
   @Get(':id')
   findOne(
     @Param('id', ParseIntPipe)
@@ -117,11 +131,5 @@ export class ProductsController {
     id: number,
   ) {
     return this.service.remove(id, user.sellerId!);
-  }
-
-  @Get('seller/me')
-  @UseGuards(JwtAuthGuard)
-  getMyProducts(@CurrentUser() user: AuthUser) {
-    return this.service.getSellerProducts(user.sellerId!);
   }
 }

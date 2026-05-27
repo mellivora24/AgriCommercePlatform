@@ -2,8 +2,8 @@ import type {
   BuyerProfile,
   CreateBuyerProfileRequest,
   UpdateBuyerProfileRequest,
-} from '../entities/buyer_profile.entity';
-import type { IBuyerProfileRepository } from '../repositories/buyer_profile.repository';
+} from '../entities/buyer.entity';
+import type { IBuyerProfileRepository } from '../repositories/buyer.repository';
 
 export interface CreateBuyerProfileUseCase {
   execute(request: CreateBuyerProfileRequest): Promise<BuyerProfile>;

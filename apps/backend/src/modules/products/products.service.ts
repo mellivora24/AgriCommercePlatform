@@ -292,4 +292,20 @@ export class ProductsService {
       },
     });
   }
+
+  async getSimilarProducts(productName: string, limit = 10) {
+    return this.prisma.product.findMany({
+      where: {
+        name: {
+          contains: productName,
+          mode: 'insensitive',
+        },
+        deletedAt: null,
+      },
+      take: limit,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
 }

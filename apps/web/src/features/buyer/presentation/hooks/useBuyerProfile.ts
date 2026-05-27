@@ -2,15 +2,15 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import type {
   CreateBuyerProfileRequest,
   UpdateBuyerProfileRequest,
-} from '../../domain/entities/buyer_profile.entity';
+} from '../../domain/entities/buyer.entity';
 import { axiosInstance } from '@/core/network/axios.instance';
-import { createBuyerProfilesApi } from '../../data/api/buyer_profile.api';
-import { createBuyerProfileRepository } from '../../data/repositories/buyer_profile.repository.impl';
+import { createBuyerProfilesApi } from '../../data/api/buyer.api';
+import { createBuyerProfileRepository } from '../../data/repositories/buyer.repository.impl';
 import {
   createCreateBuyerProfileUseCase,
   createGetMyBuyerProfileUseCase,
   createUpdateBuyerProfileUseCase,
-} from '../../domain/use-cases/buyer_profile.use-case';
+} from '../../domain/use-cases/buyer.use-case';
 
 const buyerProfilesApi = createBuyerProfilesApi(axiosInstance);
 const buyerProfileRepository = createBuyerProfileRepository(buyerProfilesApi);

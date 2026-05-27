@@ -12,7 +12,19 @@ export const QUERY_KEYS = {
     categoryId,
   ],
   PRODUCTS_DETAIL: (id: string) => ["products", "detail", id],
-  PRODUCTS_SEARCH: (query: string) => ["products", "search", query],
+  PRODUCTS_SEARCH: (query: string, page: number, limit: number) => [
+    "products",
+    "search",
+    query,
+    page,
+    limit,
+  ],
+  PRODUCTS_SIMILAR: (name: string, limit: number) => [
+    "products",
+    "similar",
+    name,
+    limit,
+  ],
 
   // Cart
   CART: ["cart"],

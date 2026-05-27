@@ -22,7 +22,7 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({
   }
 
   if (!user || !allowedRoles.includes(user.role)) {
-    return <Navigate to={ROUTES.GUEST_HOME} replace />;
+    return <Navigate to={ROUTES.HOME_PAGE} replace />;
   }
 
   return <>{children}</>;

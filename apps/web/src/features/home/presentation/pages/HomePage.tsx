@@ -9,6 +9,8 @@ import { Pagination } from "@/shared/components/ui/Pagination";
 import { formatCurrency } from "@/shared/utils";
 import { useCartStore } from "@/core/store";
 import { useToast } from "@/shared/hooks";
+import { useAuthStore } from "@/core/store";
+import { PromoPopup } from "@/features/home/presentation/components/Popup";
 
 const PAGE_SIZE = 8;
 
@@ -42,7 +44,8 @@ const BANNERS = [
   },
 ];
 
-export const GuestHomePage: React.FC = () => {
+export const HomePage: React.FC = () => {
+  const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
   const toast = useToast();
   const { currentPage, onPageChange } = usePagination();
@@ -53,7 +56,6 @@ export const GuestHomePage: React.FC = () => {
 
   const [activeBanner, setActiveBanner] = useState(0);
 
-  // Auto-slide banner
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveBanner((prev) => (prev + 1) % BANNERS.length);
@@ -72,7 +74,7 @@ export const GuestHomePage: React.FC = () => {
       sku: product.sku,
     });
 
-    toast.success(`${product.name} added to cart`);
+    toast.success(`${product.name} đã được thêm vào giỏ hàng!`);
   };
 
   const handleProductClick = (productId: string) => {
@@ -82,8 +84,10 @@ export const GuestHomePage: React.FC = () => {
   const handleCategoryClick = (categoryId: number) => {
     navigate(`/products?category=${categoryId}`);
   };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      <PromoPopup isAuthenticated={isAuthenticated} />
       {/* ── AUTO-SLIDING BANNER ── */}
       <div className="relative mb-10 rounded-2xl overflow-hidden shadow-lg h-64 md:h-80">
         {BANNERS.map((banner, idx) => (
