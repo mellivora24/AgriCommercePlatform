@@ -21,7 +21,7 @@ export const productsApi = {
       { params },
     );
 
-    console.log('Products API Response:', response.data);
+    // console.log('Products API Response:', response.data);
 
     return response.data;
   },
@@ -29,7 +29,7 @@ export const productsApi = {
   getProduct: async (id: string) => {
     const response = await axiosInstance.get(`/products/${id}`);
 
-    console.log('Product API Response:', response.data);
+    // console.log('Product API Response:', response.data);
 
     return response.data;
   },
@@ -48,7 +48,7 @@ export const productsApi = {
       },
     );
 
-    console.log('Search Products API Response:', response.data);
+    // console.log('Search Products API Response:', response.data);
 
     return response.data;
   },

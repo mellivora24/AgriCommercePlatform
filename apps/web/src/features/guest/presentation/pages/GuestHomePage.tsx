@@ -63,14 +63,15 @@ export const GuestHomePage: React.FC = () => {
 
   const handleAddToCart = (product: any) => {
     addItem({
-      productId: product.productId,
-      sellerId: product.sellerId,
+      productId: Number(product.productId),
+      sellerId: Number(product.sellerId),
       name: product.name,
-      price: product.price,
+      price: Number(product.price),
       quantity: 1,
-      image: product.images?.[0]?.imageUrl || "/placeholder.png",
+      image: product.images?.[0]?.imageUrl || '/placeholder.png',
       sku: product.sku,
     });
+
     toast.success(`${product.name} added to cart`);
   };
 

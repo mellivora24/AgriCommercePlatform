@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useCartStore, useAuthStore } from '../../../../core/store';
-import { Button } from '../../../../shared/components/ui/Button';
-import { ROUTES } from '../../../../core/router/routes';
-import { formatCurrency, calcCartTotal } from '../../../../shared/utils';
+import { useCartStore, useAuthStore } from '@/core/store';
+import { Button } from '@/shared/components/ui/Button';
+import { ROUTES } from '@/core/router/routes';
+import { formatCurrency, calcCartTotal } from '@/shared/utils';
 
 export const CartPage: React.FC = () => {
   const navigate = useNavigate();
@@ -31,6 +31,8 @@ export const CartPage: React.FC = () => {
       navigate(ROUTES.CHECKOUT);
     }
   };
+
+  // console.log("Cart items:", items);
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
