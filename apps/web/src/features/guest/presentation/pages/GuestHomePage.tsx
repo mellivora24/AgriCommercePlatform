@@ -78,10 +78,9 @@ export const GuestHomePage: React.FC = () => {
     navigate(`/products/${productId}`);
   };
 
-  const handleCategoryClick = (categoryId: string) => {
-    navigate(`/products?categoryId=${categoryId}`);
+  const handleCategoryClick = (categoryId: number) => {
+    navigate(`/products?category=${categoryId}`);
   };
-
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* ── AUTO-SLIDING BANNER ── */}

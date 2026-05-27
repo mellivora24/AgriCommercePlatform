@@ -10,10 +10,13 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+
 import { JwtAuthGuard } from '@module/auth/guards/jwt-auth.guard';
 import { CurrentUser } from '@common/decorator';
 import { AuthUser } from '@module/auth/types/auth.type';
+
 import { ProductsService } from './products.service';
+
 import {
   CreateProductDto,
   UpdateProductDto,
@@ -34,29 +37,27 @@ export class ProductsController {
   findAll(
     @Query('categoryId') categoryId?: string,
     @Query('sellerId') sellerId?: string,
+    @Query('q') query?: string,
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '20',
   ) {
+    const parsedPage = Number(page) || 1;
+    const parsedLimit = Math.min(Number(limit) || 20, 100);
+
     return this.service.findAll({
-      categoryId: categoryId ? parseInt(categoryId) : undefined,
-      sellerId: sellerId ? parseInt(sellerId) : undefined,
-      page: parseInt(page),
-      limit: parseInt(limit),
+      categoryId: categoryId ? Number(categoryId) : undefined,
+      sellerId: sellerId ? Number(sellerId) : undefined,
+      query,
+      page: parsedPage,
+      limit: parsedLimit,
     });
   }
 
-  @Get('search')
-  search(
-    @Query('q') query: string,
-    @Query('page') page: string = '1',
-    @Query('limit') limit: string = '20',
-  ) {
-    if (!query) return { items: [], total: 0, page: 1, limit: 20 };
-    return this.service.searchProducts(query, parseInt(page), parseInt(limit));
-  }
-
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(
+    @Param('id', ParseIntPipe)
+    id: number,
+  ) {
     return this.service.findOne(id);
   }
 
@@ -64,8 +65,10 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard)
   update(
     @CurrentUser() user: AuthUser,
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateProductDto,
+    @Param('id', ParseIntPipe)
+    id: number,
+    @Body()
+    dto: UpdateProductDto,
   ) {
     return this.service.update(id, user.sellerId!, dto);
   }
@@ -74,8 +77,12 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard)
   updateStatus(
     @CurrentUser() user: AuthUser,
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: { status: 'HIDDEN' | 'AVAILABLE' | 'OUT_OF_STOCK' },
+    @Param('id', ParseIntPipe)
+    id: number,
+    @Body()
+    body: {
+      status: 'HIDDEN' | 'AVAILABLE' | 'OUT_OF_STOCK';
+    },
   ) {
     return this.service.updateStatus(id, user.sellerId!, body.status);
   }
@@ -84,8 +91,10 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard)
   addImage(
     @CurrentUser() user: AuthUser,
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: CreateProductImageDto,
+    @Param('id', ParseIntPipe)
+    id: number,
+    @Body()
+    dto: CreateProductImageDto,
   ) {
     return this.service.addImage(id, user.sellerId!, dto);
   }
@@ -94,14 +103,19 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard)
   removeImage(
     @CurrentUser() user: AuthUser,
-    @Param('imageId', ParseIntPipe) imageId: number,
+    @Param('imageId', ParseIntPipe)
+    imageId: number,
   ) {
     return this.service.removeImage(imageId, user.sellerId!);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  remove(@CurrentUser() user: AuthUser, @Param('id', ParseIntPipe) id: number) {
+  remove(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseIntPipe)
+    id: number,
+  ) {
     return this.service.remove(id, user.sellerId!);
   }
 

@@ -1,5 +1,6 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+
 import { useProducts } from "@/features/products/presentation/hooks/useProducts";
 import { usePagination } from "@/shared/hooks/usePagination";
 import { Button } from "@/shared/components/ui/Button";
@@ -15,7 +16,13 @@ export const ProductsListPage: React.FC = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const { currentPage, onPageChange } = usePagination();
-  const { data, isLoading } = useProducts(currentPage, PAGE_SIZE);
+  const [searchParams] = useSearchParams();
+  const categoryId = searchParams.get("category");
+  const { data, isLoading } = useProducts(
+    currentPage,
+    PAGE_SIZE,
+    categoryId ? Number(categoryId) : undefined,
+  );
   const { addItem } = useCartStore();
   const totalPages = Math.ceil((data?.total || 0) / PAGE_SIZE);
 
