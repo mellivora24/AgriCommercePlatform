@@ -11,6 +11,7 @@ export const Header: React.FC = () => {
   const { isAuthenticated, user, clearAuth } = useAuthStore();
   const totalCount = useCartStore((state) => state.totalCount);
   const navigate = useNavigate();
+  const { clearCart } = useCartStore();
 
   useUIStore();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -54,6 +55,7 @@ export const Header: React.FC = () => {
   const { data: searchData, isLoading: isSearchLoading } = useSearchProducts(debouncedSearch);
 
   const handleLogout = () => {
+    clearCart();
     clearAuth();
     setUserMenuOpen(false);
   };
