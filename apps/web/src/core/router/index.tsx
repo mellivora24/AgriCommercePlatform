@@ -7,7 +7,7 @@ import { RoleGuard } from './guards/role.guard';
 import { AppLayout } from '@/shared/components/layout/AppLayout';
 import { AuthLayout } from '@/shared/components/layout/AuthLayout';
 import { DashboardLayout } from '@/shared/components/layout/DashboardLayout';
-import { ProductsListPage } from '@/features/products/presentation/pages/ProductsListPage';
+import { ProductsListPage, ProductDetailPage } from '@/features/products/presentation/pages';
 import { LoginPage } from '@/features/auth/presentation/pages/LoginPage';
 import { RegisterPage } from '@/features/auth/presentation/pages/RegisterPage';
 import { CartPage } from '@/features/cart/presentation/pages/CartPage';
@@ -22,6 +22,7 @@ export const Router: React.FC = () => (
       <Route element={<AppLayout />}>
         <Route path={ROUTES.HOME} element={<ProductsListPage />} />
         <Route path={ROUTES.PRODUCTS} element={<ProductsListPage />} />
+        <Route path={ROUTES.PRODUCT_DETAIL} element={<ProductDetailPage />} />
         <Route path={ROUTES.CART} element={<CartPage />} />
         <Route path={ROUTES.CHECKOUT} element={<AuthGuard><CheckoutPage /></AuthGuard>} />
         <Route path={ROUTES.ORDERS} element={<AuthGuard><OrdersListPage /></AuthGuard>} />
