@@ -7,7 +7,7 @@ export interface User {
   email: string;
   name: string;
   avatar?: string;
-  role: 'buyer' | 'seller' | 'admin';
+  role: 'BUYER' | 'SELLER' | 'ADMIN';
 }
 
 interface AuthState {
