@@ -1,6 +1,6 @@
 import { IsInt, Min } from 'class-validator';
 
-export class AddToCartDto {
+export class CartDto {
   @IsInt()
   productId!: number;
 
@@ -8,9 +8,8 @@ export class AddToCartDto {
   @Min(1)
   quantity!: number;
 }
-
-export class UpdateCartItemDto {
+export class DeleteCartItemDto {
   @IsInt()
   @Min(1)
-  quantity!: number;
+  itemId!: number;
 }

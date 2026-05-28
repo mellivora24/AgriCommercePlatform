@@ -12,8 +12,8 @@ export const Header: React.FC = () => {
   const totalCount = useCartStore((state) => state.totalCount);
   const navigate = useNavigate();
   const { clearCart } = useCartStore();
+  const { setCartDrawerOpen } = useUIStore();
 
-  useUIStore();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [searchFocused, setSearchFocused] = useState(false);
@@ -205,8 +205,17 @@ export const Header: React.FC = () => {
             {/* Right Actions */}
             <div className="flex flex-shrink-0 items-center gap-2">
 
-              {/* Cart */}
-              <Link to={ROUTES.CART} className="group relative">
+            {/* Cart */}
+              <button
+                onClick={() => {
+                  if (isAuthenticated) {
+                    navigate(ROUTES.CART);
+                  } else {
+                    setCartDrawerOpen(true);
+                  }
+                }}
+                className="group relative"
+              >
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 text-gray-600 transition-all duration-200 hover:border-green-300 hover:bg-green-50 hover:text-green-700">
                   <ShoppingCart className="h-4 w-4" />
                 </div>
@@ -215,7 +224,7 @@ export const Header: React.FC = () => {
                     {totalCount > 99 ? '99+' : totalCount}
                   </span>
                 )}
-              </Link>
+              </button>
 
               {/* Auth */}
               {isAuthenticated ? (

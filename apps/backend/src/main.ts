@@ -11,6 +11,16 @@ async function bootstrap() {
     credentials: true,
   });
 
+  app.useLogger(['log', 'error', 'warn', 'debug', 'verbose']);
+
+  console.log('ENV JWT:', process.env.JWT_SECRET);
+
+  if (!process.env.JWT_SECRET) {
+    console.warn(
+      'Warning: JWT_SECRET is not set. Using default secret. This is not recommended for production.',
+    );
+  }
+
   app.useGlobalInterceptors(new BigIntInterceptor());
 
   await app.listen(3000);

@@ -4,7 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '@app-prisma/prisma.service';
-import { AddToCartDto, UpdateCartItemDto } from './dto';
+import { CartDto } from './dto';
 
 @Injectable()
 export class CartService {
@@ -13,20 +13,67 @@ export class CartService {
   async getOrCreateCart(buyerId: number) {
     let cart = await this.prisma.cart.findUnique({
       where: { buyerId },
-      include: { cartItems: { include: { product: true } } },
+      include: {
+        cartItems: {
+          include: {
+            product: {
+              include: {
+                images: true,
+                seller: { select: { storeName: true } },
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!cart) {
       cart = await this.prisma.cart.create({
         data: { buyerId },
-        include: { cartItems: { include: { product: true } } },
+        include: {
+          cartItems: {
+            include: {
+              product: {
+                include: {
+                  images: true,
+                  seller: { select: { storeName: true } },
+                },
+              },
+            },
+          },
+        },
       });
     }
 
     return cart;
   }
 
-  async addToCart(buyerId: number, dto: AddToCartDto) {
+  // Map về shape mà frontend expect
+  private formatCart(cart: Awaited<ReturnType<typeof this.getOrCreateCart>>) {
+    return {
+      cartId: cart.cartId,
+      items: cart.cartItems.map((item) => ({
+        itemId: item.cartItemId, // ← frontend dùng itemId
+        productId: item.productId,
+        quantity: item.quantity,
+        product: {
+          productId: item.product.productId,
+          name: item.product.name,
+          price: item.product.price,
+          stockQuantity: item.product.stockQuantity,
+          images: item.product.images,
+          seller: item.product.seller,
+        },
+      })),
+    };
+  }
+
+  async getCart(buyerId: number) {
+    const cart = await this.getOrCreateCart(buyerId);
+    return this.formatCart(cart);
+  }
+
+  async addToCart(buyerId: number, dto: CartDto) {
     const product = await this.prisma.product.findUnique({
       where: { productId: dto.productId },
     });
@@ -42,51 +89,49 @@ export class CartService {
     });
 
     if (existingItem) {
-      return this.prisma.cartItem.update({
+      await this.prisma.cartItem.update({
         where: { cartItemId: existingItem.cartItemId },
         data: { quantity: existingItem.quantity + dto.quantity },
-        include: { product: true },
+      });
+    } else {
+      await this.prisma.cartItem.create({
+        data: {
+          cartId: cart.cartId,
+          productId: dto.productId,
+          quantity: dto.quantity,
+        },
       });
     }
 
-    return this.prisma.cartItem.create({
-      data: {
-        cartId: cart.cartId,
-        productId: dto.productId,
-        quantity: dto.quantity,
-      },
-      include: { product: true },
-    });
+    const updated = await this.getOrCreateCart(buyerId);
+    return this.formatCart(updated);
   }
 
-  async getCart(buyerId: number) {
-    return this.getOrCreateCart(buyerId);
-  }
+  async updateCartItem(buyerId: number, dto: CartDto) {
+    // dto.productId ở đây thực ra là productId, tìm item qua cartId + productId
+    const cart = await this.getOrCreateCart(buyerId);
 
-  async updateCartItem(
-    buyerId: number,
-    itemId: number,
-    dto: UpdateCartItemDto,
-  ) {
     const item = await this.prisma.cartItem.findUnique({
-      where: { cartItemId: itemId },
-      include: { cart: true },
+      where: {
+        cartId_productId: { cartId: cart.cartId, productId: dto.productId },
+      },
     });
 
-    if (!item || item.cart.buyerId !== buyerId)
-      throw new NotFoundException('Không tìm thấy mục');
+    if (!item) throw new NotFoundException('Không tìm thấy mục');
 
     if (dto.quantity <= 0) {
-      return this.prisma.cartItem.delete({
-        where: { cartItemId: itemId },
+      await this.prisma.cartItem.delete({
+        where: { cartItemId: item.cartItemId },
+      });
+    } else {
+      await this.prisma.cartItem.update({
+        where: { cartItemId: item.cartItemId },
+        data: { quantity: dto.quantity },
       });
     }
 
-    return this.prisma.cartItem.update({
-      where: { cartItemId: itemId },
-      data: { quantity: dto.quantity },
-      include: { product: true },
-    });
+    const updated = await this.getOrCreateCart(buyerId);
+    return this.formatCart(updated);
   }
 
   async removeFromCart(buyerId: number, itemId: number) {
@@ -98,9 +143,12 @@ export class CartService {
     if (!item || item.cart.buyerId !== buyerId)
       throw new NotFoundException('Không tìm thấy mục');
 
-    return this.prisma.cartItem.delete({
+    await this.prisma.cartItem.delete({
       where: { cartItemId: itemId },
     });
+
+    const updated = await this.getOrCreateCart(buyerId);
+    return this.formatCart(updated);
   }
 
   async clearCart(buyerId: number) {
@@ -114,18 +162,11 @@ export class CartService {
   async getCartTotal(buyerId: number) {
     const cart = await this.getOrCreateCart(buyerId);
     const items = cart.cartItems || [];
-
-    let total = 0;
-    items.forEach((item) => {
-      total += Number(item.product.price) * item.quantity;
-    });
-
-    return {
-      cartId: cart.cartId,
-      itemCount: items.length,
-      total,
-      items,
-    };
+    const total = items.reduce(
+      (sum, item) => sum + Number(item.product.price) * item.quantity,
+      0,
+    );
+    return { cartId: cart.cartId, itemCount: items.length, total };
   }
 
   async getProductForCart(productId: number) {
@@ -133,13 +174,8 @@ export class CartService {
       where: { productId },
       include: { images: true, seller: { select: { storeName: true } } },
     });
-
     if (!product || product.status !== 'AVAILABLE')
       throw new BadRequestException('Sản phẩm không sẵn có');
-
-    return {
-      product,
-      message: 'Sản phẩm sẵn có. Vui lòng đăng nhập để thêm vào giỏ hàng hoặc tiếp tục mua hàng với guest',
-    };
+    return { product, message: 'Vui lòng đăng nhập để thêm vào giỏ hàng' };
   }
 }
