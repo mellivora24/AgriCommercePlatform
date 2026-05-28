@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { QUERY_KEYS } from '../../../../core/constants';
-import { productsApi } from '../../data/api/products.api';
+import { QUERY_KEYS } from '@/core/constants';
+import { productsApi } from '@/features/products/data/api/products.api';
 
 export const useProducts = (
   page: number = 1,

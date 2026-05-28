@@ -31,6 +31,7 @@ export class CartController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   async addToCart(@Request() req: any, @Body() dto: CartDto) {
     const user: AuthUser | undefined = req.user;
     if (!user) {

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { useCartStore } from "@/core/store/cart.store";
 
 export interface User {
   id: string;
@@ -18,16 +19,9 @@ interface AuthState {
   isLoading: boolean;
   isHydrated: boolean;
 
-  setAuth: (
-    accessToken: string,
-    refreshToken: string,
-    user: User,
-  ) => void;
-
+  setAuth: (accessToken: string, refreshToken: string, user: User) => Promise<void>;
   clearAuth: () => void;
-
   setUser: (user: User) => void;
-
   setHydrated: (hydrated: boolean) => void;
 }
 
@@ -42,13 +36,12 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       isHydrated: false,
 
-      setAuth: (accessToken, refreshToken, user) => {
-        set({
-          accessToken,
-          refreshToken,
-          user,
-          isAuthenticated: true,
-        });
+      setAuth: async (accessToken, refreshToken, user) => {
+        set({ accessToken, refreshToken, user, isAuthenticated: true });
+        const cart = useCartStore.getState();
+        cart.setIsGuest(false);
+        await cart.mergeGuestCart();
+        await cart.fetchFromServer();
       },
 
       clearAuth: () => {
@@ -58,15 +51,14 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           isAuthenticated: false,
         });
+        const cart = useCartStore.getState();
+        cart.clearCart();
+        cart.setIsGuest(true);
       },
 
-      setUser: (user) => {
-        set({ user });
-      },
+      setUser: (user) => set({ user }),
 
-      setHydrated: (hydrated) => {
-        set({ isHydrated: hydrated });
-      },
+      setHydrated: (hydrated) => set({ isHydrated: hydrated }),
     }),
     {
       name: "auth-store",
@@ -80,6 +72,11 @@ export const useAuthStore = create<AuthState>()(
 
       onRehydrateStorage: () => (state) => {
         state?.setHydrated(true);
+        if (state?.isAuthenticated) {
+          const cart = useCartStore.getState();
+          cart.setIsGuest(false);
+          cart.fetchFromServer();
+        }
       },
     },
   ),

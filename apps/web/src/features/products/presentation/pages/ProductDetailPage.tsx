@@ -29,8 +29,8 @@ export const ProductDetailPage: React.FC = () => {
     const price = typeof product.price === 'string' ? parseInt(product.price) : product.price;
 
     addItem({
-      productId: product.productId.toString(),
-      sellerId: product.sellerId.toString(),
+      productId: product.productId,
+      sellerId: product.sellerId,
       name: product.name,
       price,
       quantity,

@@ -1,23 +1,31 @@
-import { axiosInstance } from "@/core/network";
-import type { CartDto, DeleteCartItemDto } from "@/features/cart/data/dtos/cart.dto";
+import type {
+  CartDto,
+  DeleteCartItemDto,
+} from "@/features/cart/data/dtos/cart.dto";
+import type { CartResponse } from "@/core/store/cart.store";
 
 export const cartApi = {
-    addToCart: async (data: CartDto) => {
-        const response = await axiosInstance.post('/cart', data);
-        return response.data;
-    },
+  getCartItems: async (): Promise<CartResponse> => {
+    const { axiosInstance } = await import("@/core/network");
+    const response = await axiosInstance.get("/cart");
+    return response.data;
+  },
 
-    updateCartItem: async (data: CartDto) => {
-        const response = await axiosInstance.put(`/cart`, data);
-        return response.data;
-    },
+  addToCart: async (data: CartDto): Promise<CartResponse> => {
+    const { axiosInstance } = await import("@/core/network");
+    const response = await axiosInstance.post("/cart", data);
+    return response.data;
+  },
 
-    removeFromCart: async (data: DeleteCartItemDto) => {
-        await axiosInstance.delete(`/cart/items`, { data });
-    },
+  updateCartItem: async (data: CartDto): Promise<CartResponse> => {
+    const { axiosInstance } = await import("@/core/network");
+    const response = await axiosInstance.put("/cart", data);
+    return response.data;
+  },
 
-    getCartItems: async () => {
-        const response = await axiosInstance.get('/cart');
-        return response.data;
-    },
+  removeFromCart: async (data: DeleteCartItemDto): Promise<CartResponse> => {
+    const { axiosInstance } = await import("@/core/network");
+    const response = await axiosInstance.delete("/cart/items", { data });
+    return response.data;
+  },
 };
