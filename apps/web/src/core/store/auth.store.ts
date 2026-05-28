@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useCartStore } from "@/core/store/cart.store";
+import { getQueryClient } from "@/core/query/queryClient";
 
 export interface User {
   id: string;
@@ -14,7 +15,6 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   user: User | null;
-
   isAuthenticated: boolean;
   isLoading: boolean;
   isHydrated: boolean;
@@ -31,7 +31,6 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       refreshToken: null,
       user: null,
-
       isAuthenticated: false,
       isLoading: false,
       isHydrated: false,
@@ -41,7 +40,7 @@ export const useAuthStore = create<AuthState>()(
         const cart = useCartStore.getState();
         cart.setIsGuest(false);
         await cart.mergeGuestCart();
-        await cart.fetchFromServer();
+        getQueryClient().invalidateQueries({ queryKey: ['cart'] });
       },
 
       clearAuth: () => {
@@ -54,6 +53,7 @@ export const useAuthStore = create<AuthState>()(
         const cart = useCartStore.getState();
         cart.clearCart();
         cart.setIsGuest(true);
+        getQueryClient().removeQueries({ queryKey: ['cart'] });
       },
 
       setUser: (user) => set({ user }),
@@ -62,20 +62,17 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-store",
-
       partialize: (state) => ({
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
         user: state.user,
         isAuthenticated: state.isAuthenticated,
       }),
-
       onRehydrateStorage: () => (state) => {
         state?.setHydrated(true);
         if (state?.isAuthenticated) {
           const cart = useCartStore.getState();
           cart.setIsGuest(false);
-          cart.fetchFromServer();
         }
       },
     },

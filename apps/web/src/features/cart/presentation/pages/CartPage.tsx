@@ -159,7 +159,6 @@ const EmptyCart: React.FC = () => {
   );
 };
 
-// ─── CartPage ─────────────────────────────────────────────────────────────────
 export const CartPage: React.FC = () => {
   const navigate = useNavigate();
   const { data, isLoading, isError } = useGetCart();

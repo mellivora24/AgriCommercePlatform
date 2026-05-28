@@ -13,6 +13,9 @@ export const useGetCart = () => {
     queryKey: CART_KEY,
     queryFn: cartApi.getCartItems,
     enabled: isHydrated && isAuthenticated,
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
   });
 };
 
