@@ -1,61 +1,99 @@
+export type OrderStatus =
+  | 'PENDING_PAYMENT'
+  | 'SELLER_CONFIRMED'
+  | 'SHIPPING'
+  | 'DELIVERED'
+  | 'COMPLETED'
+  | 'CANCELLED'
+  | 'RETURNED';
+export type PaymentStatus =
+  | 'PENDING'
+  | 'WAITING_COD_COLLECTION'
+  | 'COMPLETED'
+  | 'FAILED'
+  | 'REFUNDED';
+export type PaymentMethod = 'COD' | 'BANK_TRANSFER' | 'VNPAY' | 'MOMO';
+
 export interface OrderItem {
-  productId: string;
-  sellerId: string;
-  name: string;
-  price: number;
+  orderItemId: number;
+  productId: number;
   quantity: number;
-  image: string;
-  sku: string;
+  unitPrice: number;
+  product: {
+    productId: number;
+    name: string;
+    description: string;
+    price: number;
+    sellerId: number;
+    images?: { imageUrl: string }[];
+  };
 }
 
-export interface ShippingAddress {
-  id: string;
-  fullName: string;
-  phone: string;
-  email: string;
-  street: string;
-  ward: string;
-  district: string;
-  province: string;
-  country: string;
-  postalCode: string;
-  isDefault: boolean;
+export interface ShippingInfo {
+  shippingAddress: string;
+  receiverName: string;
+  receiverPhone: string;
 }
 
-export type OrderStatus = 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled' | 'returned';
-export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded';
-export type PaymentMethod = 'credit_card' | 'debit_card' | 'bank_transfer' | 'wallet';
-
-export interface Order {
-  id: string;
-  userId: string;
-  orderNumber: string;
-  items: OrderItem[];
-  shippingAddress: ShippingAddress;
-  paymentMethod: PaymentMethod;
-  subtotal: number;
-  shippingFee: number;
-  tax: number;
-  total: number;
-  status: OrderStatus;
-  paymentStatus: PaymentStatus;
-  notes?: string;
+export interface Shipment {
+  shipmentId: number;
+  shipperId: number | null;
+  trackingCode: string | null;
+  status: ShipmentStatus;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface OrderListResponse {
-  items: Order[];
-  total: number;
-  page: number;
-  limit: number;
+export type ShipmentStatus =
+  | 'ASSIGNED'
+  | 'PICKED_UP'
+  | 'IN_TRANSIT'
+  | 'DELIVERED'
+  | 'FAILED';
+
+export interface Payment {
+  paymentId: number;
+  method: PaymentMethod;
+  status: PaymentStatus;
+  amount: number;
+  transactionId: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
+export interface Order {
+  orderId: number;
+  buyerId: number;
+  sellerId: number;
+  totalAmount: number;
+  platformFee: number;
+  sellerAmount: number;
+  shippingFee: number;
+  shippingAddress: string;
+  receiverName: string;
+  receiverPhone: string;
+  status: OrderStatus;
+  createdAt: string;
+  updatedAt: string;
+  orderItems: OrderItem[];
+  shipment: Shipment | null;
+  payments: Payment[];
+  buyer?: {
+    buyerId: number;
+    fullName: string;
+    avatarUrl: string | null;
+  };
+  seller?: {
+    sellerId: number;
+    storeName: string;
+  };
+}
+
+export type OrderListResponse = Order[];
 export interface CreateOrderRequest {
-  items: OrderItem[];
-  shippingAddressId: string;
-  paymentMethod: PaymentMethod;
-  notes?: string;
+  shippingAddress: string;
+  receiverName: string;
+  receiverPhone: string;
 }
 
 export interface UpdateOrderStatusRequest {

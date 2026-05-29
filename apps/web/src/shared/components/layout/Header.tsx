@@ -114,7 +114,7 @@ export const Header: React.FC = () => {
   };
 
   const handleOrders = () => {
-    console.log("Đơn hàng của tôi");
+    navigate(ROUTES.ORDERS);
     setUserMenuOpen(false);
   };
 

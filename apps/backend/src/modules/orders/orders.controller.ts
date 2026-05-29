@@ -18,6 +18,12 @@ import { CreateOrderDto, UpdateOrderStatusDto } from './dto';
 export class OrdersController {
   constructor(private readonly service: OrdersService) {}
 
+  @Get('seller/me')
+  @UseGuards(JwtAuthGuard)
+  getSellerOrders(@CurrentUser() user: AuthUser) {
+    return this.service.getOrdersBySeller(user.sellerId!);
+  }
+
   @Post()
   @UseGuards(JwtAuthGuard)
   createOrder(@CurrentUser() user: AuthUser, @Body() dto: CreateOrderDto) {
@@ -34,12 +40,6 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard)
   getBuyerOrders(@CurrentUser() user: AuthUser) {
     return this.service.getOrdersByBuyer(user.buyerId!);
-  }
-
-  @Get('seller/me')
-  @UseGuards(JwtAuthGuard)
-  getSellerOrders(@CurrentUser() user: AuthUser) {
-    return this.service.getOrdersBySeller(user.sellerId!);
   }
 
   @Get('seller/stats')

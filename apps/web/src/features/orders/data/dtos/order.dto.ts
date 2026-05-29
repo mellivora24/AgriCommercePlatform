@@ -1,55 +1,82 @@
-import type { Order, OrderListResponse, PaymentMethod, OrderStatus } from '../../domain/entities/order.entity';
+import type {
+  OrderStatus,
+  PaymentStatus,
+  PaymentMethod,
+  ShipmentStatus,
+} from "@/features/orders/domain/entities/order.entity";
 
 export interface OrderItemDTO {
-  productId: string;
-  sellerId: string;
-  name: string;
-  price: number;
+  orderItemId: number;
+  orderId: number;
+  productId: number;
   quantity: number;
-  image: string;
-  sku: string;
+  unitPrice: number;
+  product: {
+    productId: number;
+    name: string;
+    description: string;
+    price: number;
+    sellerId: number;
+    images?: { imageUrl: string }[];
+  };
 }
 
-export interface ShippingAddressDTO {
-  id: string;
-  fullName: string;
-  phone: string;
-  email: string;
-  street: string;
-  ward: string;
-  district: string;
-  province: string;
-  country: string;
-  postalCode: string;
-  isDefault: boolean;
-}
-
-export interface OrderDTO extends Order {
-  id: string;
-  userId: string;
-  orderNumber: string;
-  items: OrderItemDTO[];
-  shippingAddress: ShippingAddressDTO;
-  paymentMethod: PaymentMethod;
-  subtotal: number;
-  shippingFee: number;
-  tax: number;
-  total: number;
-  status: OrderStatus;
-  paymentStatus: 'pending' | 'completed' | 'failed' | 'refunded';
+export interface ShipmentDTO {
+  shipmentId: number;
+  orderId: number;
+  shipperId: number | null;
+  trackingCode: string | null;
+  status: ShipmentStatus;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface OrderListResponseDTO extends OrderListResponse {
-  items: OrderDTO[];
+export interface PaymentDTO {
+  paymentId: number;
+  orderId: number;
+  method: PaymentMethod;
+  status: PaymentStatus;
+  amount: number;
+  transactionId: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
+export interface OrderDTO {
+  orderId: number;
+  buyerId: number;
+  sellerId: number;
+  totalAmount: number;
+  platformFee: number;
+  sellerAmount: number;
+  shippingFee: number;
+  shippingAddress: string;
+  receiverName: string;
+  receiverPhone: string;
+  status: OrderStatus;
+  createdAt: string;
+  updatedAt: string;
+  orderItems: OrderItemDTO[];
+  shipment: ShipmentDTO | null;
+  payments: PaymentDTO[];
+  buyer?: {
+    buyerId: number;
+    fullName: string;
+    avatarUrl: string | null;
+  };
+  seller?: {
+    sellerId: number;
+    storeName: string;
+  };
+}
+
+export type CreateOrderResponseDTO = OrderDTO[];
+export type OrderListResponseDTO = OrderDTO[];
+
 export interface CreateOrderRequestDTO {
-  items: OrderItemDTO[];
-  shippingAddressId: string;
-  paymentMethod: PaymentMethod;
-  notes?: string;
+  shippingAddress: string;
+  receiverName: string;
+  receiverPhone: string;
 }
 
 export interface UpdateOrderStatusRequestDTO {

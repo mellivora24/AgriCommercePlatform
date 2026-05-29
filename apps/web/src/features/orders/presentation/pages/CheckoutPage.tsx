@@ -1,82 +1,112 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import type { PaymentMethod } from '../../domain/entities/order.entity';
-import { useCreateOrder } from '../hooks/useOrders';
-import { useCartStore } from '@/core/store/cart.store';
-import { useAuthStore } from '@/core/store/auth.store';
-import { Button } from '@/shared/components/ui/Button';
-import { Input } from '@/shared/components/ui/Input';
-import { useToast } from '@/shared/hooks/useToast';
-import { ROUTES } from '@/core/router/routes';
-import { formatCurrency } from '@/shared/utils/format';
+import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { useAuthStore } from "@/core/store/auth.store";
+import { Button } from "@/shared/components/ui/Button";
+import { Input } from "@/shared/components/ui/Input";
+import { useToast } from "@/shared/hooks/useToast";
+import { ROUTES } from "@/core/router/routes";
+import { formatCurrency } from "@/shared/utils/format";
+import { useCreateOrder } from "@/features/orders/presentation/hooks/useOrders";
+import { useGetCart } from "@/features/cart/presentation/hooks/useCart";
 
 export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
-  const { items, clearCart } = useCartStore();
-  const { user } = useAuthStore();
   const toast = useToast();
+  const { user } = useAuthStore();
+
+  // console.log("Cart items:", rawCartItems);
+  const { data: cartData, isLoading } = useGetCart();
+  const cartItems = cartData?.items ?? [];
   const { mutate: createOrder, isPending } = useCreateOrder();
 
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('credit_card');
-  const [shippingAddressId, setShippingAddressId] = useState('');
-  const [notes, setNotes] = useState('');
+  const [shippingAddress, setShippingAddress] = useState("");
+  const [receiverName, setReceiverName] = useState("");
+  const [receiverPhone, setReceiverPhone] = useState("");
+
+  const subtotal = useMemo(
+    () =>
+      cartItems.reduce(
+        (sum, item) => sum + Number(item.product.price) * item.quantity,
+        0,
+      ),
+    [cartItems],
+  );
+
+  const shippingFee = 0;
+  const estimatedTotal = subtotal + shippingFee;
 
   if (!user) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <p className="mb-4">You must be logged in to checkout</p>
-          <Button onClick={() => navigate(ROUTES.LOGIN)}>Login to Continue</Button>
+        <div className="text-center py-16">
+          <p className="text-lg font-medium mb-4">
+            Bạn cần đăng nhập để thanh toán
+          </p>
+          <Button onClick={() => navigate(ROUTES.LOGIN)}>Đăng nhập</Button>
         </div>
       </div>
     );
   }
 
-  if (items.length === 0) {
+  if (isLoading) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <p className="mb-4">Your cart is empty</p>
-          <Button onClick={() => navigate(ROUTES.PRODUCTS)}>Continue Shopping</Button>
+        <div className="text-center py-16">
+          <p className="text-lg font-medium">Đang tải...</p>
         </div>
       </div>
     );
   }
 
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shippingFee = 30000;
-  const tax = Math.round(subtotal * 0.1);
-  const total = subtotal + shippingFee + tax;
+  if (cartItems.length === 0) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="text-center py-16">
+          <p className="text-lg font-medium mb-4">
+            Giỏ hàng của bạn đang trống
+          </p>
+          <Button onClick={() => navigate(ROUTES.PRODUCTS)}>
+            Tiếp tục mua sắm
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const handleCheckout = () => {
-    if (!shippingAddressId) {
-      toast.error('Please select a shipping address');
+    if (!receiverName.trim()) {
+      toast.error("Vui lòng nhập tên người nhận");
+      return;
+    }
+    if (!receiverPhone.trim()) {
+      toast.error("Vui lòng nhập số điện thoại");
+      return;
+    }
+    if (!shippingAddress.trim()) {
+      toast.error("Vui lòng nhập địa chỉ giao hàng");
       return;
     }
 
     createOrder(
       {
-        items: items.map(item => ({
-          productId: item.productId,
-          sellerId: item.sellerId,
-          name: item.name,
-          price: item.price,
-          quantity: item.quantity,
-          image: item.image || '',
-          sku: item.sku || '',
-        })),
-        shippingAddressId,
-        paymentMethod,
-        notes,
+        receiverName: receiverName.trim(),
+        receiverPhone: receiverPhone.trim(),
+        shippingAddress: shippingAddress.trim(),
       },
       {
-        onSuccess: order => {
-          clearCart();
-          toast.success('Order created successfully');
-          navigate(`${ROUTES.ORDERS}/${order.id}`);
+        onSuccess: (orders) => {
+          toast.success("Đặt hàng thành công");
+          if (orders?.length > 0) {
+            navigate(`${ROUTES.ORDERS}/${orders[0].orderId}`);
+            return;
+          }
+          navigate(ROUTES.ORDERS);
         },
-        onError: error => {
-          toast.error(error instanceof Error ? error.message : 'Failed to create order');
+        onError: (error) => {
+          toast.error(
+            error instanceof Error ? error.message : "Không thể tạo đơn hàng",
+          );
         },
       },
     );
@@ -84,109 +114,141 @@ export const CheckoutPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+      <h1 className="text-3xl font-bold mb-8">Thanh toán</h1>
 
-      <div className="grid grid-cols-3 gap-8">
-        {/* Checkout Form */}
-        <div className="col-span-2 space-y-8">
-          {/* Shipping Address */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left column */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Shipping info */}
           <div className="border rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Shipping Address</h2>
-            <Input
-              label="Shipping Address ID"
-              value={shippingAddressId}
-              onChange={e => setShippingAddressId(e.target.value)}
-              placeholder="Enter or select a shipping address"
-            />
-            <p className="text-sm text-gray-500 mt-2">(TODO: Integrate address book from buyer profile)</p>
+            <h2 className="text-xl font-semibold mb-5">Thông tin nhận hàng</h2>
+            <div className="space-y-4">
+              <Input
+                label="Tên người nhận"
+                value={receiverName}
+                onChange={(e) => setReceiverName(e.target.value)}
+                placeholder="Nhập họ tên"
+              />
+              <Input
+                label="Số điện thoại"
+                value={receiverPhone}
+                onChange={(e) => setReceiverPhone(e.target.value)}
+                placeholder="Nhập số điện thoại"
+              />
+              <Input
+                label="Địa chỉ giao hàng"
+                value={shippingAddress}
+                onChange={(e) => setShippingAddress(e.target.value)}
+                placeholder="Nhập địa chỉ giao hàng"
+              />
+            </div>
           </div>
 
-          {/* Order Items */}
+          {/* Order items */}
           <div className="border rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Order Items</h2>
+            <h2 className="text-xl font-semibold mb-5">Sản phẩm đặt mua</h2>
             <div className="space-y-4">
-              {items.map(item => (
-                <div key={`${item.productId}-${item.sellerId}`} className="flex gap-4 pb-4 border-b">
-                  <img src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold">{item.name}</h3>
-                    <p className="text-sm text-gray-500">SKU: {item.sku}</p>
-                    <p className="text-sm">Qty: {item.quantity}</p>
+              {cartItems.map((item) => (
+                <div
+                  key={`${item.productId}-${item.product.sellerId}`}
+                  className="flex gap-4 pb-4 border-b last:border-b-0"
+                >
+                  <img
+                    src={
+                      item.product.images?.[0]?.imageUrl ?? "/placeholder.png"
+                    }
+                    alt={item.product.name}
+                    className="w-20 h-20 rounded object-cover"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold truncate">
+                      {item.product.name}
+                    </h3>
+                    <p className="text-sm text-gray-500 mt-1">
+                      SKU: {item.productId}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Số lượng: {item.quantity}
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold">{formatCurrency(item.price * item.quantity)}</p>
-                    <p className="text-sm text-gray-500">{formatCurrency(item.price)} each</p>
+                    <p className="font-semibold text-red-600">
+                      {formatCurrency(
+                        Number(item.product.price) * item.quantity,
+                      )}
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {formatCurrency(Number(item.product.price))}/sp
+                    </p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Payment Method */}
+          {/* Payment method */}
           <div className="border rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Payment Method</h2>
-            <div className="space-y-3">
-              {(['credit_card', 'debit_card', 'bank_transfer', 'wallet'] as const).map(method => (
-                <label key={method} className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value={method}
-                    checked={paymentMethod === method}
-                    onChange={e => setPaymentMethod(e.target.value as PaymentMethod)}
-                    className="w-4 h-4"
-                  />
-                  <span className="capitalize">{method.replace('_', ' ')}</span>
-                </label>
-              ))}
+            <h2 className="text-xl font-semibold mb-5">
+              Phương thức thanh toán
+            </h2>
+            <div className="flex items-center gap-3">
+              <input
+                id="cod"
+                type="radio"
+                name="payment-method"
+                value="COD"
+                defaultChecked
+                className="w-4 h-4"
+              />
+              <label htmlFor="cod" className="cursor-pointer">
+                Thanh toán khi nhận hàng (COD)
+              </label>
             </div>
-          </div>
-
-          {/* Notes */}
-          <div className="border rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Order Notes</h2>
-            <textarea
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              placeholder="Add any special instructions or notes (optional)"
-              className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-              rows={4}
-            />
+            <p className="text-sm text-gray-500 mt-3">
+              Hệ thống hiện đang hỗ trợ thanh toán COD.
+            </p>
           </div>
         </div>
 
-        {/* Order Summary */}
-        <div className="border rounded-lg p-6 h-fit sticky top-4">
-          <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-          <div className="space-y-3 mb-4">
+        {/* Right column — Order summary */}
+        <div className="border rounded-lg p-6 h-fit sticky top-24">
+          <h2 className="text-xl font-semibold mb-5">Tóm tắt đơn hàng</h2>
+          <div className="space-y-3 mb-5">
             <div className="flex justify-between">
-              <span>Subtotal</span>
+              <span>Tạm tính</span>
               <span>{formatCurrency(subtotal)}</span>
             </div>
             <div className="flex justify-between">
-              <span>Shipping</span>
-              <span>{formatCurrency(shippingFee)}</span>
+              <span>Phí vận chuyển</span>
+              <span>
+                {shippingFee === 0 ? "Miễn phí" : formatCurrency(shippingFee)}
+              </span>
             </div>
-            <div className="flex justify-between">
-              <span>Tax</span>
-              <span>{formatCurrency(tax)}</span>
-            </div>
-            <div className="border-t pt-3 flex justify-between font-bold text-lg">
-              <span>Total</span>
-              <span className="text-red-600">{formatCurrency(total)}</span>
+            <div className="border-t pt-4 flex justify-between text-lg font-bold">
+              <span>Tổng cộng</span>
+              <span className="text-red-600">
+                {formatCurrency(estimatedTotal)}
+              </span>
             </div>
           </div>
-          <Button onClick={handleCheckout} disabled={isPending} className="w-full" variant="primary" size="lg">
-            {isPending ? 'Processing...' : 'Place Order'}
-          </Button>
+
           <Button
-            onClick={() => navigate(ROUTES.CART)}
+            onClick={handleCheckout}
             disabled={isPending}
-            className="w-full mt-2"
-            variant="ghost"
+            className="w-full"
             size="lg"
           >
-            Back to Cart
+            {isPending ? "Đang xử lý..." : "Đặt hàng"}
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="lg"
+            className="w-full mt-3"
+            disabled={isPending}
+            onClick={() => navigate(ROUTES.CART)}
+          >
+            Quay lại giỏ hàng
           </Button>
         </div>
       </div>
