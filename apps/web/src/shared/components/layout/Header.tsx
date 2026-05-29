@@ -9,8 +9,6 @@ import {
   User,
   Settings,
   CreditCard,
-  Store,
-  Trash2,
   Package,
 } from "lucide-react";
 
@@ -115,11 +113,6 @@ export const Header: React.FC = () => {
     setUserMenuOpen(false);
   };
 
-  const handleBecomesSeller = () => {
-    console.log("Đăng ký trở thành người bán");
-    setUserMenuOpen(false);
-  };
-
   const handleOrders = () => {
     console.log("Đơn hàng của tôi");
     setUserMenuOpen(false);
@@ -127,11 +120,6 @@ export const Header: React.FC = () => {
 
   const handlePaymentSettings = () => {
     console.log("Cài đặt thanh toán");
-    setUserMenuOpen(false);
-  };
-
-  const handleDeleteAccount = () => {
-    console.log("Xóa tài khoản");
     setUserMenuOpen(false);
   };
 
@@ -353,13 +341,6 @@ export const Header: React.FC = () => {
                           <Package className="h-4 w-4 flex-shrink-0 text-gray-400" />
                           Đơn hàng của tôi
                         </button>
-                        <button
-                          onClick={handleBecomesSeller}
-                          className="flex w-full items-center gap-2.5 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-green-50 hover:text-green-700"
-                        >
-                          <Store className="h-4 w-4 flex-shrink-0 text-gray-400" />
-                          Đăng ký bán hàng
-                        </button>
                       </div>
 
                       {/* Settings section */}
@@ -373,13 +354,6 @@ export const Header: React.FC = () => {
                         >
                           <CreditCard className="h-4 w-4 flex-shrink-0 text-gray-400" />
                           Cài đặt thanh toán
-                        </button>
-                        <button
-                          onClick={handleDeleteAccount}
-                          className="flex w-full items-center gap-2.5 px-4 py-2 text-sm text-red-500 transition-colors hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4 flex-shrink-0" />
-                          Xóa tài khoản
                         </button>
                       </div>
 

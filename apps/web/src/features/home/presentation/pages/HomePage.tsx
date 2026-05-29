@@ -53,15 +53,22 @@ export const HomePage: React.FC = () => {
   const { data: categoriesData, isLoading: isCategoriesLoading } = useListCategories();
   const { addItem } = useCartStore();
   const totalPages = Math.ceil((data?.total || 0) / PAGE_SIZE);
+  const { user } = useAuthStore();
 
   const [activeBanner, setActiveBanner] = useState(0);
 
   useEffect(() => {
+    if (user?.role === "SELLER") {
+      navigate("/seller/dashboard");
+    } else if (user?.role === "ADMIN") {
+      navigate("/admin/dashboard");
+    }
+    
     const timer = setInterval(() => {
       setActiveBanner((prev) => (prev + 1) % BANNERS.length);
     }, 4000);
     return () => clearInterval(timer);
-  }, []);
+  }, [navigate, user]);
 
   const handleAddToCart = (product: any) => {
     addItem({
