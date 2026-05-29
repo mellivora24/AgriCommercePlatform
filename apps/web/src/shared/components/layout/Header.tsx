@@ -1,12 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Search, LogOut, ChevronDown, Leaf } from 'lucide-react';
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  ShoppingCart,
+  Search,
+  LogOut,
+  ChevronDown,
+  Leaf,
+  User,
+  Settings,
+  CreditCard,
+  Store,
+  Trash2,
+  Package,
+} from "lucide-react";
 
-import { ROUTES } from '@/core/router/routes';
-import { useAuthStore, useCartStore, useUIStore } from '@/core/store';
-import { useSearchProducts } from '@/features/products/presentation/hooks/useProducts';
-import { useGetCart } from '@/features/cart/presentation/hooks/useCart';
-import { formatCurrency } from '@/shared/utils';
+import { ROUTES } from "@/core/router/routes";
+import { useAuthStore, useCartStore, useUIStore } from "@/core/store";
+import { useSearchProducts } from "@/features/products/presentation/hooks/useProducts";
+import { useGetCart } from "@/features/cart/presentation/hooks/useCart";
+import { formatCurrency } from "@/shared/utils";
 
 export const Header: React.FC = () => {
   const { isAuthenticated, user, clearAuth } = useAuthStore();
@@ -26,6 +38,7 @@ export const Header: React.FC = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const searchRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
 
   // Reset search on route change
@@ -51,6 +64,12 @@ export const Header: React.FC = () => {
     const handleClickOutside = (e: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
         setSearchFocused(false);
+      }
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(e.target as Node)
+      ) {
+        setUserMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -83,6 +102,37 @@ export const Header: React.FC = () => {
     setSearch("");
     setDebouncedSearch("");
     setSearchFocused(false);
+  };
+
+  // Handlers chưa có router — placeholder
+  const handleViewProfile = () => {
+    console.log("Xem hồ sơ");
+    setUserMenuOpen(false);
+  };
+
+  const handleEditProfile = () => {
+    console.log("Chỉnh sửa hồ sơ");
+    setUserMenuOpen(false);
+  };
+
+  const handleBecomesSeller = () => {
+    console.log("Đăng ký trở thành người bán");
+    setUserMenuOpen(false);
+  };
+
+  const handleOrders = () => {
+    console.log("Đơn hàng của tôi");
+    setUserMenuOpen(false);
+  };
+
+  const handlePaymentSettings = () => {
+    console.log("Cài đặt thanh toán");
+    setUserMenuOpen(false);
+  };
+
+  const handleDeleteAccount = () => {
+    console.log("Xóa tài khoản");
+    setUserMenuOpen(false);
   };
 
   const showDropdown = searchFocused && debouncedSearch.length > 0;
@@ -244,7 +294,7 @@ export const Header: React.FC = () => {
 
               {/* Auth */}
               {isAuthenticated ? (
-                <div className="relative">
+                <div className="relative" ref={userMenuRef}>
                   <button
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
                     className="flex items-center gap-2 rounded-xl border border-gray-200 px-3 py-1.5 text-sm text-gray-700 transition-all duration-200 hover:border-green-300 hover:bg-green-50"
@@ -261,23 +311,88 @@ export const Header: React.FC = () => {
                   </button>
 
                   {userMenuOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-48 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xl shadow-gray-200/60">
-                      <div className="border-b border-gray-50 px-4 py-3">
-                        <p className="text-xs text-gray-400">
-                          Đã đăng nhập với
-                        </p>
-                        <p className="truncate text-sm font-semibold text-gray-800">
-                          {user?.name}
-                        </p>
-                        <p className="text-xs text-gray-400">Tài khoản</p>
+                    <div className="absolute right-0 top-full mt-2 w-56 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xl shadow-gray-200/60">
+                      {/* Account info */}
+                      <div className="flex items-center gap-3 border-b border-gray-100 px-4 py-3">
+                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-600 text-sm font-bold text-white">
+                          {user?.name?.[0]?.toUpperCase() ?? "U"}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold text-gray-800">
+                            {user?.name}
+                          </p>
+                          <p className="truncate text-xs text-gray-400">
+                            {user?.email}
+                          </p>
+                        </div>
                       </div>
-                      <button
-                        onClick={handleLogout}
-                        className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-red-600 transition-colors hover:bg-red-50"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        Đăng xuất
-                      </button>
+
+                      {/* Profile section */}
+                      <div className="border-b border-gray-100 py-1">
+                        <p className="px-4 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+                          Hồ sơ
+                        </p>
+                        <button
+                          onClick={handleViewProfile}
+                          className="flex w-full items-center gap-2.5 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-green-50 hover:text-green-700"
+                        >
+                          <User className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                          Xem hồ sơ
+                        </button>
+                        <button
+                          onClick={handleEditProfile}
+                          className="flex w-full items-center gap-2.5 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-green-50 hover:text-green-700"
+                        >
+                          <Settings className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                          Chỉnh sửa hồ sơ
+                        </button>
+                        <button
+                          onClick={handleOrders}
+                          className="flex w-full items-center gap-2.5 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-green-50 hover:text-green-700"
+                        >
+                          <Package className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                          Đơn hàng của tôi
+                        </button>
+                        <button
+                          onClick={handleBecomesSeller}
+                          className="flex w-full items-center gap-2.5 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-green-50 hover:text-green-700"
+                        >
+                          <Store className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                          Đăng ký bán hàng
+                        </button>
+                      </div>
+
+                      {/* Settings section */}
+                      <div className="border-b border-gray-100 py-1">
+                        <p className="px-4 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+                          Cài đặt
+                        </p>
+                        <button
+                          onClick={handlePaymentSettings}
+                          className="flex w-full items-center gap-2.5 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-green-50 hover:text-green-700"
+                        >
+                          <CreditCard className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                          Cài đặt thanh toán
+                        </button>
+                        <button
+                          onClick={handleDeleteAccount}
+                          className="flex w-full items-center gap-2.5 px-4 py-2 text-sm text-red-500 transition-colors hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4 flex-shrink-0" />
+                          Xóa tài khoản
+                        </button>
+                      </div>
+
+                      {/* Logout */}
+                      <div className="py-1">
+                        <button
+                          onClick={handleLogout}
+                          className="flex w-full items-center gap-2.5 px-4 py-2 text-sm text-red-600 transition-colors hover:bg-red-50"
+                        >
+                          <LogOut className="h-4 w-4 flex-shrink-0" />
+                          Đăng xuất
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
