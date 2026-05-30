@@ -20,6 +20,12 @@ DROP TABLE IF EXISTS seller_profiles CASCADE;
 DROP TABLE IF EXISTS buyer_profiles CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
+DROP TABLE IF EXISTS platform_transactions CASCADE;
+DROP TABLE IF EXISTS platform_wallets CASCADE;
+DROP TABLE IF EXISTS payment_provider_events CASCADE;
+DROP TABLE IF EXISTS return_requests CASCADE;
+DROP TABLE IF EXISTS processed_webhooks CASCADE;
+
 CREATE TABLE users (
     user_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
@@ -176,7 +182,7 @@ CREATE TABLE orders (
     shipping_address TEXT NOT NULL,
     receiver_name VARCHAR(255) NOT NULL,
     receiver_phone VARCHAR(20) NOT NULL,
-    status order_status NOT NULL DEFAULT 'PENDING_PAYMENT',
+    status order_status NOT NULL DEFAULT 'WAITING_SELLER_CONFIRMATION',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     FOREIGN KEY (buyer_id) REFERENCES buyer_profiles (buyer_id) ON DELETE CASCADE,

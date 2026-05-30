@@ -17,6 +17,7 @@ DROP TRIGGER IF EXISTS trg_refund_order ON orders;
 DROP TRIGGER IF EXISTS trg_confirm_cod_collection ON payments;
 DROP TRIGGER IF EXISTS trg_create_seller_wallet ON seller_profiles;
 DROP TRIGGER IF EXISTS trg_prevent_self_buy ON orders;
+DROP TRIGGER IF EXISTS trg_deduct_stock_on_order ON order_items;
 
 CREATE OR REPLACE FUNCTION fn_set_updated_at()
 RETURNS TRIGGER
