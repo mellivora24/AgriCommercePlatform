@@ -16,6 +16,7 @@ export const useGetCart = () => {
     staleTime: 0,
     refetchOnMount: true,
     refetchOnWindowFocus: false,
+    refetchOnReconnect: true
   });
 };
 

@@ -354,6 +354,7 @@ model Order {
   buyerId         Int         @map("buyer_id")
   sellerId        Int         @map("seller_id")
   totalAmount     BigInt      @map("total_amount")
+  paymentMethod   PaymentMethod @map("payment_method")
   shippingFee     BigInt      @default(0) @map("shipping_fee")
   platformFee     BigInt      @default(0) @map("platform_fee")
   // sellerAmount is a GENERATED ALWAYS AS (total_amount - platform_fee) STORED column.

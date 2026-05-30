@@ -28,6 +28,7 @@ export const createOrderRepository = (
       shippingAddress: request.shippingAddress,
       receiverName: request.receiverName,
       receiverPhone: request.receiverPhone,
+      paymentMethod: request.paymentMethod,
     });
     return OrderMapper.toCreateOrderEntity(dtos);
   },

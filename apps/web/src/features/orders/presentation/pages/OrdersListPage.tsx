@@ -46,12 +46,9 @@ const paymentStatusVariant: Record<
   REFUNDED: "secondary",
 };
 
-const paymentStatusLabel: Record<PaymentStatus, string> = {
-  PENDING: "Pending",
-  WAITING_COD_COLLECTION: "COD Pending",
-  COMPLETED: "Paid",
-  FAILED: "Failed",
-  REFUNDED: "Refunded",
+const paymentMethodLabel: Record<string, string> = {
+  COD: "Thanh toán khi nhận hàng (COD)",
+  ONLINE: "Chuyển khoản ngân hàng",
 };
 
 // ─── Review Popup ────────────────────────────────────────────────────────────
@@ -235,9 +232,15 @@ export const OrdersListPage: React.FC = () => {
 
                   <div>
                     <p className="text-sm text-gray-500">Trạng thái</p>
-                    <Badge variant={statusVariant[order.status]}>
-                      {statusLabel[order.status]}
-                    </Badge>
+                    {payment.method === "ONLINE" ? (
+                      <Badge variant={paymentStatusVariant[payment.status]}>
+                        Đã thanh toán
+                      </Badge>
+                    ) : (
+                      <Badge variant={statusVariant[order.status]}>
+                        {statusLabel[order.status]}
+                      </Badge>
+                    )}
                   </div>
 
                   <div>
@@ -245,8 +248,8 @@ export const OrdersListPage: React.FC = () => {
                       Phương thức thanh toán
                     </p>
                     {payment ? (
-                      <Badge variant={paymentStatusVariant[payment.status]}>
-                        {paymentStatusLabel[payment.status]}
+                      <Badge variant="secondary">
+                        {paymentMethodLabel[payment.method] ?? payment.method}
                       </Badge>
                     ) : (
                       <span className="text-sm text-gray-400">—</span>

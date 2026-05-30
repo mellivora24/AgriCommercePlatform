@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from '@/app.module';
 import { BigIntInterceptor } from '@/common/interceptors/bigint.interceptor';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,6 +13,13 @@ async function bootstrap() {
   });
 
   app.useLogger(['log', 'error', 'warn', 'debug', 'verbose']);
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    }),
+  );
 
   console.log('ENV JWT:', process.env.JWT_SECRET);
 

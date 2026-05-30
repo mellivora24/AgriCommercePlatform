@@ -1,53 +1,66 @@
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useGetOrder } from '../hooks/useOrders';
-import { Skeleton } from '@/shared/components/ui/Skeleton';
-import { Badge } from '@/shared/components/ui/Badge';
-import { Button } from '@/shared/components/ui/Button';
-import { formatCurrency, formatDate } from '@/shared/utils/format';
-import { ROUTES } from '@/core/router/routes';
-import type { OrderStatus, PaymentStatus } from '../../domain/entities/order.entity';
+import React from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useGetOrder } from "../hooks/useOrders";
+import { Skeleton } from "@/shared/components/ui/Skeleton";
+import { Badge } from "@/shared/components/ui/Badge";
+import { Button } from "@/shared/components/ui/Button";
+import { formatCurrency, formatDate } from "@/shared/utils/format";
+import { ROUTES } from "@/core/router/routes";
+import type {
+  OrderStatus,
+  PaymentStatus,
+} from "../../domain/entities/order.entity";
 
-const statusVariant: Record<OrderStatus, 'primary' | 'secondary' | 'success' | 'danger' | 'warning'> = {
-  PENDING_PAYMENT: 'warning',
-  SELLER_CONFIRMED: 'primary',
-  SHIPPING: 'secondary',
-  DELIVERED: 'success',
-  COMPLETED: 'success',
-  CANCELLED: 'danger',
-  RETURNED: 'danger',
+const statusVariant: Record<
+  OrderStatus,
+  "primary" | "secondary" | "success" | "danger" | "warning"
+> = {
+  PENDING_PAYMENT: "warning",
+  SELLER_CONFIRMED: "primary",
+  SHIPPING: "secondary",
+  DELIVERED: "success",
+  COMPLETED: "success",
+  CANCELLED: "danger",
+  RETURNED: "danger",
 };
 
 const statusLabel: Record<OrderStatus, string> = {
-  PENDING_PAYMENT: 'Pending Payment',
-  SELLER_CONFIRMED: 'Confirmed by Seller',
-  SHIPPING: 'Shipping',
-  DELIVERED: 'Delivered',
-  COMPLETED: 'Completed',
-  CANCELLED: 'Cancelled',
-  RETURNED: 'Returned',
+  PENDING_PAYMENT: "Chờ thanh toán",
+  SELLER_CONFIRMED: "Người bán đã xác nhận",
+  SHIPPING: "Đang giao hàng",
+  DELIVERED: "Đã giao hàng",
+  COMPLETED: "Hoàn thành",
+  CANCELLED: "Đã hủy",
+  RETURNED: "Đã hoàn trả",
 };
 
-const paymentStatusVariant: Record<PaymentStatus, 'primary' | 'secondary' | 'success' | 'danger' | 'warning'> = {
-  PENDING: 'warning',
-  WAITING_COD_COLLECTION: 'warning',
-  COMPLETED: 'success',
-  FAILED: 'danger',
-  REFUNDED: 'secondary',
+const paymentStatusVariant: Record<
+  PaymentStatus,
+  "primary" | "secondary" | "success" | "danger" | "warning"
+> = {
+  PENDING: "warning",
+  WAITING_COD_COLLECTION: "warning",
+  COMPLETED: "success",
+  FAILED: "danger",
+  REFUNDED: "secondary",
 };
 
 const paymentStatusLabel: Record<PaymentStatus, string> = {
-  PENDING: 'Pending',
-  WAITING_COD_COLLECTION: 'Awaiting COD Collection',
-  COMPLETED: 'Paid',
-  FAILED: 'Failed',
-  REFUNDED: 'Refunded',
+  PENDING: "Chờ thanh toán",
+  WAITING_COD_COLLECTION: "Chờ thu tiền COD",
+  COMPLETED: "Đã thanh toán",
+  FAILED: "Thất bại",
+  REFUNDED: "Đã hoàn tiền",
+};
+
+const paymentMethodLabel: Record<string, string> = {
+  COD: "Thanh toán khi nhận hàng (COD)",
+  BANK_TRANSFER: "Chuyển khoản ngân hàng",
 };
 
 export const OrderDetailPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
-  // orderId from URL is a string; parse to number for BE
   const orderIdNum = orderId ? parseInt(orderId, 10) : undefined;
   const { data: order, isLoading, error } = useGetOrder(orderIdNum);
 
@@ -55,8 +68,10 @@ export const OrderDetailPage: React.FC = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center py-12">
-          <p className="mb-4 text-red-600">Order not found</p>
-          <Button onClick={() => navigate(ROUTES.ORDERS)}>Back to Orders</Button>
+          <p className="mb-4 text-red-600">Không tìm thấy đơn hàng</p>
+          <Button onClick={() => navigate(ROUTES.ORDERS)}>
+            Quay lại danh sách đơn hàng
+          </Button>
         </div>
       </div>
     );
@@ -88,58 +103,71 @@ export const OrderDetailPage: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="mb-8 flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Order #{order.orderId}</h1>
+          <h1 className="text-3xl font-bold mb-2">Đơn hàng #{order.orderId}</h1>
           {order.seller && (
-            <p className="text-gray-600">Sold by: {order.seller.storeName}</p>
+            <p className="text-gray-600">Người bán: {order.seller.storeName}</p>
           )}
         </div>
-        <Button onClick={() => navigate(ROUTES.ORDERS)}>Back to Orders</Button>
+        <Button onClick={() => navigate(ROUTES.ORDERS)}>
+          Quay lại danh sách đơn hàng
+        </Button>
       </div>
 
       <div className="grid grid-cols-2 gap-8">
-        {/* Left Column */}
         <div className="space-y-6">
-          {/* Status */}
           <div className="border rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Order Status</h2>
+            <h2 className="text-xl font-semibold mb-4">Trạng thái đơn hàng</h2>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span>Order Status</span>
-                <Badge variant={statusVariant[order.status]}>{statusLabel[order.status]}</Badge>
+                <span>Trạng thái</span>
+                {paymentMethodLabel[payment.method] === "ONLINE" ||
+                payment.method === "ONLINE" ? (
+                  <Badge variant={paymentStatusVariant[payment.status]}>
+                    Đã thanh toán
+                  </Badge>
+                ) : (
+                  <span className="font-semibold">
+                    {statusLabel[order.status]}
+                  </span>
+                )}
               </div>
               {payment && (
                 <div className="flex justify-between items-center">
-                  <span>Payment Status</span>
+                  <span>Thanh toán</span>
                   <Badge variant={paymentStatusVariant[payment.status]}>
-                    {paymentStatusLabel[payment.status]}
+                    {paymentMethodLabel[payment.method] ?? payment.method}
                   </Badge>
                 </div>
               )}
               {order.shipment?.trackingCode && (
                 <div className="flex justify-between">
-                  <span>Tracking Code</span>
-                  <span className="font-mono">{order.shipment.trackingCode}</span>
+                  <span>Mã vận đơn</span>
+                  <span className="font-mono">
+                    {order.shipment.trackingCode}
+                  </span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span>Order Date</span>
+                <span>Ngày đặt hàng</span>
                 <span>{formatDate(order.createdAt)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Last Updated</span>
+                <span>Cập nhật lần cuối</span>
                 <span>{formatDate(order.updatedAt)}</span>
               </div>
             </div>
           </div>
 
-          {/* Order Items */}
           <div className="border rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Items</h2>
+            <h2 className="text-xl font-semibold mb-4">Sản phẩm</h2>
             <div className="space-y-4">
-              {order.orderItems.map(item => {
+              {order.orderItems.map((item) => {
                 const image = item.product.images?.[0]?.imageUrl;
                 return (
-                  <div key={item.orderItemId} className="flex gap-4 pb-4 border-b last:border-b-0">
+                  <div
+                    key={item.orderItemId}
+                    className="flex gap-4 pb-4 border-b last:border-b-0"
+                  >
                     {image && (
                       <img
                         src={image}
@@ -149,14 +177,16 @@ export const OrderDetailPage: React.FC = () => {
                     )}
                     <div className="flex-1">
                       <h3 className="font-semibold">{item.product.name}</h3>
-                      <p className="text-sm">Qty: {item.quantity}</p>
+                      <p className="text-sm text-gray-500">
+                        Số lượng: {item.quantity}
+                      </p>
                     </div>
                     <div className="text-right">
                       <p className="font-semibold">
                         {formatCurrency(item.unitPrice * item.quantity)}
                       </p>
                       <p className="text-sm text-gray-500">
-                        {formatCurrency(item.unitPrice)} each
+                        {formatCurrency(item.unitPrice)}/sp
                       </p>
                     </div>
                   </div>
@@ -166,53 +196,70 @@ export const OrderDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column */}
         <div className="space-y-6">
-          {/* Shipping Info — flat fields as per BE schema */}
           <div className="border rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Shipping Information</h2>
+            <h2 className="text-xl font-semibold mb-4">Thông tin nhận hàng</h2>
             <div className="space-y-2 text-sm">
-              <p className="font-semibold">{order.receiverName}</p>
-              <p>{order.shippingAddress}</p>
-              <p className="mt-3 font-semibold">Phone: {order.receiverPhone}</p>
+              <p className="font-semibold">Người nhận: {order.receiverName}</p>
+              <p className="font-semibold">Địa chỉ: {order.shippingAddress}</p>
+              <p className="mt-3 font-semibold">
+                Điện thoại: {order.receiverPhone}
+              </p>
             </div>
           </div>
 
-          {/* Payment Information */}
           {payment && (
             <div className="border rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4">Payment Information</h2>
+              <h2 className="text-xl font-semibold mb-4">
+                Thông tin thanh toán
+              </h2>
               <div className="space-y-2 text-sm">
-                <p>Method: <span className="font-semibold">{payment.method}</span></p>
+                <p>
+                  Phương thức:{" "}
+                  <span className="font-semibold">
+                    {paymentMethodLabel[payment.method] ?? payment.method}
+                  </span>
+                </p>
                 <p className="flex items-center gap-2">
-                  Status:{' '}
-                  <Badge variant={paymentStatusVariant[payment.status]}>
-                    {paymentStatusLabel[payment.status]}
-                  </Badge>
+                  Trạng thái:{" "}
+                  {paymentMethodLabel[payment.method] === "ONLINE" ||
+                  payment.method === "ONLINE" ? (
+                    <Badge variant={paymentStatusVariant[payment.status]}>
+                      Đã thanh toán
+                    </Badge>
+                  ) : (
+                    <span className="font-semibold">
+                      {statusLabel[order.status]}
+                    </span>
+                  )}
                 </p>
                 {payment.transactionId && (
-                  <p>Transaction ID: <span className="font-mono">{payment.transactionId}</span></p>
+                  <p>
+                    Mã giao dịch:{" "}
+                    <span className="font-mono">{payment.transactionId}</span>
+                  </p>
                 )}
               </div>
             </div>
           )}
 
-          {/* Order Summary — BE fields: totalAmount, platformFee, sellerAmount, shippingFee */}
           <div className="border rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+            <h2 className="text-xl font-semibold mb-4">Tóm tắt đơn hàng</h2>
             <div className="space-y-3">
               <div className="flex justify-between">
-                <span>Subtotal</span>
+                <span>Tạm tính</span>
                 <span>{formatCurrency(order.totalAmount)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Shipping Fee</span>
+                <span>Phí vận chuyển</span>
                 <span>
-                  {order.shippingFee === 0 ? 'Free' : formatCurrency(order.shippingFee)}
+                  {order.shippingFee === 0
+                    ? "Miễn phí"
+                    : formatCurrency(order.shippingFee)}
                 </span>
               </div>
               <div className="border-t pt-3 flex justify-between font-bold text-lg">
-                <span>Total</span>
+                <span>Tổng cộng</span>
                 <span className="text-red-600">
                   {formatCurrency(order.totalAmount + order.shippingFee)}
                 </span>
@@ -220,15 +267,14 @@ export const OrderDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Actions */}
-          {order.status === 'PENDING_PAYMENT' && (
+          {order.status === "PENDING_PAYMENT" && (
             <Button onClick={() => {}} className="w-full" variant="danger">
-              Cancel Order
+              Hủy đơn hàng
             </Button>
           )}
-          {order.status === 'DELIVERED' && (
+          {order.status === "DELIVERED" && (
             <Button onClick={() => {}} className="w-full" variant="primary">
-              Return Order
+              Yêu cầu hoàn trả
             </Button>
           )}
         </div>

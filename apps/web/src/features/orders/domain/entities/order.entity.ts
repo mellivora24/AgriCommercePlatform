@@ -12,7 +12,7 @@ export type PaymentStatus =
   | 'COMPLETED'
   | 'FAILED'
   | 'REFUNDED';
-export type PaymentMethod = 'COD' | 'BANK_TRANSFER' | 'VNPAY' | 'MOMO';
+export type PaymentMethod = 'COD' | 'ONLINE';
 
 export interface OrderItem {
   orderItemId: number;
@@ -66,6 +66,7 @@ export interface Order {
   buyerId: number;
   sellerId: number;
   totalAmount: number;
+  paymentMethod: PaymentMethod;
   platformFee: number;
   sellerAmount: number;
   shippingFee: number;
@@ -91,6 +92,7 @@ export interface Order {
 
 export type OrderListResponse = Order[];
 export interface CreateOrderRequest {
+  paymentMethod: PaymentMethod;
   shippingAddress: string;
   receiverName: string;
   receiverPhone: string;

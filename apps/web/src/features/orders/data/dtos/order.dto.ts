@@ -77,6 +77,7 @@ export interface CreateOrderRequestDTO {
   shippingAddress: string;
   receiverName: string;
   receiverPhone: string;
+  paymentMethod: PaymentMethod;
 }
 
 export interface UpdateOrderStatusRequestDTO {

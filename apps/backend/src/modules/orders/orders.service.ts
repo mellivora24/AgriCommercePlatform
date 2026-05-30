@@ -15,7 +15,6 @@ export class OrdersService {
   ) {}
 
   async createOrder(buyerId: number, dto: CreateOrderDto) {
-    // Group items by seller
     const cartItems = await this.prisma.cartItem.findMany({
       where: { cart: { buyerId } },
       include: { product: true },
@@ -26,13 +25,12 @@ export class OrdersService {
     const groupedBySeller = new Map<number, any[]>();
     for (const item of cartItems) {
       const sellerId = item.product.sellerId;
-      if (!groupedBySeller.has(sellerId)) {
-        groupedBySeller.set(sellerId, []);
-      }
+      if (!groupedBySeller.has(sellerId)) groupedBySeller.set(sellerId, []);
       groupedBySeller.get(sellerId)!.push(item);
     }
 
     const orders = [];
+
     for (const [sellerId, items] of groupedBySeller) {
       let totalAmount = 0n;
       for (const item of items) {
@@ -45,16 +43,20 @@ export class OrdersService {
 
       if (!seller) throw new BadRequestException('Người bán không tồn tại');
 
-      const platformFeeRate = seller.platformFeeRate;
       const platformFee =
-        (totalAmount * BigInt(Math.round(Number(platformFeeRate) * 100))) /
+        (totalAmount *
+          BigInt(Math.round(Number(seller.platformFeeRate) * 100))) /
         10000n;
+
+      const paymentStatus =
+        dto.paymentMethod === 'COD' ? 'WAITING_COD_COLLECTION' : 'PENDING';
 
       const order = await this.prisma.order.create({
         data: {
           buyerId,
           sellerId,
           totalAmount,
+          paymentMethod: dto.paymentMethod,
           platformFee,
           shippingAddress: dto.shippingAddress,
           receiverName: dto.receiverName,
@@ -74,8 +76,8 @@ export class OrdersService {
           },
           payments: {
             create: {
-              method: 'COD',
-              status: 'WAITING_COD_COLLECTION',
+              method: dto.paymentMethod,
+              status: paymentStatus,
               amount: totalAmount,
             },
           },
@@ -166,15 +168,14 @@ export class OrdersService {
       where: { sellerId },
     });
 
-    const stats = {
+    return {
       total: orders.length,
+      paymentMethod: orders.map((o) => o.paymentMethod),
       pending: orders.filter((o) => o.status === 'PENDING_PAYMENT').length,
       confirmed: orders.filter((o) => o.status === 'SELLER_CONFIRMED').length,
       shipped: orders.filter((o) => o.status === 'SHIPPING').length,
       delivered: orders.filter((o) => o.status === 'DELIVERED').length,
       completed: orders.filter((o) => o.status === 'COMPLETED').length,
     };
-
-    return stats;
   }
 }

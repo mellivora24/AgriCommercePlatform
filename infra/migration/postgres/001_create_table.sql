@@ -169,6 +169,7 @@ CREATE TABLE orders (
     buyer_id INT NOT NULL,
     seller_id INT NOT NULL,
     total_amount BIGINT NOT NULL CHECK (total_amount >= 0),
+    payment_method payment_method NOT NULL,
     shipping_fee BIGINT NOT NULL DEFAULT 0 CHECK (shipping_fee >= 0),
     platform_fee BIGINT NOT NULL DEFAULT 0,
     seller_amount BIGINT GENERATED ALWAYS AS (total_amount - platform_fee) STORED,

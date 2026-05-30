@@ -39,7 +39,6 @@ export const Header: React.FC = () => {
   const userMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
 
-  // Reset search on route change
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setSearch("");
@@ -50,7 +49,6 @@ export const Header: React.FC = () => {
     return () => window.clearTimeout(timer);
   }, [location.pathname]);
 
-  // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search.trim());
@@ -73,6 +71,8 @@ export const Header: React.FC = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+
 
   const { data: searchData, isLoading: isSearchLoading } =
     useSearchProducts(debouncedSearch);
@@ -102,7 +102,6 @@ export const Header: React.FC = () => {
     setSearchFocused(false);
   };
 
-  // Handlers chưa có router — placeholder
   const handleViewProfile = () => {
     console.log("Xem hồ sơ");
     setUserMenuOpen(false);

@@ -1,12 +1,4 @@
-import {
-  IsString,
-  IsInt,
-  Min,
-  IsOptional,
-  IsArray,
-  ValidateNested,
-} from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsString, IsInt, Min, IsIn } from 'class-validator';
 
 export class CreateOrderItemDto {
   @IsInt()
@@ -18,10 +10,8 @@ export class CreateOrderItemDto {
 }
 
 export class CreateOrderDto {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => CreateOrderItemDto)
-  items!: CreateOrderItemDto[];
+  @IsIn(['ONLINE', 'COD'])
+  paymentMethod!: 'ONLINE' | 'COD';
 
   @IsString()
   shippingAddress!: string;
@@ -31,10 +21,6 @@ export class CreateOrderDto {
 
   @IsString()
   receiverPhone!: string;
-
-  @IsOptional()
-  @IsInt()
-  sellerId?: number;
 }
 
 export class UpdateOrderStatusDto {
