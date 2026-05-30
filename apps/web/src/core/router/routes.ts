@@ -44,6 +44,7 @@ export const ROUTES = {
   RETURN_CREATE: "/returns/:orderId/create",
 
   // Seller Dashboard
+  SELLER_PENDING: "/seller/pending",
   SELLER: "/seller",
   SELLER_DASHBOARD: "/seller/dashboard",
   SELLER_PRODUCTS: "/seller/products",

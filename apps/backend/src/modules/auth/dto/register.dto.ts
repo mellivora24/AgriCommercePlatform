@@ -4,6 +4,7 @@ import {
   MinLength,
   IsPhoneNumber,
   IsOptional,
+  IsIn,
 } from 'class-validator';
 
 export class UserRegisterDto {
@@ -21,4 +22,8 @@ export class UserRegisterDto {
   @IsString()
   @MinLength(8)
   password!: string;
+
+  @IsString()
+  @IsIn(['BUYER', 'SELLER'])
+  role!: 'BUYER' | 'SELLER';
 }

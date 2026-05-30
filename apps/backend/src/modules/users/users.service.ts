@@ -17,8 +17,8 @@ export class UsersService {
         email: dto.email,
         phone: dto.phone,
         passwordHash: hashedPassword,
-        role: 'BUYER',
-        status: 'ACTIVE',
+        role: dto.role,
+        status: dto.role === 'SELLER' ? 'INACTIVE' : 'ACTIVE',
       },
     });
 

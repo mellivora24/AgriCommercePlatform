@@ -15,12 +15,14 @@ import { CartPage } from '@/features/cart/presentation/pages/CartPage';
 import { CheckoutPage } from '@/features/orders/presentation/pages/CheckoutPage';
 import { OrdersListPage } from '@/features/orders/presentation/pages/OrdersListPage';
 import { OrderDetailPage } from '@/features/orders/presentation/pages/OrderDetailPage';
+import { SellerPendingPage } from '@/features/auth/presentation/pages/SellerPendingPage';
 
 export const Router: React.FC = () => (
   <BrowserRouter>
     <Routes>
       <Route element={<AppLayout />}>
         <Route path={ROUTES.HOME_PAGE} element={<HomePage />} />
+        <Route path={ROUTES.SELLER_PENDING} element={<SellerPendingPage />} />
         <Route path={ROUTES.PRODUCTS} element={<ProductsListPage />} />
         <Route path={ROUTES.PRODUCT_DETAIL} element={<ProductDetailPage />} />
         <Route
@@ -70,6 +72,34 @@ export const Router: React.FC = () => (
         <Route
           path={ROUTES.ADMIN_DASHBOARD}
           element={<RoleGuard allowedRoles={['ADMIN']}><div>Admin Dashboard</div></RoleGuard>}
+        />
+        <Route
+          path={ROUTES.SELLER_PRODUCTS}
+          element={<RoleGuard allowedRoles={['SELLER']}><div>Seller Products</div></RoleGuard>}
+        />
+        <Route
+          path={ROUTES.SELLER_ORDERS}
+          element={<RoleGuard allowedRoles={['SELLER']}><div>Seller Orders</div></RoleGuard>}
+        />
+        <Route
+          path={ROUTES.SELLER_STORE}
+          element={<RoleGuard allowedRoles={['SELLER']}><div>Seller Store</div></RoleGuard>}
+        />
+        <Route
+          path={ROUTES.ADMIN_USERS}
+          element={<RoleGuard allowedRoles={['ADMIN']}><div>Admin Users</div></RoleGuard>}
+        />
+        <Route
+          path={ROUTES.ADMIN_PRODUCTS}
+          element={<RoleGuard allowedRoles={['ADMIN']}><div>Admin Products</div></RoleGuard>}
+        />
+        <Route
+          path={ROUTES.ADMIN_ORDERS}
+          element={<RoleGuard allowedRoles={['ADMIN']}><div>Admin Orders</div></RoleGuard>}
+        />
+        <Route
+          path={ROUTES.ADMIN_MODERATION}
+          element={<RoleGuard allowedRoles={['ADMIN']}><div>Admin Moderation</div></RoleGuard>}
         />
       </Route>
 

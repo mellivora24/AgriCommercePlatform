@@ -1,16 +1,16 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Link } from 'react-router-dom';
-import { Button } from '@/shared/components/ui/Button';
-import { Input } from '@/shared/components/ui/Input';
-import { useLogin } from '@/features/auth/presentation/hooks/useAuth';
-import { ROUTES } from '@/core/router/routes';
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Link } from "react-router-dom";
+import { Button } from "@/shared/components/ui/Button";
+import { Input } from "@/shared/components/ui/Input";
+import { useLogin } from "@/features/auth/presentation/hooks/useAuth";
+import { ROUTES } from "@/core/router/routes";
 import {
   loginSchema,
   type LoginFormData,
-} from '@/features/auth/domain/validators/auth.validator';
-import { useToast } from '@/shared/hooks';
+} from "@/features/auth/domain/validators/auth.validator";
+import { useToast } from "@/shared/hooks";
 
 export const LoginPage: React.FC = () => {
   const toast = useToast();
@@ -26,8 +26,8 @@ export const LoginPage: React.FC = () => {
   const onSubmit = (data: LoginFormData) => {
     login(data, {
       onError: (error: Error) => {
-        toast.error(error.message || 'Login failed');
-        console.error('Login failed:', error);
+        toast.error(error.message || "Login failed");
+        console.error("Login failed:", error);
       },
     });
   };
@@ -48,7 +48,7 @@ export const LoginPage: React.FC = () => {
           label="Địa chỉ Email"
           type="email"
           placeholder="you@example.com"
-          {...register('email')}
+          {...register("email")}
           error={errors.email?.message}
         />
 
@@ -56,7 +56,7 @@ export const LoginPage: React.FC = () => {
           label="Mật khẩu"
           type="password"
           placeholder="••••••••"
-          {...register('password')}
+          {...register("password")}
           error={errors.password?.message}
         />
 
@@ -65,14 +65,26 @@ export const LoginPage: React.FC = () => {
         </Button>
       </form>
 
-      <div className="text-center text-sm">
+      <div className="text-center text-sm space-y-4">
         <p className="text-gray-600">
-          Chưa có tài khoản?{' '}
+          Chưa có tài khoản?{" "}
+          <Link to={ROUTES.REGISTER} className="text-green-600 hover:underline">
+            Tạo tài khoản
+          </Link>
+        </p>
+
+        <div className="flex items-center gap-3 text-gray-400">
+          <hr className="flex-1 border-gray-200" />
+          <span className="text-xs">hoặc</span>
+          <hr className="flex-1 border-gray-200" />
+        </div>
+
+        <p className="text-gray-600">
           <Link
-            to={ROUTES.REGISTER}
+            to={ROUTES.HOME_PAGE}
             className="text-green-600 hover:underline"
           >
-            Tạo tài khoản
+            Tiếp tục với tư cách khách
           </Link>
         </p>
       </div>

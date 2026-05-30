@@ -24,7 +24,7 @@ const registerUseCase = createRegisterUseCase(authRepository);
 
 const syncCartToServer = async (clearCart: () => void) => {
   const cart = localStorage.getItem("cart-store");
-  
+
   if (!cart) return;
 
   try {
@@ -61,7 +61,6 @@ const syncCartToServer = async (clearCart: () => void) => {
   }
 };
 
-
 export const useLogin = () => {
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
@@ -73,9 +72,7 @@ export const useLogin = () => {
     },
     onSuccess: async (data) => {
       setAuth(data.accessToken, data.refreshToken, data.user as any);
-
       await syncCartToServer(clearCart);
-
       navigate(ROUTES.HOME_PAGE);
     },
     onError: (error: any) => {
@@ -95,10 +92,13 @@ export const useRegister = () => {
       return registerUseCase.execute(data);
     },
     onSuccess: async (data) => {
+      if (data.user.role === "SELLER") {
+        navigate(ROUTES.SELLER_PENDING, { replace: true });
+        return;
+      }
+
       setAuth(data.accessToken, data.refreshToken, data.user as any);
-
       await syncCartToServer(clearCart);
-
       navigate(ROUTES.HOME_PAGE);
     },
     onError: (error: any) => {

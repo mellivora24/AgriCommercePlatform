@@ -11,6 +11,7 @@ export const registerSchema = z
     name: z.string().min(2, 'Name must be at least 2 characters'),
     password: z.string().min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string(),
+    role: z.enum(['BUYER', 'SELLER']),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',

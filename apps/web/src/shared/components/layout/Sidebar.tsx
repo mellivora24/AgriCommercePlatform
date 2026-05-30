@@ -5,12 +5,10 @@ import {
   LayoutDashboard,
   Package,
   ShoppingBag,
-  BarChart2,
   Users,
   ClipboardList,
   ShieldCheck,
   Store,
-  Settings,
   LogOut,
 } from "lucide-react";
 import { useAuthStore } from "@/core/store";
@@ -51,19 +49,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
       icon: <ShoppingBag className="h-4.5 w-4.5" />,
     },
     {
-      label: "Thống kê",
-      path: ROUTES.SELLER_ANALYTICS,
-      icon: <BarChart2 className="h-4.5 w-4.5" />,
-    },
-    {
       label: "Cửa hàng",
       path: ROUTES.SELLER_STORE ?? "#",
       icon: <Store className="h-4.5 w-4.5" />,
-    },
-    {
-      label: "Cài đặt",
-      path: ROUTES.SELLER_SETTINGS ?? "#",
-      icon: <Settings className="h-4.5 w-4.5" />,
     },
   ];
 
@@ -92,11 +80,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
       label: "Kiểm duyệt",
       path: ROUTES.ADMIN_MODERATION ?? "#",
       icon: <ShieldCheck className="h-4.5 w-4.5" />,
-    },
-    {
-      label: "Cài đặt",
-      path: ROUTES.ADMIN_SETTINGS ?? "#",
-      icon: <Settings className="h-4.5 w-4.5" />,
     },
   ];
 

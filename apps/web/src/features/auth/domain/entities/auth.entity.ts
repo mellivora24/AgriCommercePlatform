@@ -6,6 +6,7 @@ export interface AuthCredentials {
 export interface RegisterData extends AuthCredentials {
   name: string;
   confirmPassword: string;
+  role: 'BUYER' | 'SELLER';
 }
 
 export interface AuthResponse {

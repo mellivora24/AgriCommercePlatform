@@ -15,6 +15,7 @@ export class AuthRepositoryImpl implements IAuthRepository {
       email: data.email,
       name: data.name,
       password: data.password,
+      role: data.role,
     });
     console.log('Register response DTO:', dto);
     return AuthMapper.toEntity(dto);
