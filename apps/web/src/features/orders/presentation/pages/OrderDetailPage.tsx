@@ -16,6 +16,7 @@ const statusVariant: Record<
   "primary" | "secondary" | "success" | "danger" | "warning"
 > = {
   PENDING_PAYMENT: "warning",
+  WAITING_SELLER_CONFIRMATION: "warning",
   SELLER_CONFIRMED: "primary",
   SHIPPING: "secondary",
   DELIVERED: "success",
@@ -26,6 +27,7 @@ const statusVariant: Record<
 
 const statusLabel: Record<OrderStatus, string> = {
   PENDING_PAYMENT: "Chờ thanh toán",
+  WAITING_SELLER_CONFIRMATION: "Chờ xác nhận từ người bán",
   SELLER_CONFIRMED: "Người bán đã xác nhận",
   SHIPPING: "Đang giao hàng",
   DELIVERED: "Đã giao hàng",
@@ -48,6 +50,7 @@ const paymentStatusVariant: Record<
 const paymentStatusLabel: Record<PaymentStatus, string> = {
   PENDING: "Chờ thanh toán",
   WAITING_COD_COLLECTION: "Chờ thu tiền COD",
+  WAITING_ONLINE_PAYMENT: "Chờ thanh toán online",
   COMPLETED: "Đã thanh toán",
   FAILED: "Thất bại",
   REFUNDED: "Đã hoàn tiền",
@@ -55,7 +58,7 @@ const paymentStatusLabel: Record<PaymentStatus, string> = {
 
 const paymentMethodLabel: Record<string, string> = {
   COD: "Thanh toán khi nhận hàng (COD)",
-  BANK_TRANSFER: "Chuyển khoản ngân hàng",
+  ONLINE: "Chuyển khoản ngân hàng",
 };
 
 export const OrderDetailPage: React.FC = () => {
@@ -120,16 +123,9 @@ export const OrderDetailPage: React.FC = () => {
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span>Trạng thái</span>
-                {paymentMethodLabel[payment.method] === "ONLINE" ||
-                payment.method === "ONLINE" ? (
-                  <Badge variant={paymentStatusVariant[payment.status]}>
-                    Đã thanh toán
-                  </Badge>
-                ) : (
-                  <span className="font-semibold">
-                    {statusLabel[order.status]}
-                  </span>
-                )}
+                <Badge variant={statusVariant[order.status]}>
+                  {statusLabel[order.status]}
+                </Badge>
               </div>
               {payment && (
                 <div className="flex justify-between items-center">
@@ -222,16 +218,9 @@ export const OrderDetailPage: React.FC = () => {
                 </p>
                 <p className="flex items-center gap-2">
                   Trạng thái:{" "}
-                  {paymentMethodLabel[payment.method] === "ONLINE" ||
-                  payment.method === "ONLINE" ? (
-                    <Badge variant={paymentStatusVariant[payment.status]}>
-                      Đã thanh toán
-                    </Badge>
-                  ) : (
-                    <span className="font-semibold">
-                      {statusLabel[order.status]}
-                    </span>
-                  )}
+                  <span className="font-semibold">
+                    {statusLabel[order.status]}
+                  </span>
                 </p>
                 {payment.transactionId && (
                   <p>

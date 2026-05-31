@@ -65,6 +65,7 @@ enum ProductStatus {
 enum OrderStatus {
   PENDING_PAYMENT
   PAID
+  WAITING_SELLER_CONFIRMATION
   SELLER_CONFIRMED
   SHIPPING
   DELIVERED
@@ -167,6 +168,7 @@ enum PlatformTxnType {
 
 model User {
   userId       Int           @id @default(autoincrement()) @map("user_id")
+  nickname     String?       @db.VarChar(255)
   email        String        @db.VarChar(255)
   phone        String?       @db.VarChar(20)
   passwordHash String        @map("password_hash")
@@ -364,7 +366,7 @@ model Order {
   shippingAddress String      @map("shipping_address")
   receiverName    String      @map("receiver_name") @db.VarChar(255)
   receiverPhone   String      @map("receiver_phone") @db.VarChar(20)
-  status          OrderStatus @default(PENDING_PAYMENT)
+  status OrderStatus @default(WAITING_SELLER_CONFIRMATION)
   createdAt       DateTime    @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt       DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz()
 

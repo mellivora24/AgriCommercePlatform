@@ -61,6 +61,7 @@ export const OrderMapper = {
     buyerId: dto.buyerId,
     sellerId: dto.sellerId,
     totalAmount: OrderMapper.toBigIntNumber(dto.totalAmount),
+    paymentMethod: dto.paymentMethod,
     platformFee: OrderMapper.toBigIntNumber(dto.platformFee),
     sellerAmount: OrderMapper.toBigIntNumber(dto.sellerAmount),
     shippingFee: OrderMapper.toBigIntNumber(dto.shippingFee),

@@ -47,6 +47,7 @@ export interface OrderDTO {
   buyerId: number;
   sellerId: number;
   totalAmount: number;
+  paymentMethod: PaymentMethod;
   platformFee: number;
   sellerAmount: number;
   shippingFee: number;

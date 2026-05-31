@@ -7,8 +7,6 @@ import {
   ChevronDown,
   Leaf,
   User,
-  Settings,
-  CreditCard,
   Package,
 } from "lucide-react";
 
@@ -107,18 +105,8 @@ export const Header: React.FC = () => {
     setUserMenuOpen(false);
   };
 
-  const handleEditProfile = () => {
-    console.log("Chỉnh sửa hồ sơ");
-    setUserMenuOpen(false);
-  };
-
   const handleOrders = () => {
     navigate(ROUTES.ORDERS);
-    setUserMenuOpen(false);
-  };
-
-  const handlePaymentSettings = () => {
-    console.log("Cài đặt thanh toán");
     setUserMenuOpen(false);
   };
 
@@ -327,32 +315,11 @@ export const Header: React.FC = () => {
                           Xem hồ sơ
                         </button>
                         <button
-                          onClick={handleEditProfile}
-                          className="flex w-full items-center gap-2.5 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-green-50 hover:text-green-700"
-                        >
-                          <Settings className="h-4 w-4 flex-shrink-0 text-gray-400" />
-                          Chỉnh sửa hồ sơ
-                        </button>
-                        <button
                           onClick={handleOrders}
                           className="flex w-full items-center gap-2.5 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-green-50 hover:text-green-700"
                         >
                           <Package className="h-4 w-4 flex-shrink-0 text-gray-400" />
                           Đơn hàng của tôi
-                        </button>
-                      </div>
-
-                      {/* Settings section */}
-                      <div className="border-b border-gray-100 py-1">
-                        <p className="px-4 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-gray-400">
-                          Cài đặt
-                        </p>
-                        <button
-                          onClick={handlePaymentSettings}
-                          className="flex w-full items-center gap-2.5 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-green-50 hover:text-green-700"
-                        >
-                          <CreditCard className="h-4 w-4 flex-shrink-0 text-gray-400" />
-                          Cài đặt thanh toán
                         </button>
                       </div>
 

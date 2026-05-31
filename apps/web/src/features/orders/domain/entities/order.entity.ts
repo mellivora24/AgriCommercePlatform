@@ -1,5 +1,6 @@
 export type OrderStatus =
   | 'PENDING_PAYMENT'
+  | 'WAITING_SELLER_CONFIRMATION'
   | 'SELLER_CONFIRMED'
   | 'SHIPPING'
   | 'DELIVERED'
@@ -9,6 +10,7 @@ export type OrderStatus =
 export type PaymentStatus =
   | 'PENDING'
   | 'WAITING_COD_COLLECTION'
+  | 'WAITING_ONLINE_PAYMENT'
   | 'COMPLETED'
   | 'FAILED'
   | 'REFUNDED';

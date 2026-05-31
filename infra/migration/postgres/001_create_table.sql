@@ -28,6 +28,7 @@ DROP TABLE IF EXISTS processed_webhooks CASCADE;
 
 CREATE TABLE users (
     user_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nickname VARCHAR(255),
     email VARCHAR(255) NOT NULL,
     phone VARCHAR(20),
     password_hash TEXT NOT NULL,
@@ -38,11 +39,17 @@ CREATE TABLE users (
     deleted_at TIMESTAMPTZ
 );
 
+ALTER TABLE users ADD COLUMN nickname VARCHAR(255);
+
 CREATE UNIQUE INDEX uniq_users_email_active ON users (email)
 WHERE
     deleted_at IS NULL;
 
 CREATE UNIQUE INDEX uniq_users_phone_active ON users (phone)
+WHERE
+    deleted_at IS NULL;
+
+CREATE UNIQUE INDEX uniq_users_nickname_active ON users (nickname)
 WHERE
     deleted_at IS NULL;
 

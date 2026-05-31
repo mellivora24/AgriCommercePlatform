@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useListBuyerOrders } from "../hooks/useOrders";
 import { useAuthStore } from "@/core/store/auth.store";
@@ -17,6 +17,7 @@ const statusVariant: Record<
   "primary" | "secondary" | "success" | "danger" | "warning"
 > = {
   PENDING_PAYMENT: "warning",
+  WAITING_SELLER_CONFIRMATION: "warning",
   SELLER_CONFIRMED: "primary",
   SHIPPING: "secondary",
   DELIVERED: "success",
@@ -26,25 +27,27 @@ const statusVariant: Record<
 };
 
 const statusLabel: Record<OrderStatus, string> = {
-  PENDING_PAYMENT: "Pending Payment",
-  SELLER_CONFIRMED: "Confirmed",
-  SHIPPING: "Shipping",
-  DELIVERED: "Delivered",
-  COMPLETED: "Completed",
-  CANCELLED: "Cancelled",
-  RETURNED: "Returned",
+  PENDING_PAYMENT: "Chờ thanh toán",
+  WAITING_SELLER_CONFIRMATION: "Chờ xác nhận từ người bán",
+  SELLER_CONFIRMED: "Đã xác nhận",
+  SHIPPING: "Đang giao hàng",
+  DELIVERED: "Đã giao hàng",
+  COMPLETED: "Hoàn thành",
+  CANCELLED: "Đã hủy",
+  RETURNED: "Đã trả lại",
 };
 
-const paymentStatusVariant: Record<
-  PaymentStatus,
-  "primary" | "secondary" | "success" | "danger" | "warning"
-> = {
-  PENDING: "warning",
-  WAITING_COD_COLLECTION: "warning",
-  COMPLETED: "success",
-  FAILED: "danger",
-  REFUNDED: "secondary",
-};
+// const paymentStatusVariant: Record<
+//   PaymentStatus,
+//   "primary" | "secondary" | "success" | "danger" | "warning"
+// > = {
+//   PENDING: "warning",
+//   WAITING_COD_COLLECTION: "warning",
+//   WAITING_ONLINE_PAYMENT: "warning",
+//   COMPLETED: "success",
+//   FAILED: "danger",
+//   REFUNDED: "secondary",
+// };
 
 const paymentMethodLabel: Record<string, string> = {
   COD: "Thanh toán khi nhận hàng (COD)",
@@ -232,15 +235,18 @@ export const OrdersListPage: React.FC = () => {
 
                   <div>
                     <p className="text-sm text-gray-500">Trạng thái</p>
-                    {payment.method === "ONLINE" ? (
+                    {/* {payment.method === "ONLINE" ? (
                       <Badge variant={paymentStatusVariant[payment.status]}>
-                        Đã thanh toán
+                        {
                       </Badge>
                     ) : (
                       <Badge variant={statusVariant[order.status]}>
                         {statusLabel[order.status]}
                       </Badge>
-                    )}
+                    )} */}
+                    <Badge variant={statusVariant[order.status]}>
+                      {statusLabel[order.status]}
+                    </Badge>
                   </div>
 
                   <div>
