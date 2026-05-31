@@ -1,99 +1,85 @@
 import {
   Controller,
   Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Param,
-  ParseIntPipe,
+  Query,
   UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '@module/auth/guards/jwt-auth.guard';
 import { CurrentUser } from '@common/decorator';
 import { AuthUser } from '@module/auth/types/auth.type';
+import { OrderStatus, ProductStatus } from '@prisma/client';
 import { SellersService } from './sellers.service';
-import {
-  CreateSellerDto,
-  UpdateSellerDto,
-  CreateSellerBankAccountDto,
-  UpdateSellerBankAccountDto,
-} from './dto';
 
 @Controller('sellers')
 export class SellersController {
   constructor(private readonly service: SellersService) {}
 
-  @Post('profile')
+  @Get('dashboard')
   @UseGuards(JwtAuthGuard)
-  createProfile(@CurrentUser() user: AuthUser, @Body() dto: CreateSellerDto) {
-    return this.service.createSellerProfile(user.userId, dto);
+  getDashboard(@CurrentUser() user: AuthUser) {
+    if (user.role !== 'SELLER' || !user.sellerId) {
+      throw new ForbiddenException('Chỉ người bán mới được truy cập');
+    }
+
+    return this.service.getSellerDashboard(Number(user.sellerId));
   }
 
-  @Get(':sellerId')
-  getProfile(@Param('sellerId', ParseIntPipe) sellerId: number) {
-    return this.service.getSellerProfile(sellerId);
-  }
-
-  @Put(':sellerId')
+  @Get('products')
   @UseGuards(JwtAuthGuard)
-  updateProfile(
-    @Param('sellerId', ParseIntPipe) sellerId: number,
-    @Body() dto: UpdateSellerDto,
+  getProducts(
+    @CurrentUser() user: AuthUser,
+
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
+    @Query('keyword') keyword?: string,
+    @Query('categoryId') categoryId?: string,
+    @Query('status') status?: ProductStatus,
   ) {
-    return this.service.updateSellerProfile(sellerId, dto);
+    if (user.role !== 'SELLER' || !user.sellerId) {
+      throw new ForbiddenException('Chỉ người bán mới được truy cập');
+    }
+
+    return this.service.getSellerProducts(
+      user.sellerId,
+      Number(page),
+      Number(limit),
+      keyword,
+      categoryId ? Number(categoryId) : undefined,
+      status,
+    );
   }
 
-  @Post(':sellerId/bank-accounts')
+  @Get('orders')
   @UseGuards(JwtAuthGuard)
-  createBankAccount(
-    @Param('sellerId', ParseIntPipe) sellerId: number,
-    @Body() dto: CreateSellerBankAccountDto,
+  getOrders(
+    @CurrentUser() user: AuthUser,
+
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
+    @Query('status') status?: OrderStatus,
+    @Query('keyword') keyword?: string,
   ) {
-    return this.service.createBankAccount(sellerId, dto);
+    if (user.role !== 'SELLER' || !user.sellerId) {
+      throw new ForbiddenException('Chỉ người bán mới được truy cập');
+    }
+
+    return this.service.getSellerOrders(
+      user.sellerId,
+      Number(page),
+      Number(limit),
+      status,
+      keyword,
+    );
   }
 
-  @Get(':sellerId/bank-accounts')
-  getBankAccounts(@Param('sellerId', ParseIntPipe) sellerId: number) {
-    return this.service.getBankAccounts(sellerId);
-  }
-
-  @Put(':sellerId/bank-accounts/:accountId')
+  @Get('settings')
   @UseGuards(JwtAuthGuard)
-  updateBankAccount(
-    @Param('sellerId', ParseIntPipe) sellerId: number,
-    @Param('accountId', ParseIntPipe) accountId: number,
-    @Body() dto: UpdateSellerBankAccountDto,
-  ) {
-    return this.service.updateBankAccount(accountId, sellerId, dto);
-  }
+  getSettings(@CurrentUser() user: AuthUser) {
+    if (user.role !== 'SELLER' || !user.sellerId) {
+      throw new ForbiddenException('Chỉ người bán mới được truy cập');
+    }
 
-  @Delete(':sellerId/bank-accounts/:accountId')
-  @UseGuards(JwtAuthGuard)
-  deleteBankAccount(
-    @Param('sellerId', ParseIntPipe) sellerId: number,
-    @Param('accountId', ParseIntPipe) accountId: number,
-  ) {
-    return this.service.deleteBankAccount(accountId, sellerId);
-  }
-
-  @Get(':sellerId/wallet')
-  getWallet(@Param('sellerId', ParseIntPipe) sellerId: number) {
-    return this.service.getSellerWallet(sellerId);
-  }
-
-  @Post(':sellerId/approve')
-  approve(@Param('sellerId', ParseIntPipe) sellerId: number) {
-    return this.service.approveSeller(sellerId);
-  }
-
-  @Post(':sellerId/reject')
-  reject(@Param('sellerId', ParseIntPipe) sellerId: number) {
-    return this.service.rejectSeller(sellerId);
-  }
-
-  @Post(':sellerId/suspend')
-  suspend(@Param('sellerId', ParseIntPipe) sellerId: number) {
-    return this.service.suspendSeller(sellerId);
+    return this.service.getSellerSettings(user.sellerId);
   }
 }
