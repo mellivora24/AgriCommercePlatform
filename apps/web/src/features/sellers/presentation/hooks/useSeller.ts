@@ -1,70 +1,45 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
-import type {
-  CreateSellerProfileRequest,
-  UpdateSellerProfileRequest,
-  CreateBankAccountRequest,
-} from '../../domain/entities/seller.entity';
-import { axiosInstance } from '@/core/network/axios.instance';
-import { createSellersApi } from '../../data/api/seller.api';
-import { createSellerRepository } from '../../data/repositories/seller.repository.impl';
+import { useQuery } from '@tanstack/react-query';
+import { QUERY_KEYS } from '@/core/constants/query-keys';
 import {
-  createCreateSellerProfileUseCase,
-  createGetSellerProfileUseCase,
-  createUpdateSellerProfileUseCase,
-  createGetBankAccountsUseCase,
-  createCreateBankAccountUseCase,
-  createGetSellerWalletUseCase,
-} from '../../domain/use-cases/seller.use-case';
+  GetSellerDashboardUseCase,
+  GetSellerOrdersUseCase,
+  GetSellerProductsUseCase,
+  GetSellerSettingsUseCase,
+} from '@/features/sellers/domain/use-cases/seller.use-case';
+import { SellerRepositoryImpl } from '@/features/sellers/data/repositories/seller.repository.impl';
+import type { SellerOrdersFilter, SellerProductsFilter } from '@/features/sellers/domain/entities/seller.entity';
 
-const sellersApi = createSellersApi(axiosInstance);
-const sellerRepository = createSellerRepository(sellersApi);
+const repository = new SellerRepositoryImpl();
 
-export const useCreateSellerProfile = () => {
-  const useCase = createCreateSellerProfileUseCase(sellerRepository);
-  return useMutation({
-    mutationFn: (request: CreateSellerProfileRequest) => useCase.execute(request),
-  });
-};
+const getOrdersUseCase = GetSellerOrdersUseCase(repository);
+const getProductsUseCase = GetSellerProductsUseCase(repository);
+const getSettingsUseCase = GetSellerSettingsUseCase(repository);
+const getDashboardUseCase = GetSellerDashboardUseCase(repository);
 
-export const useGetSellerProfile = (sellerId: number | null) => {
-  const useCase = createGetSellerProfileUseCase(sellerRepository);
+export function useSellerDashboard() {
   return useQuery({
-    queryKey: ['seller', 'profile', sellerId],
-    queryFn: () => useCase.execute(sellerId!),
-    enabled: !!sellerId,
+    queryKey: [QUERY_KEYS.SELLER_DASHBOARD],
+    queryFn: () => getDashboardUseCase.execute(),
   });
-};
+}
 
-export const useUpdateSellerProfile = () => {
-  const useCase = createUpdateSellerProfileUseCase(sellerRepository);
-  return useMutation({
-    mutationFn: ({ sellerId, request }: { sellerId: number; request: UpdateSellerProfileRequest }) =>
-      useCase.execute(sellerId, request),
-  });
-};
-
-export const useGetBankAccounts = (sellerId: number | null) => {
-  const useCase = createGetBankAccountsUseCase(sellerRepository);
+export function useSellerProducts(filter: SellerProductsFilter = {}) {
   return useQuery({
-    queryKey: ['seller', 'bank-accounts', sellerId],
-    queryFn: () => useCase.execute(sellerId!),
-    enabled: !!sellerId,
+    queryKey: [QUERY_KEYS.SELLER_PRODUCTS, filter],
+    queryFn: () => getProductsUseCase.execute(filter),
   });
-};
+}
 
-export const useCreateBankAccount = () => {
-  const useCase = createCreateBankAccountUseCase(sellerRepository);
-  return useMutation({
-    mutationFn: ({ sellerId, request }: { sellerId: number; request: CreateBankAccountRequest }) =>
-      useCase.execute(sellerId, request),
-  });
-};
-
-export const useGetSellerWallet = (sellerId: number | null) => {
-  const useCase = createGetSellerWalletUseCase(sellerRepository);
+export function useSellerOrders(filter: SellerOrdersFilter = {}) {
   return useQuery({
-    queryKey: ['seller', 'wallet', sellerId],
-    queryFn: () => useCase.execute(sellerId!),
-    enabled: !!sellerId,
+    queryKey: [QUERY_KEYS.SELLER_ORDERS, filter],
+    queryFn: () => getOrdersUseCase.execute(filter),
   });
-};
+}
+
+export function useSellerSettings() {
+  return useQuery({
+    queryKey: [QUERY_KEYS.SELLER_SETTINGS],
+    queryFn: () => getSettingsUseCase.execute(),
+  });
+}

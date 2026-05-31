@@ -9,7 +9,7 @@ import { ROUTES } from "@/core/router/routes";
 import type {
   OrderStatus,
   PaymentStatus,
-} from "../../domain/entities/order.entity";
+} from "@/features/orders/domain/entities/order.entity";
 
 const statusVariant: Record<
   OrderStatus,

@@ -1,10 +1,29 @@
-import type { AxiosInstance } from "axios";
+import { axiosInstance } from '@/core/network/axios.instance';
+import type {
+  GetSellerOrdersQueryDto,
+  GetSellerProductsQueryDto,
+  SellerDashboardResponseDto,
+  SellerOrdersResponseDto,
+  SellerProductsResponseDto,
+  SellerSettingsResponseDto,
+} from '@/features/sellers/data/dtos/seller.dto';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const createSellerApi = (axiosInstance: AxiosInstance) => ({
-  placeHolderFunction: () => {
-    console.log("This is a placeholder function for the Seller API.");
-  }
-});
+const BASE = '/sellers';
 
-export type SellerApi = ReturnType<typeof createSellerApi>;
+export const sellerApi = {
+  getDashboard(): Promise<SellerDashboardResponseDto> {
+    return axiosInstance.get(`${BASE}/dashboard`).then((res) => res.data);
+  },
+
+  getProducts(query: GetSellerProductsQueryDto = {}): Promise<SellerProductsResponseDto> {
+    return axiosInstance.get(`${BASE}/products`, { params: query }).then((res) => res.data);
+  },
+
+  getOrders(query: GetSellerOrdersQueryDto = {}): Promise<SellerOrdersResponseDto> {
+    return axiosInstance.get(`${BASE}/orders`, { params: query }).then((res) => res.data);
+  },
+
+  getSettings(): Promise<SellerSettingsResponseDto> {
+    return axiosInstance.get(`${BASE}/settings`).then((res) => res.data);
+  },
+};
