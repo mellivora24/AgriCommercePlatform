@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-
 import { UsersService } from '@module/users/users.service';
 import { UserLoginDto } from '@module/auth/dto/login.dto';
 import { UserRegisterDto } from '@module/auth/dto/register.dto';
@@ -9,36 +9,53 @@ import { ForgotPasswordDto } from '@module/auth/dto/forgot-password.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  private generateTokens(userId: number, email: string, role: string) {
+    const payload = { sub: userId, email, role };
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '1d' });
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+    return { accessToken, refreshToken };
+  }
+
+  verifyToken(token: string) {
+    try {
+      return this.jwtService.verify(token);
+    } catch (error: any) {
+      throw new BadRequestException(
+        'Invalid or expired token: ' + error.message,
+      );
+    }
+  }
 
   async register(dto: UserRegisterDto) {
     const existingUser = await this.usersService.findByEmailOrPhone(
       dto.email,
-      dto.phone,
+      dto.phone || '',
     );
     if (existingUser) {
       throw new BadRequestException('Email hoặc số điện thoại đã tồn tại');
     }
 
     const result = await this.usersService.createUser(dto);
-
-    const accessToken = await bcrypt.hash(`${result.id}-${Date.now()}`, 10);
-    const refreshToken = await bcrypt.hash(
-      `${result.id}-${Date.now()}-refresh`,
-      10,
+    const { accessToken, refreshToken } = this.generateTokens(
+      result.id,
+      result.email,
+      result.role,
     );
 
     return {
       accessToken,
       refreshToken,
       user: {
-        userId: result.id,
+        id: result.id,
         email: result.email,
-        phone: result.phone,
+        name: result.name,
         role: result.role,
-        status: result.account_status,
         createdAt: result.created_at,
-        updatedAt: result.updated_at,
       },
     };
   }
@@ -53,31 +70,29 @@ export class AuthService {
       throw new BadRequestException('Email hoặc số điện thoại là bắt buộc');
     }
 
-    const hashedPassword = result.passwordHash;
-
-    const isPasswordValid = await bcrypt.compare(dto.password, hashedPassword);
-
+    const isPasswordValid = await bcrypt.compare(
+      dto.password,
+      result.passwordHash,
+    );
     if (!isPasswordValid) {
       throw new BadRequestException('Mật khẩu không đúng');
     }
 
-    const accessToken = await bcrypt.hash(`${result.userId}-${Date.now()}`, 10);
-    const refreshToken = await bcrypt.hash(
-      `${result.userId}-${Date.now()}-refresh`,
-      10,
+    const { accessToken, refreshToken } = this.generateTokens(
+      result.userId,
+      result.email,
+      result.role,
     );
 
     return {
       accessToken,
       refreshToken,
       user: {
-        userId: result.userId,
+        id: result.userId,
         email: result.email,
-        phone: result.phone,
+        name: result.email.split('@')[0],
         role: result.role,
-        status: result.status,
         createdAt: result.createdAt,
-        updatedAt: result.updatedAt,
       },
     };
   }

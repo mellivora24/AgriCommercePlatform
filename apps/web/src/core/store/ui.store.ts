@@ -19,18 +19,21 @@ interface UIState {
   toasts: Toast[];
   modals: Modal[];
   sidebarOpen: boolean;
+  cartDrawerOpen: boolean;
   addToast: (toast: Omit<Toast, 'id'>) => void;
   removeToast: (id: string) => void;
   addModal: (modal: Omit<Modal, 'id'>) => void;
   removeModal: (id: string) => void;
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
+  setCartDrawerOpen: (open: boolean) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
   toasts: [],
   modals: [],
   sidebarOpen: false,
+  cartDrawerOpen: false,
 
   addToast: (toast) =>
     set((state) => {
@@ -62,4 +65,6 @@ export const useUIStore = create<UIState>((set) => ({
     })),
 
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
+
+  setCartDrawerOpen: (open) => set({ cartDrawerOpen: open }),
 }));

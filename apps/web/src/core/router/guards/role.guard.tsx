@@ -16,13 +16,20 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({
   const isAuthenticated = useAuthStore(
     (state) => state.isAuthenticated,
   );
+  const isHydrated = useAuthStore(
+    (state) => state.isHydrated,
+  );
+
+  if (!isHydrated) {
+    return <>{children}</>;
+  }
 
   if (!isAuthenticated) {
     return <Navigate to={ROUTES.LOGIN} replace />;
   }
 
   if (!user || !allowedRoles.includes(user.role)) {
-    return <Navigate to={ROUTES.HOME} replace />;
+    return <Navigate to={ROUTES.HOME_PAGE} replace />;
   }
 
   return <>{children}</>;

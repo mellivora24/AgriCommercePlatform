@@ -1,5 +1,5 @@
-import { axiosInstance } from '../../../../core/network';
-import type { AuthResponseDTO, LoginRequestDTO, RegisterRequestDTO } from '../dtos/auth.dto';
+import { axiosInstance } from '@/core/network';
+import type { AuthResponseDTO, LoginRequestDTO, RegisterRequestDTO } from '@/features/auth/data/dtos/auth.dto';
 
 export const authApi = {
   login: async (credentials: LoginRequestDTO): Promise<AuthResponseDTO> => {

@@ -11,20 +11,26 @@ INSERT INTO users (
 VALUES
 (
     'buyer1@gmail.com',
-    '$2a$10$dummy',
+    '$2a$10$62QA9y4G2rrFsgAxYLtzB.hhECUF8UQq3d9Of2FRlZQtZjseGHO3m',
     'BUYER',
     'ACTIVE'
 ),
 (
     'nongtraiviet@gmail.com',
-    '$2a$10$dummy',
+    '$2a$10$62QA9y4G2rrFsgAxYLtzB.hhECUF8UQq3d9Of2FRlZQtZjseGHO3m',
     'SELLER',
     'ACTIVE'
 ),
 (
     'greenfarm@gmail.com',
-    '$2a$10$dummy',
+    '$2a$10$62QA9y4G2rrFsgAxYLtzB.hhECUF8UQq3d9Of2FRlZQtZjseGHO3m',
     'SELLER',
+    'ACTIVE'
+),
+(
+    'admin@gmail.com',
+    '$2a$10$62QA9y4G2rrFsgAxYLtzB.hhECUF8UQq3d9Of2FRlZQtZjseGHO3m',
+    'ADMIN',
     'ACTIVE'
 );
 
@@ -74,9 +80,7 @@ VALUES
 );
 
 INSERT INTO seller_wallets (seller_id)
-VALUES
-(1),
-(2);
+VALUES (1), (2);
 
 -- =====================================================
 -- BANK ACCOUNTS

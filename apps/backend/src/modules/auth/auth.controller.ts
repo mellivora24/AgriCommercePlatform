@@ -1,4 +1,5 @@
 import {
+  Get,
   Post,
   Body,
   Controller,
@@ -20,6 +21,25 @@ import { ForgotPasswordDto } from '@module/auth/dto/forgot-password.dto';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Get('/health/token')
+  async healthCheckToken(@Request() req: any) {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
+      return { valid: false, message: 'No token provided' };
+    }
+
+    const token = authHeader.split(' ')[1];
+    try {
+      const payload = await this.authService.verifyToken(token);
+      return { valid: true, payload };
+    } catch (error: any) {
+      return {
+        valid: false,
+        message: 'Invalid or expired token: ' + error.message,
+      };
+    }
+  }
 
   @Post('register')
   async register(@Body() dto: UserRegisterDto) {

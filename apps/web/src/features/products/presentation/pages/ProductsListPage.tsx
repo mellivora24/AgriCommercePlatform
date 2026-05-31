@@ -1,6 +1,7 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import { useProducts } from "@/features/products/presentation/hooks/useProducts";
+import { useNavigate, useSearchParams } from "react-router-dom";
+
+import { useProducts, useSearchProducts } from "@/features/products/presentation/hooks/useProducts";
 import { usePagination } from "@/shared/hooks/usePagination";
 import { Button } from "@/shared/components/ui/Button";
 import { Skeleton } from "@/shared/components/ui/Skeleton";
@@ -8,17 +9,54 @@ import { Pagination } from "@/shared/components/ui/Pagination";
 import { formatCurrency } from "@/shared/utils";
 import { useCartStore } from "@/core/store";
 import { useToast } from "@/shared/hooks";
+import type { ProductListResponse } from "@/features/products/domain/entities/product.entity";
 
 const PAGE_SIZE = 8;
 
-export const ProductsListPage: React.FC = () => {
+interface ProductsListPageProps {
+  externalData?: ProductListResponse;
+  isExternalLoading?: boolean;
+  onPageChange?: (page: number) => void;
+}
+
+export const ProductsListPage: React.FC<ProductsListPageProps> = ({
+  externalData,
+  isExternalLoading,
+  onPageChange: externalOnPageChange,
+}) => {
   const navigate = useNavigate();
   const toast = useToast();
   const { currentPage, onPageChange } = usePagination();
-  const { data, isLoading } = useProducts(currentPage, PAGE_SIZE);
-  const { addItem } = useCartStore();
+  const [searchParams] = useSearchParams();
+  const categoryId = searchParams.get("category");
+
+  const searchQuery = searchParams.get("search") ?? "";
+
+  const isExternal = externalData !== undefined;
+
+  const { data: fetchedData, isLoading: isFetchedLoading } = useProducts(
+    isExternal ? 1 : currentPage,
+    PAGE_SIZE,
+    isExternal ? undefined : categoryId ? Number(categoryId) : undefined,
+  );
+
+  const { data: searchData, isLoading: isSearchLoading } = useSearchProducts(
+    searchQuery,
+    currentPage,
+  );
+
+  const data = isExternal ? externalData : searchQuery ? searchData : fetchedData;
+  const isLoading = isExternal
+    ? (isExternalLoading ?? false)
+    : searchQuery
+    ? isSearchLoading
+    : isFetchedLoading;
+
   const totalPages = Math.ceil((data?.total || 0) / PAGE_SIZE);
 
+  const { addItem } = useCartStore();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleAddToCart = (product: any) => {
     addItem({
       productId: product.productId,
@@ -29,16 +67,30 @@ export const ProductsListPage: React.FC = () => {
       image: product.images?.[0]?.imageUrl || "/placeholder.png",
       sku: product.sku,
     });
-    toast.success(`${product.name} added to cart`);
+    toast.success(`${product.name} đã được thêm vào giỏ hàng!`);
   };
 
-  const handleProductClick = (productId: string) => {
+  const handleProductClick = (productId: number) => {
     navigate(`/products/${productId}`);
   };
 
+  const handlePageChange = (page: number) => {
+    if (isExternal && externalOnPageChange) {
+      externalOnPageChange(page);
+    } else {
+      onPageChange(page);
+    }
+  };
+
+  const activePage = isExternal ? (externalData?.page ?? 1) : currentPage;
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Products</h1>
+      {!isExternal && (
+        <h1 className="text-3xl font-bold mb-8">
+          {searchQuery ? `Kết quả tìm kiếm: "${searchQuery}"` : "Sản phẩm"}
+        </h1>
+      )}
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -50,10 +102,16 @@ export const ProductsListPage: React.FC = () => {
             </div>
           ))}
         </div>
+      ) : !data?.items?.length ? (
+        <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+          <span className="text-5xl mb-4">🌿</span>
+          <p className="text-lg font-medium">Không tìm thấy sản phẩm nào</p>
+          <p className="text-sm mt-1">Thử tìm kiếm với từ khóa khác</p>
+        </div>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {data?.items.map((product: any) => (
+            {data.items.map((product) => (
               <div
                 key={product.productId}
                 className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
@@ -67,34 +125,23 @@ export const ProductsListPage: React.FC = () => {
                   />
                   {product.stockQuantity === 0 && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <span className="text-white font-bold text-lg">
-                        Hết hàng
-                      </span>
+                      <span className="text-white font-bold text-lg">Hết hàng</span>
                     </div>
                   )}
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold mb-1 truncate">
-                    {product.name}
-                  </h3>
-                  <p className="text-sm text-gray-500 mb-2">
-                    {product.seller.storeName}
-                  </p>
+                  <h3 className="font-semibold mb-1 truncate">{product.name}</h3>
+                  <p className="text-sm text-gray-500 mb-2">{product.seller.storeName}</p>
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-lg font-bold text-red-600">
-                      {formatCurrency(product.price)}
+                      {formatCurrency(Number(product.price))}
                     </span>
-                    <span className="text-sm text-yellow-500">
-                      ⭐ {product.rating}
-                    </span>
+                    <span className="text-sm text-yellow-500">⭐ {product.rating ?? "—"}</span>
                   </div>
 
-                  {/* Stock Status */}
                   <div className="mb-3 p-2 rounded bg-gray-50">
                     {product.stockQuantity === 0 ? (
-                      <p className="text-sm text-red-600 font-semibold">
-                        Hết hàng
-                      </p>
+                      <p className="text-sm text-red-600 font-semibold">Hết hàng</p>
                     ) : product.stockQuantity < 5 ? (
                       <p className="text-sm text-orange-600 font-semibold">
                         Chỉ còn {product.stockQuantity}
@@ -124,9 +171,9 @@ export const ProductsListPage: React.FC = () => {
 
           {totalPages > 1 && (
             <Pagination
-              currentPage={currentPage}
+              currentPage={activePage}
               totalPages={totalPages}
-              onPageChange={onPageChange}
+              onPageChange={handlePageChange}
             />
           )}
         </>

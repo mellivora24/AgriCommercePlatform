@@ -14,6 +14,7 @@ export interface Seller {
   platformFeeRate: string;
   createdAt?: string;
   updatedAt?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
@@ -37,7 +38,7 @@ export interface Product {
   sellerId: number;
   seller: Seller;
   stockQuantity: number;
-  status: string;
+  status: 'HIDDEN' | 'AVAILABLE' | 'OUT_OF_STOCK';
   rating?: number;
   reviews?: number;
   sku?: string;

@@ -22,14 +22,14 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           className={classNames(
-            'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent',
-            error ? 'border-red-500' : 'border-gray-300',
+            'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent',
+            error ? 'border-green-500' : 'border-gray-300',
             className,
           )}
           {...props}
         />
         {error && (
-          <p className="text-red-500 text-sm mt-1">{error}</p>
+          <p className="text-green-500 text-sm mt-1">{error}</p>
         )}
         {helperText && !error && (
           <p className="text-gray-500 text-sm mt-1">{helperText}</p>

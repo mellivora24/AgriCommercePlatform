@@ -1,30 +1,5 @@
-import React, { type PropsWithChildren, useEffect } from 'react';
-import { useAuthStore } from '../store';
+import React, { type PropsWithChildren } from 'react';
 
-export const AuthProvider: React.FC<PropsWithChildren> = ({
-  children,
-}) => {
-  useEffect(() => {
-    const storedAuthState = localStorage.getItem('auth-store');
-    if (storedAuthState) {
-      try {
-        const authState = JSON.parse(storedAuthState);
-        const { accessToken, refreshToken, user, isAuthenticated } =
-          authState.state || authState;
-
-        if (isAuthenticated && accessToken) {
-          useAuthStore.setState({
-            accessToken,
-            refreshToken,
-            user,
-            isAuthenticated: true,
-          });
-        }
-      } catch (error) {
-        console.error('Failed to hydrate auth store:', error);
-      }
-    }
-  }, []);
-
+export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
   return <>{children}</>;
 };

@@ -20,8 +20,15 @@ DROP TABLE IF EXISTS seller_profiles CASCADE;
 DROP TABLE IF EXISTS buyer_profiles CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
+DROP TABLE IF EXISTS platform_transactions CASCADE;
+DROP TABLE IF EXISTS platform_wallets CASCADE;
+DROP TABLE IF EXISTS payment_provider_events CASCADE;
+DROP TABLE IF EXISTS return_requests CASCADE;
+DROP TABLE IF EXISTS processed_webhooks CASCADE;
+
 CREATE TABLE users (
     user_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nickname VARCHAR(255),
     email VARCHAR(255) NOT NULL,
     phone VARCHAR(20),
     password_hash TEXT NOT NULL,
@@ -32,11 +39,17 @@ CREATE TABLE users (
     deleted_at TIMESTAMPTZ
 );
 
+ALTER TABLE users ADD COLUMN nickname VARCHAR(255);
+
 CREATE UNIQUE INDEX uniq_users_email_active ON users (email)
 WHERE
     deleted_at IS NULL;
 
 CREATE UNIQUE INDEX uniq_users_phone_active ON users (phone)
+WHERE
+    deleted_at IS NULL;
+
+CREATE UNIQUE INDEX uniq_users_nickname_active ON users (nickname)
 WHERE
     deleted_at IS NULL;
 
@@ -169,13 +182,14 @@ CREATE TABLE orders (
     buyer_id INT NOT NULL,
     seller_id INT NOT NULL,
     total_amount BIGINT NOT NULL CHECK (total_amount >= 0),
+    payment_method payment_method NOT NULL,
     shipping_fee BIGINT NOT NULL DEFAULT 0 CHECK (shipping_fee >= 0),
     platform_fee BIGINT NOT NULL DEFAULT 0,
     seller_amount BIGINT GENERATED ALWAYS AS (total_amount - platform_fee) STORED,
     shipping_address TEXT NOT NULL,
     receiver_name VARCHAR(255) NOT NULL,
     receiver_phone VARCHAR(20) NOT NULL,
-    status order_status NOT NULL DEFAULT 'PENDING_PAYMENT',
+    status order_status NOT NULL DEFAULT 'WAITING_SELLER_CONFIRMATION',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     FOREIGN KEY (buyer_id) REFERENCES buyer_profiles (buyer_id) ON DELETE CASCADE,

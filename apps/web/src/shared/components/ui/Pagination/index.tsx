@@ -85,7 +85,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         }
         disabled={currentPage === 1}
       >
-        Previous
+        Trang trước {'<<'}
       </Button>
 
       {pages.map((page) =>
@@ -120,7 +120,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         }
         disabled={currentPage === totalPages}
       >
-        Next
+        {'>>'} Trang sau
       </Button>
     </div>
   );

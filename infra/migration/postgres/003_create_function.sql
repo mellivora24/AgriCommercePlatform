@@ -17,6 +17,7 @@ DROP TRIGGER IF EXISTS trg_refund_order ON orders;
 DROP TRIGGER IF EXISTS trg_confirm_cod_collection ON payments;
 DROP TRIGGER IF EXISTS trg_create_seller_wallet ON seller_profiles;
 DROP TRIGGER IF EXISTS trg_prevent_self_buy ON orders;
+DROP TRIGGER IF EXISTS trg_deduct_stock_on_order ON order_items;
 
 CREATE OR REPLACE FUNCTION fn_set_updated_at()
 RETURNS TRIGGER
@@ -437,3 +438,35 @@ CREATE TRIGGER trg_prevent_self_buy
 BEFORE INSERT ON orders
 FOR EACH ROW
 EXECUTE FUNCTION fn_prevent_self_buy();
+
+CREATE OR REPLACE FUNCTION fn_deduct_stock_on_order()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE products
+    SET stock_quantity = stock_quantity - NEW.quantity
+    WHERE product_id = NEW.product_id
+      AND stock_quantity IS NOT NULL;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Không tìm thấy sản phẩm %', NEW.product_id;
+    END IF;
+
+    IF (
+        SELECT stock_quantity
+        FROM products
+        WHERE product_id = NEW.product_id
+    ) < 0 THEN
+        RAISE EXCEPTION
+            'Sản phẩm % không đủ số lượng tồn kho', NEW.product_id;
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_deduct_stock_on_order
+AFTER INSERT ON order_items
+FOR EACH ROW
+EXECUTE FUNCTION fn_deduct_stock_on_order();

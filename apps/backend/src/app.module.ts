@@ -23,6 +23,7 @@ import { PrismaModule } from '@app-prisma/prisma.module';
     ConfigModule.forRoot({
       isGlobal: true,
       load: config,
+      envFilePath: '.env',
     }),
     PrismaModule,
     AuthModule,
