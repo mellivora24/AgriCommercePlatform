@@ -471,6 +471,8 @@ AFTER INSERT ON order_items
 FOR EACH ROW
 EXECUTE FUNCTION fn_deduct_stock_on_order();
 
+DROP TRIGGER IF EXISTS trg_update_seller_wallet_on_order_status ON orders;
+
 CREATE OR REPLACE FUNCTION fn_update_seller_wallet_on_order_status()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -483,7 +485,7 @@ DECLARE
 BEGIN
     v_seller_amount := NEW.seller_amount;
 
-    IF NEW.status = 'CONFIRMED' AND OLD.status <> 'CONFIRMED' THEN
+    IF NEW.status = 'SELLER_CONFIRMED' AND OLD.status <> 'SELLER_CONFIRMED' THEN
 
         SELECT pending_balance
         INTO v_pending_before
@@ -498,8 +500,11 @@ BEGIN
         INSERT INTO wallet_journals (
             seller_id, txn_type, total_amount, idempotency_key, ref_order_id
         ) VALUES (
-            NEW.seller_id, 'ORDER_CONFIRMED', v_seller_amount,
-            'confirm_' || NEW.order_id, NEW.order_id
+            NEW.seller_id,
+            'ORDER_PENDING',
+            v_seller_amount,
+            'confirm_' || NEW.order_id,
+            NEW.order_id
         )
         RETURNING journal_id INTO v_journal_id;
 
@@ -507,7 +512,8 @@ BEGIN
             txn_type, seller_id, journal_id,
             affected_balance, delta, balance_before, balance_after, ref_order_id
         ) VALUES (
-            'ORDER_CONFIRMED', NEW.seller_id, v_journal_id,
+            'ORDER_PENDING',
+            NEW.seller_id, v_journal_id,
             'PENDING', v_seller_amount,
             v_pending_before, v_pending_before + v_seller_amount,
             NEW.order_id
@@ -529,8 +535,11 @@ BEGIN
         INSERT INTO wallet_journals (
             seller_id, txn_type, total_amount, idempotency_key, ref_order_id
         ) VALUES (
-            NEW.seller_id, 'ORDER_DELIVERED', v_seller_amount,
-            'deliver_' || NEW.order_id, NEW.order_id
+            NEW.seller_id,
+            'ORDER_RELEASED',
+            v_seller_amount,
+            'deliver_' || NEW.order_id,
+            NEW.order_id
         )
         RETURNING journal_id INTO v_journal_id;
 
@@ -539,13 +548,15 @@ BEGIN
             affected_balance, delta, balance_before, balance_after, ref_order_id
         ) VALUES
         (
-            'ORDER_DELIVERED', NEW.seller_id, v_journal_id,
+            'ORDER_RELEASED',
+            NEW.seller_id, v_journal_id,
             'PENDING', -v_seller_amount,
             v_pending_before, v_pending_before - v_seller_amount,
             NEW.order_id
         ),
         (
-            'ORDER_DELIVERED', NEW.seller_id, v_journal_id,
+            'ORDER_RELEASED',
+            NEW.seller_id, v_journal_id,
             'AVAILABLE', v_seller_amount,
             v_avail_before, v_avail_before + v_seller_amount,
             NEW.order_id
@@ -556,6 +567,13 @@ BEGIN
     RETURN NEW;
 END;
 $$;
+
+DROP TRIGGER IF EXISTS trg_update_seller_wallet_on_order_status ON orders;
+
+CREATE TRIGGER trg_update_seller_wallet_on_order_status
+AFTER UPDATE OF status ON orders
+FOR EACH ROW
+EXECUTE FUNCTION fn_update_seller_wallet_on_order_status();
 
 DROP TRIGGER IF EXISTS trg_update_seller_wallet_on_order_status ON orders;
 

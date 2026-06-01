@@ -2,13 +2,15 @@ import type {
   CreateOrderRequest,
   Order,
   UpdateOrderStatusRequest,
+  GetSellerOrdersParams,
+  PaginatedOrderList,
 } from "@/features/orders/domain/entities/order.entity";
 import type {
   IOrderRepository,
   OrderStats,
 } from "@/features/orders/domain/repositories/order.repository";
 import { OrderMapper } from "@/features/orders/data/mappers/order.mapper";
-import type { OrdersApi, SellerOrderStatsDTO } from "@/features/orders/data/api/orders.api";
+import type { OrdersApi } from "@/features/orders/data/api/orders.api";
 
 export const createOrderRepository = (
   ordersApi: OrdersApi,
@@ -24,12 +26,7 @@ export const createOrderRepository = (
   },
 
   createOrder: async (request: CreateOrderRequest): Promise<Order[]> => {
-    const dtos = await ordersApi.createOrder({
-      shippingAddress: request.shippingAddress,
-      receiverName: request.receiverName,
-      receiverPhone: request.receiverPhone,
-      paymentMethod: request.paymentMethod,
-    });
+    const dtos = await ordersApi.createOrder(request);
     return OrderMapper.toCreateOrderEntity(dtos);
   },
 
@@ -48,13 +45,23 @@ export const createOrderRepository = (
     return OrderMapper.toEntity(dto);
   },
 
-  listSellerOrders: async (): Promise<Order[]> => {
-    const dtos = await ordersApi.listSellerOrders();
-    return OrderMapper.toOrderListEntity(dtos);
+  cancelOrder: async (orderId: number): Promise<Order> => {
+    const dto = await ordersApi.cancelOrder(orderId);
+    return OrderMapper.toEntity(dto);
   },
 
+  listSellerOrders: (async (
+    params?: GetSellerOrdersParams,
+  ): Promise<PaginatedOrderList> => {
+    const dto = await ordersApi.listSellerOrders(params);
+    return OrderMapper.toPaginatedOrderList(dto);
+  }) as IOrderRepository["listSellerOrders"],
+
   getSellerOrderStats: async (): Promise<OrderStats> => {
-    const dto: SellerOrderStatsDTO = await ordersApi.getSellerOrderStats();
-    return dto;
+    const dto = await ordersApi.getSellerOrderStats();
+    return {
+      total: dto.total,
+      statistics: dto.statistics,
+    };
   },
 });

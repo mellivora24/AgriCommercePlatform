@@ -5,6 +5,7 @@ import { Button } from "@/shared/components/ui/Button";
 import { formatCurrency, formatDate } from "@/shared/utils/format";
 import type { SellerOrder } from "@/features/sellers/domain/entities/seller.entity";
 import type { OrderStatus, PaymentStatus } from "@/core/types/enum";
+import { useConfirmOrder, useCancelOrder } from "@/features/orders/presentation/hooks/useOrders";
 
 const orderStatusVariant: Record<
   OrderStatus,
@@ -47,26 +48,42 @@ interface Props {
   isOpen: boolean;
   order: SellerOrder;
   onClose: () => void;
+  onOrderUpdated?: () => void;
 }
 
 export const SellerOrderDetailModal: React.FC<Props> = ({
   isOpen,
   order,
   onClose,
+  onOrderUpdated,
 }) => {
   const [confirming, setConfirming] = useState(false);
   const [rejecting, setRejecting] = useState(false);
 
+  const confirmMutation = useConfirmOrder();
+  const cancelMutation = useCancelOrder();
+
   const handleConfirmOrder = () => {
-    console.log("Confirm order:", order.orderId);
-    setConfirming(false);
+    confirmMutation.mutate(order.orderId, {
+      onSuccess: () => {
+        setConfirming(false);
+        onOrderUpdated?.();
+        onClose();
+      },
+    });
   };
 
   const handleRejectOrder = () => {
-    console.log("Reject order:", order.orderId);
-    setRejecting(false);
+    cancelMutation.mutate(order.orderId, {
+      onSuccess: () => {
+        setRejecting(false);
+        onOrderUpdated?.();
+        onClose();
+      },
+    });
   };
 
+  // TODO: cần thêm API xử lý return phía backend
   const handleApproveReturn = () => {
     console.log("Approve return for order:", order.orderId);
   };
@@ -76,6 +93,7 @@ export const SellerOrderDetailModal: React.FC<Props> = ({
   };
 
   const payment = order.payments[0];
+  const isActioning = confirmMutation.isPending || cancelMutation.isPending;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -135,9 +153,7 @@ export const SellerOrderDetailModal: React.FC<Props> = ({
                     </div>
                   </td>
                   <td className="px-4 py-3">{item.quantity}</td>
-                  <td className="px-4 py-3">
-                    {formatCurrency(item.unitPrice)}
-                  </td>
+                  <td className="px-4 py-3">{formatCurrency(item.unitPrice)}</td>
                   <td className="px-4 py-3 font-semibold">
                     {formatCurrency(item.unitPrice * item.quantity)}
                   </td>
@@ -197,10 +213,18 @@ export const SellerOrderDetailModal: React.FC<Props> = ({
             !confirming &&
             !rejecting && (
               <>
-                <Button variant="danger" onClick={() => setRejecting(true)}>
+                <Button
+                  variant="danger"
+                  onClick={() => setRejecting(true)}
+                  disabled={isActioning}
+                >
                   Từ chối đơn
                 </Button>
-                <Button variant="primary" onClick={() => setConfirming(true)}>
+                <Button
+                  variant="primary"
+                  onClick={() => setConfirming(true)}
+                  disabled={isActioning}
+                >
                   Xác nhận đơn
                 </Button>
               </>
@@ -211,11 +235,19 @@ export const SellerOrderDetailModal: React.FC<Props> = ({
               <p className="text-sm text-gray-600 flex-1">
                 Xác nhận nhận đơn hàng #{order.orderId}?
               </p>
-              <Button variant="secondary" onClick={() => setConfirming(false)}>
+              <Button
+                variant="secondary"
+                onClick={() => setConfirming(false)}
+                disabled={confirmMutation.isPending}
+              >
                 Hủy
               </Button>
-              <Button variant="primary" onClick={handleConfirmOrder}>
-                Xác nhận
+              <Button
+                variant="primary"
+                onClick={handleConfirmOrder}
+                disabled={confirmMutation.isPending}
+              >
+                {confirmMutation.isPending ? "Đang xử lý..." : "Xác nhận"}
               </Button>
             </div>
           )}
@@ -225,11 +257,19 @@ export const SellerOrderDetailModal: React.FC<Props> = ({
               <p className="text-sm text-gray-600 flex-1">
                 Từ chối đơn hàng #{order.orderId}?
               </p>
-              <Button variant="secondary" onClick={() => setRejecting(false)}>
+              <Button
+                variant="secondary"
+                onClick={() => setRejecting(false)}
+                disabled={cancelMutation.isPending}
+              >
                 Hủy
               </Button>
-              <Button variant="danger" onClick={handleRejectOrder}>
-                Từ chối
+              <Button
+                variant="danger"
+                onClick={handleRejectOrder}
+                disabled={cancelMutation.isPending}
+              >
+                {cancelMutation.isPending ? "Đang xử lý..." : "Từ chối"}
               </Button>
             </div>
           )}
@@ -246,7 +286,7 @@ export const SellerOrderDetailModal: React.FC<Props> = ({
           )}
 
           {!confirming && !rejecting && (
-            <Button variant="secondary" onClick={onClose}>
+            <Button variant="secondary" onClick={onClose} disabled={isActioning}>
               Đóng
             </Button>
           )}

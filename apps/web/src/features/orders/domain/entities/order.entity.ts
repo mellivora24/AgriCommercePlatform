@@ -1,12 +1,14 @@
 export type OrderStatus =
   | 'PENDING_PAYMENT'
+  | "PAID"
   | 'WAITING_SELLER_CONFIRMATION'
   | 'SELLER_CONFIRMED'
   | 'SHIPPING'
   | 'DELIVERED'
   | 'COMPLETED'
   | 'CANCELLED'
-  | 'RETURNED';
+  | 'RETURN_REQUESTED'
+  | 'REFUNDED';
 export type PaymentStatus =
   | 'PENDING'
   | 'WAITING_COD_COLLECTION'
@@ -102,4 +104,21 @@ export interface CreateOrderRequest {
 
 export interface UpdateOrderStatusRequest {
   status: OrderStatus;
+}
+
+export interface GetSellerOrdersParams {
+  status?: OrderStatus;
+  keyword?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface PaginatedOrderList {
+  items: Order[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }

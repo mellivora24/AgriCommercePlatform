@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   CreateOrderRequest,
+  GetSellerOrdersParams,
   UpdateOrderStatusRequest,
 } from "@/features/orders/domain/entities/order.entity";
 import { axiosInstance } from "@/core/network/axios.instance";
@@ -12,6 +13,7 @@ import {
   createCreateOrderUseCase,
   createUpdateOrderStatusUseCase,
   createConfirmOrderUseCase,
+  createCancelOrderUseCase,        // ✅ thêm import
   createListSellerOrdersUseCase,
   createGetSellerOrderStatsUseCase,
 } from "@/features/orders/domain/use-cases/order.use-case";
@@ -54,18 +56,13 @@ export const useUpdateOrderStatus = () => {
   const useCase = createUpdateOrderStatusUseCase(orderRepository);
 
   return useMutation({
-    mutationFn: ({
-      orderId,
-      request,
-    }: {
-      orderId: number;
-      request: UpdateOrderStatusRequest;
-    }) => useCase.execute(orderId, request),
+    mutationFn: ({ orderId, request }: { orderId: number; request: UpdateOrderStatusRequest }) =>
+      useCase.execute(orderId, request),
     onSuccess: (_, { orderId }) => {
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.ORDERS_DETAIL(orderId),
-      });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ORDERS_DETAIL(orderId) });
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ORDERS_LIST });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SELLER_ORDERS_LIST });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SELLER_ORDER_STATS });
     },
   });
 };
@@ -77,19 +74,32 @@ export const useConfirmOrder = () => {
   return useMutation({
     mutationFn: (orderId: number) => useCase.execute(orderId),
     onSuccess: (_, orderId) => {
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.ORDERS_DETAIL(orderId),
-      });
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ORDERS_LIST });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ORDERS_DETAIL(orderId) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SELLER_ORDERS_LIST }); // ✅
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SELLER_ORDER_STATS }); // ✅
     },
   });
 };
 
-export const useListSellerOrders = () => {
+export const useCancelOrder = () => {
+  const queryClient = useQueryClient();
+  const useCase = createCancelOrderUseCase(orderRepository); // ✅ fix missing import
+
+  return useMutation({
+    mutationFn: (orderId: number) => useCase.execute(orderId),
+    onSuccess: (_, orderId) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ORDERS_DETAIL(orderId) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SELLER_ORDERS_LIST }); // ✅
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SELLER_ORDER_STATS }); // ✅
+    },
+  });
+};
+
+export const useListSellerOrders = (params?: GetSellerOrdersParams) => {
   const useCase = createListSellerOrdersUseCase(orderRepository);
   return useQuery({
-    queryKey: QUERY_KEYS.SELLER_ORDERS_LIST,
-    queryFn: () => useCase.execute(),
+    queryKey: [...QUERY_KEYS.SELLER_ORDERS_LIST, params],
+    queryFn: () => useCase.execute(params),
   });
 };
 

@@ -1,6 +1,8 @@
 import type {
   CreateOrderRequest,
+  GetSellerOrdersParams,
   Order,
+  PaginatedOrderList,
   UpdateOrderStatusRequest,
 } from "@/features/orders/domain/entities/order.entity";
 import type {
@@ -29,7 +31,7 @@ export interface ConfirmOrderUseCase {
 }
 
 export interface ListSellerOrdersUseCase {
-  execute(): Promise<Order[]>;
+  execute(params?: GetSellerOrdersParams): Promise<PaginatedOrderList>;
 }
 
 export interface GetSellerOrderStatsUseCase {
@@ -67,14 +69,29 @@ export const createConfirmOrderUseCase = (
   execute: (orderId: number) => repository.confirmOrder(orderId),
 });
 
-export const createListSellerOrdersUseCase = (
-  repository: IOrderRepository,
-): ListSellerOrdersUseCase => ({
-  execute: () => repository.listSellerOrders(),
-});
-
 export const createGetSellerOrderStatsUseCase = (
   repository: IOrderRepository,
 ): GetSellerOrderStatsUseCase => ({
   execute: () => repository.getSellerOrderStats(),
+});
+
+export interface ListSellerOrdersUseCase {
+  execute(params?: GetSellerOrdersParams): Promise<PaginatedOrderList>;
+}
+
+export interface CancelOrderUseCase {
+  execute(orderId: number): Promise<Order>;
+}
+
+export const createListSellerOrdersUseCase = (
+  repository: IOrderRepository,
+): ListSellerOrdersUseCase => ({
+  execute: (params?: GetSellerOrdersParams) =>
+    repository.listSellerOrders(params),
+});
+
+export const createCancelOrderUseCase = (
+  repository: IOrderRepository,
+): CancelOrderUseCase => ({
+  execute: (orderId: number) => repository.cancelOrder(orderId),
 });

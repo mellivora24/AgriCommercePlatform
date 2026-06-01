@@ -84,3 +84,30 @@ export interface CreateOrderRequestDTO {
 export interface UpdateOrderStatusRequestDTO {
   status: OrderStatus;
 }
+
+export interface GetSellerOrdersQueryDTO {
+  status?: string;
+  keyword?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface PaginatedOrderListDTO {
+  items: OrderDTO[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface OrderStatItemDTO {
+  status: string;
+  count: number;
+}
+
+export interface SellerOrderStatsDTO {
+  total: number;
+  statistics: OrderStatItemDTO[];
+}

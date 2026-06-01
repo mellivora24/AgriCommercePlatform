@@ -5,6 +5,9 @@ import type {
   OrderDTO,
   OrderListResponseDTO,
   UpdateOrderStatusRequestDTO,
+  GetSellerOrdersQueryDTO,
+  PaginatedOrderListDTO,
+  SellerOrderStatsDTO,
 } from '@/features/orders/data/dtos/order.dto';
 
 export const createOrdersApi = (axiosInstance: AxiosInstance) => ({
@@ -28,6 +31,11 @@ export const createOrdersApi = (axiosInstance: AxiosInstance) => ({
     return data;
   },
 
+  cancelOrder: async (orderId: number): Promise<OrderDTO> => {
+    const { data } = await axiosInstance.post<OrderDTO>(`/orders/${orderId}/cancel`);
+    return data;
+  },
+
   updateOrderStatus: async (
     orderId: number,
     request: UpdateOrderStatusRequestDTO,
@@ -36,8 +44,10 @@ export const createOrdersApi = (axiosInstance: AxiosInstance) => ({
     return data;
   },
 
-  listSellerOrders: async (): Promise<OrderListResponseDTO> => {
-    const { data } = await axiosInstance.get<OrderListResponseDTO>('/orders/seller/me');
+  listSellerOrders: async (params?: GetSellerOrdersQueryDTO): Promise<PaginatedOrderListDTO> => {
+    const { data } = await axiosInstance.get<PaginatedOrderListDTO>('/orders/seller/me', {
+      params,
+    });
     return data;
   },
 
@@ -46,14 +56,5 @@ export const createOrdersApi = (axiosInstance: AxiosInstance) => ({
     return data;
   },
 });
-
-export interface SellerOrderStatsDTO {
-  total: number;
-  pending: number;
-  confirmed: number;
-  shipped: number;
-  delivered: number;
-  completed: number;
-}
 
 export type OrdersApi = ReturnType<typeof createOrdersApi>;

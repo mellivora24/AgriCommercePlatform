@@ -1,6 +1,7 @@
 import type {
   Order,
   OrderItem,
+  PaginatedOrderList,
   Payment,
   Shipment,
 } from "@/features/orders/domain/entities/order.entity";
@@ -11,6 +12,7 @@ import type {
   ShipmentDTO,
   OrderListResponseDTO,
   CreateOrderResponseDTO,
+  PaginatedOrderListDTO,
 } from "@/features/orders/data/dtos/order.dto";
 
 export const OrderMapper = {
@@ -82,4 +84,9 @@ export const OrderMapper = {
     dtos.map(OrderMapper.toEntity),
   toCreateOrderEntity: (dtos: CreateOrderResponseDTO): Order[] =>
     dtos.map(OrderMapper.toEntity),
+
+  toPaginatedOrderList: (dto: PaginatedOrderListDTO): PaginatedOrderList => ({
+    items: dto.items.map(OrderMapper.toEntity),
+    pagination: dto.pagination,
+  }),
 };
