@@ -53,13 +53,73 @@ export const SellerSettingPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
-        <Skeleton className="h-10 w-48" />
-        <div className="grid grid-cols-2 gap-6">
-          <Skeleton className="h-48 w-full" />
-          <Skeleton className="h-48 w-full" />
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        <Skeleton className="h-10 w-56 animate-pulse" />
+
+        {/* Store info + Account info */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="border rounded-lg p-6 space-y-4">
+            <div className="flex justify-between items-start">
+              <Skeleton className="h-6 w-40 animate-pulse" />
+              <Skeleton className="h-9 w-24 animate-pulse" />
+            </div>
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex justify-between items-center">
+                  <Skeleton className="h-4 w-24 animate-pulse" />
+                  <Skeleton className="h-4 w-32 animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="border rounded-lg p-6 space-y-4">
+            <Skeleton className="h-6 w-40 animate-pulse" />
+            <div className="space-y-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex justify-between items-center">
+                  <Skeleton className="h-4 w-24 animate-pulse" />
+                  <Skeleton className="h-4 w-32 animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        <Skeleton className="h-64 w-full" />
+
+        {/* Wallet */}
+        <div className="border rounded-lg p-6 space-y-4">
+          <Skeleton className="h-6 w-28 animate-pulse" />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-4 w-20 animate-pulse" />
+                <Skeleton className="h-8 w-28 animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Bank accounts */}
+        <div className="border rounded-lg p-6 space-y-4">
+          <div className="flex justify-between items-center">
+            <Skeleton className="h-6 w-40 animate-pulse" />
+            <Skeleton className="h-9 w-32 animate-pulse" />
+          </div>
+          <div className="space-y-3">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <div key={i} className="flex items-center justify-between border rounded-lg p-4">
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-36 animate-pulse" />
+                  <Skeleton className="h-4 w-48 animate-pulse" />
+                  <Skeleton className="h-3 w-28 animate-pulse" />
+                </div>
+                <div className="flex gap-2">
+                  <Skeleton className="h-8 w-20 animate-pulse" />
+                  <Skeleton className="h-8 w-20 animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }

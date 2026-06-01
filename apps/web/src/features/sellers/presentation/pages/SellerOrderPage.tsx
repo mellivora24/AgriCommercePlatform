@@ -54,7 +54,7 @@ export const SellerOrderPage: React.FC = () => {
   const [keyword, setKeyword] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<SellerOrder | null>(null);
 
-  const { data, isLoading, error } = useSellerOrders(filter);
+  const { data, isLoading, isFetching, error } = useSellerOrders(filter);
 
   const handleSearch = () => {
     setFilter((f) => ({ ...f, keyword, page: 1 }));
@@ -67,6 +67,8 @@ export const SellerOrderPage: React.FC = () => {
   const handlePage = (page: number) => {
     setFilter((f) => ({ ...f, page }));
   };
+
+  console.log(JSON.stringify(data?.items?.[0], null, 2));
 
   if (error) {
     return (
@@ -123,16 +125,51 @@ export const SellerOrderPage: React.FC = () => {
       </div>
 
       {isLoading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-20 w-full" />
-          ))}
+        <div className="border rounded-lg overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50">
+              <tr className="border-b text-left text-gray-500">
+                <th className="px-4 py-3">Mã đơn</th>
+                <th className="px-4 py-3">Người mua</th>
+                <th className="px-4 py-3">Sản phẩm</th>
+                <th className="px-4 py-3">Tổng tiền</th>
+                <th className="px-4 py-3">Phương thức</th>
+                <th className="px-4 py-3">Trạng thái</th>
+                <th className="px-4 py-3">Ngày đặt</th>
+                <th className="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <tr key={i}>
+                  <td className="px-4 py-3"><Skeleton className="h-4 w-16 animate-pulse" /></td>
+                  <td className="px-4 py-3">
+                    <div className="space-y-1">
+                      <Skeleton className="h-4 w-28 animate-pulse" />
+                      <Skeleton className="h-3 w-36 animate-pulse" />
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <Skeleton className="w-10 h-10 rounded flex-shrink-0 animate-pulse" />
+                      <Skeleton className="h-4 w-28 animate-pulse" />
+                    </div>
+                  </td>
+                  <td className="px-4 py-3"><Skeleton className="h-4 w-20 animate-pulse" /></td>
+                  <td className="px-4 py-3"><Skeleton className="h-4 w-14 animate-pulse" /></td>
+                  <td className="px-4 py-3"><Skeleton className="h-6 w-24 rounded-full animate-pulse" /></td>
+                  <td className="px-4 py-3"><Skeleton className="h-4 w-24 animate-pulse" /></td>
+                  <td className="px-4 py-3"><Skeleton className="h-8 w-16 animate-pulse" /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      ) : !data || data.items.length === 0 ? (
+      ) : !data?.items?.length ? (
         <div className="text-center py-16 text-gray-500">Không có đơn hàng nào</div>
       ) : (
         <>
-          <div className="border rounded-lg overflow-hidden">
+          <div className={`border rounded-lg overflow-hidden transition-opacity duration-200 ${isFetching ? 'opacity-60' : 'opacity-100'}`}>
             <table className="w-full text-sm">
               <thead className="bg-gray-50">
                 <tr className="border-b text-left text-gray-500">

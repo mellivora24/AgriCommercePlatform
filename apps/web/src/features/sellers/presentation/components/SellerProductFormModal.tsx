@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Modal } from "@/shared/components/ui/Modal";
 import { Button } from "@/shared/components/ui/Button";
 import { Input } from "@/shared/components/ui/Input";
+import { useListCategories } from "@/features/categories/presentation/hooks/useCategories";
 import type { SellerProduct } from "@/features/sellers/domain/entities/seller.entity";
 import type { ProductStatus } from "@/core/types/enum";
 
@@ -25,7 +26,11 @@ export const SellerProductFormModal: React.FC<Props> = ({
     stockQuantity: product?.stockQuantity?.toString() ?? "",
     status: (product?.status ?? "AVAILABLE") as ProductStatus,
     categoryId: product?.categoryId?.toString() ?? "",
+    imageUrl: product?.images?.[0]?.imageUrl ?? "",
   });
+
+  const { data: categories, isLoading: isCategoriesLoading } =
+    useListCategories();
 
   const handleChange = (field: keyof typeof form, value: string) => {
     setForm((f) => ({ ...f, [field]: value }));
@@ -51,19 +56,49 @@ export const SellerProductFormModal: React.FC<Props> = ({
     onClose();
   };
 
+  // Resolve category id field safely — entity may use 'id' or 'categoryId'
+  const getCategoryId = (cat: Record<string, unknown>) =>
+    (cat?.categoryId ?? cat?.id) as number | undefined;
+
   return (
-    <Modal
-      onClose={onClose}
-      isOpen={isOpen}
-      title={mode === "create" ? "Thêm sản phẩm mới" : "Chỉnh sửa sản phẩm"}
-      size="lg"
-    >
+    <Modal onClose={onClose} isOpen={isOpen} size="lg">
       <div className="space-y-5 w-full max-w-lg">
         <h2 className="text-xl font-bold">
           {mode === "create" ? "Thêm sản phẩm mới" : "Chỉnh sửa sản phẩm"}
         </h2>
 
         <div className="space-y-4">
+          {/* Image URL input */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Ảnh sản phẩm (URL)
+            </label>
+            <div className="flex gap-3 items-start">
+              <Input
+                value={form.imageUrl}
+                onChange={(e) => handleChange("imageUrl", e.target.value)}
+                placeholder="https://example.com/image.jpg"
+                className="flex-1"
+              />
+              {form.imageUrl ? (
+                <img
+                  src={form.imageUrl}
+                  alt="preview"
+                  className="w-14 h-14 object-cover rounded border flex-shrink-0"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              ) : (
+                <div className="w-14 h-14 bg-gray-100 rounded border flex items-center justify-center flex-shrink-0">
+                  <span className="text-xs text-gray-400 text-center leading-tight">
+                    No Image
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Tên sản phẩm
@@ -116,14 +151,29 @@ export const SellerProductFormModal: React.FC<Props> = ({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Danh mục (ID)
+                Danh mục
               </label>
-              <Input
-                type="number"
+              <select
+                className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-400"
                 value={form.categoryId}
                 onChange={(e) => handleChange("categoryId", e.target.value)}
-                placeholder="ID danh mục"
-              />
+                disabled={isCategoriesLoading}
+              >
+                <option value="">
+                  {isCategoriesLoading ? "Đang tải..." : "Chọn danh mục"}
+                </option>
+                {categories?.map((category) => {
+                  const catId = getCategoryId(
+                    category as unknown as Record<string, unknown>
+                  );
+                  if (catId == null) return null;
+                  return (
+                    <option key={catId} value={catId.toString()}>
+                      {(category as unknown as Record<string, unknown>)?.name as string}
+                    </option>
+                  );
+                })}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
