@@ -21,12 +21,14 @@ const productStatusVariant: Record<
   AVAILABLE: "success",
   HIDDEN: "warning",
   OUT_OF_STOCK: "danger",
+  PENDING: "warning",
 };
 
 const productStatusLabel: Record<ProductStatus, string> = {
   AVAILABLE: "Đang bán",
   HIDDEN: "Đã ẩn",
   OUT_OF_STOCK: "Hết hàng",
+  PENDING: "Đang chờ duyệt",
 };
 
 const STATUS_TABS: { label: string; value: ProductStatus | undefined }[] = [
@@ -34,6 +36,7 @@ const STATUS_TABS: { label: string; value: ProductStatus | undefined }[] = [
   { label: "Đang bán", value: "AVAILABLE" },
   { label: "Đã ẩn", value: "HIDDEN" },
   { label: "Hết hàng", value: "OUT_OF_STOCK" },
+  { label: "Đang chờ duyệt", value: "PENDING" },
 ];
 
 export const SellerProductPage: React.FC = () => {

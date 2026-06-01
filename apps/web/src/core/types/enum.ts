@@ -13,7 +13,7 @@ export type ShipperStatus = 'WORKING' | 'ON_LEAVE';
 
 export type AdminRole = 'SUPER_ADMIN' | 'SUPPORT_ADMIN' | 'FINANCE_ADMIN';
 
-export type ProductStatus = 'HIDDEN' | 'AVAILABLE' | 'OUT_OF_STOCK';
+export type ProductStatus = 'HIDDEN' | 'AVAILABLE' | 'OUT_OF_STOCK' | 'PENDING';
 
 export type OrderStatus =
   | 'PENDING_PAYMENT'

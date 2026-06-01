@@ -13,12 +13,14 @@ const productStatusVariant: Record<
   AVAILABLE: "success",
   HIDDEN: "warning",
   OUT_OF_STOCK: "danger",
+  PENDING: "warning",
 };
 
 const productStatusLabel: Record<ProductStatus, string> = {
   AVAILABLE: "Đang bán",
   HIDDEN: "Đã ẩn",
   OUT_OF_STOCK: "Hết hàng",
+  PENDING: "Đang chờ duyệt",
 };
 
 interface Props {

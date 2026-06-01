@@ -95,7 +95,7 @@ export class ProductsController {
     id: number,
     @Body()
     body: {
-      status: 'HIDDEN' | 'AVAILABLE' | 'OUT_OF_STOCK';
+      status: 'HIDDEN' | 'AVAILABLE' | 'OUT_OF_STOCK' | 'PENDING';
     },
   ) {
     return this.service.updateStatus(id, user.sellerId!, body.status);

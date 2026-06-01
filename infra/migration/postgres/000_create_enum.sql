@@ -56,7 +56,8 @@ CREATE TYPE admin_role AS ENUM (
 CREATE TYPE product_status AS ENUM (
     'HIDDEN',
     'AVAILABLE',
-    'OUT_OF_STOCK'
+    'OUT_OF_STOCK',
+    'PENDING'
 );
 
 CREATE TYPE order_status AS ENUM (
