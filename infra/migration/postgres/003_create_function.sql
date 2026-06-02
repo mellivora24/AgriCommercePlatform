@@ -470,3 +470,140 @@ CREATE TRIGGER trg_deduct_stock_on_order
 AFTER INSERT ON order_items
 FOR EACH ROW
 EXECUTE FUNCTION fn_deduct_stock_on_order();
+
+DROP TRIGGER IF EXISTS trg_update_seller_wallet_on_order_status ON orders;
+
+CREATE OR REPLACE FUNCTION fn_update_seller_wallet_on_order_status()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_seller_amount  BIGINT;
+    v_pending_before BIGINT;
+    v_avail_before   BIGINT;
+    v_journal_id     INT;
+BEGIN
+    v_seller_amount := NEW.seller_amount;
+
+    IF NEW.status = 'SELLER_CONFIRMED' AND OLD.status <> 'SELLER_CONFIRMED' THEN
+
+        SELECT pending_balance
+        INTO v_pending_before
+        FROM seller_wallets
+        WHERE seller_id = NEW.seller_id
+        FOR UPDATE;
+
+        UPDATE seller_wallets
+        SET pending_balance = pending_balance + v_seller_amount
+        WHERE seller_id = NEW.seller_id;
+
+        INSERT INTO wallet_journals (
+            seller_id, txn_type, total_amount, idempotency_key, ref_order_id
+        ) VALUES (
+            NEW.seller_id,
+            'ORDER_PENDING',
+            v_seller_amount,
+            'confirm_' || NEW.order_id,
+            NEW.order_id
+        )
+        RETURNING journal_id INTO v_journal_id;
+
+        INSERT INTO wallet_transactions (
+            txn_type, seller_id, journal_id,
+            affected_balance, delta, balance_before, balance_after, ref_order_id
+        ) VALUES (
+            'ORDER_PENDING',
+            NEW.seller_id, v_journal_id,
+            'PENDING', v_seller_amount,
+            v_pending_before, v_pending_before + v_seller_amount,
+            NEW.order_id
+        );
+
+    ELSIF NEW.status = 'DELIVERED' AND OLD.status <> 'DELIVERED' THEN
+
+        SELECT pending_balance, available_balance
+        INTO v_pending_before, v_avail_before
+        FROM seller_wallets
+        WHERE seller_id = NEW.seller_id
+        FOR UPDATE;
+
+        UPDATE seller_wallets
+        SET pending_balance   = pending_balance   - v_seller_amount,
+            available_balance = available_balance + v_seller_amount
+        WHERE seller_id = NEW.seller_id;
+
+        INSERT INTO wallet_journals (
+            seller_id, txn_type, total_amount, idempotency_key, ref_order_id
+        ) VALUES (
+            NEW.seller_id,
+            'ORDER_RELEASED',
+            v_seller_amount,
+            'deliver_' || NEW.order_id,
+            NEW.order_id
+        )
+        RETURNING journal_id INTO v_journal_id;
+
+        INSERT INTO wallet_transactions (
+            txn_type, seller_id, journal_id,
+            affected_balance, delta, balance_before, balance_after, ref_order_id
+        ) VALUES
+        (
+            'ORDER_RELEASED',
+            NEW.seller_id, v_journal_id,
+            'PENDING', -v_seller_amount,
+            v_pending_before, v_pending_before - v_seller_amount,
+            NEW.order_id
+        ),
+        (
+            'ORDER_RELEASED',
+            NEW.seller_id, v_journal_id,
+            'AVAILABLE', v_seller_amount,
+            v_avail_before, v_avail_before + v_seller_amount,
+            NEW.order_id
+        );
+
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_update_seller_wallet_on_order_status ON orders;
+
+CREATE TRIGGER trg_update_seller_wallet_on_order_status
+AFTER UPDATE OF status ON orders
+FOR EACH ROW
+EXECUTE FUNCTION fn_update_seller_wallet_on_order_status();
+
+DROP TRIGGER IF EXISTS trg_update_seller_wallet_on_order_status ON orders;
+
+CREATE TRIGGER trg_update_seller_wallet_on_order_status
+AFTER UPDATE OF status ON orders
+FOR EACH ROW
+EXECUTE FUNCTION fn_update_seller_wallet_on_order_status();
+
+CREATE OR REPLACE FUNCTION fn_create_seller_profile_on_register()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF NEW.role = 'SELLER' THEN
+        INSERT INTO seller_profiles (user_id, store_name, status)
+        VALUES (
+            NEW.user_id,
+            COALESCE(NEW.nickname, 'Store_' || NEW.user_id),
+            'PENDING'
+        )
+        ON CONFLICT (user_id) DO NOTHING;
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_create_seller_profile_on_register ON users;
+
+CREATE TRIGGER trg_create_seller_profile_on_register
+AFTER INSERT ON users
+FOR EACH ROW
+EXECUTE FUNCTION fn_create_seller_profile_on_register();

@@ -1,57 +1,69 @@
 import type {
-  SellerProfile,
-  SellerWallet,
-  SellerBankAccount,
-  CreateSellerProfileRequest,
-  UpdateSellerProfileRequest,
-  CreateBankAccountRequest,
-} from '../entities/seller.entity';
-import type { ISellerRepository } from '../repositories/seller.repository';
+  BankAccount,
+  CreateBankAccountInput,
+  SellerDashboard,
+  SellerOrderList,
+  SellerOrdersFilter,
+  SellerProductList,
+  SellerProductsFilter,
+  SellerSettings,
+  SellerWithdrawal,
+  SellerWithdrawInput,
+  UpdateBankAccountInput,
+  UpdateSellerSettingsInput,
+} from '@/features/sellers/domain/entities/seller.entity';
+import type { ISellerRepository } from '@/features/sellers/domain/repositories/seller.repository';
 
-export interface CreateSellerProfileUseCase {
-  execute(request: CreateSellerProfileRequest): Promise<SellerProfile>;
-}
-
-export interface GetSellerProfileUseCase {
-  execute(sellerId: number): Promise<SellerProfile>;
-}
-
-export interface UpdateSellerProfileUseCase {
-  execute(sellerId: number, request: UpdateSellerProfileRequest): Promise<SellerProfile>;
-}
-
-export interface GetBankAccountsUseCase {
-  execute(sellerId: number): Promise<SellerBankAccount[]>;
-}
-
-export interface CreateBankAccountUseCase {
-  execute(sellerId: number, request: CreateBankAccountRequest): Promise<SellerBankAccount>;
-}
-
-export interface GetSellerWalletUseCase {
-  execute(sellerId: number): Promise<SellerWallet>;
-}
-
-export const createCreateSellerProfileUseCase = (repository: ISellerRepository): CreateSellerProfileUseCase => ({
-  execute: (request) => repository.createProfile(request),
+export const GetSellerDashboardUseCase = (repository: ISellerRepository) => ({
+  execute(): Promise<SellerDashboard> {
+    return repository.getDashboard();
+  },
 });
 
-export const createGetSellerProfileUseCase = (repository: ISellerRepository): GetSellerProfileUseCase => ({
-  execute: (sellerId) => repository.getProfile(sellerId),
+export const GetSellerProductsUseCase = (repository: ISellerRepository) => ({
+  execute(filter: SellerProductsFilter): Promise<SellerProductList> {
+    return repository.getProducts(filter);
+  },
 });
 
-export const createUpdateSellerProfileUseCase = (repository: ISellerRepository): UpdateSellerProfileUseCase => ({
-  execute: (sellerId, request) => repository.updateProfile(sellerId, request),
+export const GetSellerOrdersUseCase = (repository: ISellerRepository) => ({
+  execute(filter: SellerOrdersFilter): Promise<SellerOrderList> {
+    return repository.getOrders(filter);
+  },
 });
 
-export const createGetBankAccountsUseCase = (repository: ISellerRepository): GetBankAccountsUseCase => ({
-  execute: (sellerId) => repository.getBankAccounts(sellerId),
+export const GetSellerSettingsUseCase = (repository: ISellerRepository) => ({
+  execute(): Promise<SellerSettings> {
+    return repository.getSettings();
+  },
 });
 
-export const createCreateBankAccountUseCase = (repository: ISellerRepository): CreateBankAccountUseCase => ({
-  execute: (sellerId, request) => repository.createBankAccount(sellerId, request),
+export const UpdateSellerSettingsUseCase = (repository: ISellerRepository) => ({
+  execute(data: UpdateSellerSettingsInput): Promise<SellerSettings> {
+    return repository.updateSettings(data);
+  },
 });
 
-export const createGetSellerWalletUseCase = (repository: ISellerRepository): GetSellerWalletUseCase => ({
-  execute: (sellerId) => repository.getWallet(sellerId),
+export const SellerWithdrawUseCase = (repository: ISellerRepository) => ({
+  execute(data: SellerWithdrawInput): Promise<SellerWithdrawal> {
+    return repository.withdraw(data);
+  },
+});
+
+export const AddSellerBankAccountUseCase = (repository: ISellerRepository) => ({
+  execute(data: CreateBankAccountInput): Promise<BankAccount> {
+    return repository.addBankAccount(data);
+  },
+});
+
+export const UpdateSellerBankAccountUseCase = (repository: ISellerRepository) => ({
+  execute(bankAccountId: number, data: UpdateBankAccountInput): Promise<BankAccount> {
+    return repository.updateBankAccount(bankAccountId, data);
+  },
+});
+
+export const DeleteSellerBankAccountUseCase = (repository: ISellerRepository) => ({
+  execute(bankAccountId: number): Promise<{ message: string }> {
+    return repository.deleteBankAccount(bankAccountId);
+  },
 });

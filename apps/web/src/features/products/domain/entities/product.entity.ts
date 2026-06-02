@@ -38,7 +38,7 @@ export interface Product {
   sellerId: number;
   seller: Seller;
   stockQuantity: number;
-  status: 'HIDDEN' | 'AVAILABLE' | 'OUT_OF_STOCK';
+  status: 'HIDDEN' | 'AVAILABLE' | 'OUT_OF_STOCK' | 'PENDING';
   rating?: number;
   reviews?: number;
   sku?: string;

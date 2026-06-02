@@ -130,7 +130,7 @@ CREATE TABLE products (
         stock_quantity IS NULL
         OR stock_quantity >= 0
     ),
-    status product_status NOT NULL DEFAULT 'HIDDEN',
+    status product_status NOT NULL DEFAULT 'PENDING',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     deleted_at TIMESTAMPTZ,

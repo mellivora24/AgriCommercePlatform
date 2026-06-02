@@ -1,53 +1,55 @@
-import type { AxiosInstance } from 'axios';
+import { axiosInstance } from '@/core/network/axios.instance';
 import type {
-  SellerProfile,
-  SellerWallet,
-  SellerBankAccount,
-  CreateSellerProfileRequest,
-  UpdateSellerProfileRequest,
-  CreateBankAccountRequest,
-  UpdateBankAccountRequest,
-} from '../../domain/entities/seller.entity';
+  GetSellerOrdersQueryDto,
+  GetSellerProductsQueryDto,
+  SellerDashboardResponseDto,
+  SellerOrdersResponseDto,
+  SellerProductsResponseDto,
+  SellerSettingsResponseDto,
+  UpdateSellerSettingsDto,
+  SellerWithdrawDto,
+  SellerWithdrawResponseDto,
+  CreateSellerBankAccountDto,
+  UpdateSellerBankAccountDto,
+  SellerBankAccountResponseDto,
+} from '@/features/sellers/data/dtos/seller.dto';
 
-export const createSellersApi = (axiosInstance: AxiosInstance) => ({
-  createProfile: async (request: CreateSellerProfileRequest) => {
-    const { data } = await axiosInstance.post('/sellers/profile', request);
-    return data as SellerProfile;
+const BASE = '/sellers';
+
+export const sellerApi = {
+  getDashboard(): Promise<SellerDashboardResponseDto> {
+    return axiosInstance.get(`${BASE}/dashboard`).then((res) => res.data);
   },
 
-  getProfile: async (sellerId: number) => {
-    const { data } = await axiosInstance.get(`/sellers/${sellerId}`);
-    return data as SellerProfile;
+  getProducts(query: GetSellerProductsQueryDto = {}): Promise<SellerProductsResponseDto> {
+    return axiosInstance.get(`${BASE}/products`, { params: query }).then((res) => res.data);
   },
 
-  updateProfile: async (sellerId: number, request: UpdateSellerProfileRequest) => {
-    const { data } = await axiosInstance.put(`/sellers/${sellerId}`, request);
-    return data as SellerProfile;
+  getOrders(query: GetSellerOrdersQueryDto = {}): Promise<SellerOrdersResponseDto> {
+    return axiosInstance.get(`${BASE}/orders`, { params: query }).then((res) => res.data);
   },
 
-  getBankAccounts: async (sellerId: number) => {
-    const { data } = await axiosInstance.get(`/sellers/${sellerId}/bank-accounts`);
-    return data as SellerBankAccount[];
+  getSettings(): Promise<SellerSettingsResponseDto> {
+    return axiosInstance.get(`${BASE}/settings`).then((res) => res.data);
   },
 
-  createBankAccount: async (sellerId: number, request: CreateBankAccountRequest) => {
-    const { data } = await axiosInstance.post(`/sellers/${sellerId}/bank-accounts`, request);
-    return data as SellerBankAccount;
+  updateSettings(dto: UpdateSellerSettingsDto): Promise<SellerSettingsResponseDto> {
+    return axiosInstance.patch(`${BASE}/settings`, dto).then((res) => res.data);
   },
 
-  updateBankAccount: async (sellerId: number, accountId: number, request: UpdateBankAccountRequest) => {
-    const { data } = await axiosInstance.put(`/sellers/${sellerId}/bank-accounts/${accountId}`, request);
-    return data as SellerBankAccount;
+  withdraw(dto: SellerWithdrawDto): Promise<SellerWithdrawResponseDto> {
+    return axiosInstance.post(`${BASE}/withdraw`, dto).then((res) => res.data);
   },
 
-  deleteBankAccount: async (sellerId: number, accountId: number) => {
-    await axiosInstance.delete(`/sellers/${sellerId}/bank-accounts/${accountId}`);
+  addBankAccount(dto: CreateSellerBankAccountDto): Promise<SellerBankAccountResponseDto> {
+    return axiosInstance.post(`${BASE}/bank-accounts`, dto).then((res) => res.data);
   },
 
-  getWallet: async (sellerId: number) => {
-    const { data } = await axiosInstance.get(`/sellers/${sellerId}/wallet`);
-    return data as SellerWallet;
+  updateBankAccount(bankAccountId: number, dto: UpdateSellerBankAccountDto): Promise<SellerBankAccountResponseDto> {
+    return axiosInstance.patch(`${BASE}/bank-accounts/${bankAccountId}`, dto).then((res) => res.data);
   },
-});
 
-export type SellersApi = ReturnType<typeof createSellersApi>;
+  deleteBankAccount(bankAccountId: number): Promise<{ message: string }> {
+    return axiosInstance.delete(`${BASE}/bank-accounts/${bankAccountId}`).then((res) => res.data);
+  },
+};

@@ -2,20 +2,25 @@ import {
   Controller,
   Get,
   Post,
-  Put,
+  Patch,
   Delete,
   Body,
   Param,
   ParseIntPipe,
+  Query,
   UseGuards,
+  ForbiddenException,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '@module/auth/guards/jwt-auth.guard';
 import { CurrentUser } from '@common/decorator';
 import { AuthUser } from '@module/auth/types/auth.type';
+import { OrderStatus, ProductStatus } from '@prisma/client';
 import { SellersService } from './sellers.service';
 import {
-  CreateSellerDto,
-  UpdateSellerDto,
+  UpdateSellerSettingsDto,
+  SellerWithdrawDto,
   CreateSellerBankAccountDto,
   UpdateSellerBankAccountDto,
 } from './dto';
@@ -24,76 +29,112 @@ import {
 export class SellersController {
   constructor(private readonly service: SellersService) {}
 
-  @Post('profile')
-  @UseGuards(JwtAuthGuard)
-  createProfile(@CurrentUser() user: AuthUser, @Body() dto: CreateSellerDto) {
-    return this.service.createSellerProfile(user.userId, dto);
+  private requireSeller(user: AuthUser): number {
+    if (user.role !== 'SELLER' || !user.sellerId) {
+      throw new ForbiddenException('Chỉ người bán mới được truy cập');
+    }
+    return Number(user.sellerId);
   }
 
-  @Get(':sellerId')
-  getProfile(@Param('sellerId', ParseIntPipe) sellerId: number) {
-    return this.service.getSellerProfile(sellerId);
+  @Get('dashboard')
+  @UseGuards(JwtAuthGuard)
+  getDashboard(@CurrentUser() user: AuthUser) {
+    return this.service.getSellerDashboard(this.requireSeller(user));
   }
 
-  @Put(':sellerId')
+  @Get('products')
   @UseGuards(JwtAuthGuard)
-  updateProfile(
-    @Param('sellerId', ParseIntPipe) sellerId: number,
-    @Body() dto: UpdateSellerDto,
+  getProducts(
+    @CurrentUser() user: AuthUser,
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
+    @Query('keyword') keyword?: string,
+    @Query('categoryId') categoryId?: string,
+    @Query('status') status?: ProductStatus,
   ) {
-    return this.service.updateSellerProfile(sellerId, dto);
+    return this.service.getSellerProducts(
+      this.requireSeller(user),
+      Number(page),
+      Number(limit),
+      keyword,
+      categoryId ? Number(categoryId) : undefined,
+      status,
+    );
   }
 
-  @Post(':sellerId/bank-accounts')
+  @Get('orders')
   @UseGuards(JwtAuthGuard)
-  createBankAccount(
-    @Param('sellerId', ParseIntPipe) sellerId: number,
+  getOrders(
+    @CurrentUser() user: AuthUser,
+    @Query('page') page = '1',
+    @Query('limit') limit = '10',
+    @Query('status') status?: OrderStatus,
+    @Query('keyword') keyword?: string,
+  ) {
+    return this.service.getSellerOrders(
+      this.requireSeller(user),
+      Number(page),
+      Number(limit),
+      status,
+      keyword,
+    );
+  }
+
+  @Get('settings')
+  @UseGuards(JwtAuthGuard)
+  getSettings(@CurrentUser() user: AuthUser) {
+    return this.service.getSellerSettings(this.requireSeller(user));
+  }
+
+  @Patch('settings')
+  @UseGuards(JwtAuthGuard)
+  updateSettings(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: UpdateSellerSettingsDto,
+  ) {
+    return this.service.updateSellerSettings(this.requireSeller(user), dto);
+  }
+
+  @Post('withdraw')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  withdraw(@CurrentUser() user: AuthUser, @Body() dto: SellerWithdrawDto) {
+    return this.service.sellerWithdraw(this.requireSeller(user), dto);
+  }
+
+  @Post('bank-accounts')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  addBankAccount(
+    @CurrentUser() user: AuthUser,
     @Body() dto: CreateSellerBankAccountDto,
   ) {
-    return this.service.createBankAccount(sellerId, dto);
+    return this.service.addSellerBankAccount(this.requireSeller(user), dto);
   }
 
-  @Get(':sellerId/bank-accounts')
-  getBankAccounts(@Param('sellerId', ParseIntPipe) sellerId: number) {
-    return this.service.getBankAccounts(sellerId);
-  }
-
-  @Put(':sellerId/bank-accounts/:accountId')
+  @Patch('bank-accounts/:id')
   @UseGuards(JwtAuthGuard)
   updateBankAccount(
-    @Param('sellerId', ParseIntPipe) sellerId: number,
-    @Param('accountId', ParseIntPipe) accountId: number,
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseIntPipe) bankAccountId: number,
     @Body() dto: UpdateSellerBankAccountDto,
   ) {
-    return this.service.updateBankAccount(accountId, sellerId, dto);
+    return this.service.updateSellerBankAccount(
+      this.requireSeller(user),
+      bankAccountId,
+      dto,
+    );
   }
 
-  @Delete(':sellerId/bank-accounts/:accountId')
+  @Delete('bank-accounts/:id')
   @UseGuards(JwtAuthGuard)
   deleteBankAccount(
-    @Param('sellerId', ParseIntPipe) sellerId: number,
-    @Param('accountId', ParseIntPipe) accountId: number,
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseIntPipe) bankAccountId: number,
   ) {
-    return this.service.deleteBankAccount(accountId, sellerId);
-  }
-
-  @Get(':sellerId/wallet')
-  getWallet(@Param('sellerId', ParseIntPipe) sellerId: number) {
-    return this.service.getSellerWallet(sellerId);
-  }
-
-  @Post(':sellerId/approve')
-  approve(@Param('sellerId', ParseIntPipe) sellerId: number) {
-    return this.service.approveSeller(sellerId);
-  }
-
-  @Post(':sellerId/reject')
-  reject(@Param('sellerId', ParseIntPipe) sellerId: number) {
-    return this.service.rejectSeller(sellerId);
-  }
-
-  @Post(':sellerId/suspend')
-  suspend(@Param('sellerId', ParseIntPipe) sellerId: number) {
-    return this.service.suspendSeller(sellerId);
+    return this.service.deleteSellerBankAccount(
+      this.requireSeller(user),
+      bankAccountId,
+    );
   }
 }

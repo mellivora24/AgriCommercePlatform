@@ -1,6 +1,8 @@
 import type {
   CreateOrderRequest,
+  GetSellerOrdersParams,
   Order,
+  PaginatedOrderList,
   UpdateOrderStatusRequest,
 } from "@/features/orders/domain/entities/order.entity";
 
@@ -13,15 +15,17 @@ export interface IOrderRepository {
     request: UpdateOrderStatusRequest,
   ): Promise<Order>;
   confirmOrder(orderId: number): Promise<Order>;
-  listSellerOrders(): Promise<Order[]>;
+  cancelOrder(orderId: number): Promise<Order>;
+  listSellerOrders(params?: GetSellerOrdersParams): Promise<PaginatedOrderList>;
   getSellerOrderStats(): Promise<OrderStats>;
+}
+
+export interface OrderStatItem {
+  status: string;
+  count: number;
 }
 
 export interface OrderStats {
   total: number;
-  pending: number; // PENDING_PAYMENT
-  confirmed: number; // SELLER_CONFIRMED
-  shipped: number; // SHIPPING
-  delivered: number; // DELIVERED
-  completed: number; // COMPLETED
+  statistics: OrderStatItem[];
 }

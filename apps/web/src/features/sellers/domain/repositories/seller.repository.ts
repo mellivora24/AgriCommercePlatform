@@ -1,20 +1,26 @@
 import type {
-  SellerProfile,
-  SellerWallet,
-  SellerBankAccount,
-  CreateSellerProfileRequest,
-  UpdateSellerProfileRequest,
-  CreateBankAccountRequest,
-  UpdateBankAccountRequest,
-} from '../entities/seller.entity';
+  BankAccount,
+  CreateBankAccountInput,
+  SellerDashboard,
+  SellerOrderList,
+  SellerOrdersFilter,
+  SellerProductList,
+  SellerProductsFilter,
+  SellerSettings,
+  SellerWithdrawal,
+  SellerWithdrawInput,
+  UpdateBankAccountInput,
+  UpdateSellerSettingsInput,
+} from '@/features/sellers/domain/entities/seller.entity';
 
 export interface ISellerRepository {
-  createProfile(request: CreateSellerProfileRequest): Promise<SellerProfile>;
-  getProfile(sellerId: number): Promise<SellerProfile>;
-  updateProfile(sellerId: number, request: UpdateSellerProfileRequest): Promise<SellerProfile>;
-  getBankAccounts(sellerId: number): Promise<SellerBankAccount[]>;
-  createBankAccount(sellerId: number, request: CreateBankAccountRequest): Promise<SellerBankAccount>;
-  updateBankAccount(sellerId: number, accountId: number, request: UpdateBankAccountRequest): Promise<SellerBankAccount>;
-  deleteBankAccount(sellerId: number, accountId: number): Promise<void>;
-  getWallet(sellerId: number): Promise<SellerWallet>;
+  getDashboard(): Promise<SellerDashboard>;
+  getProducts(filter: SellerProductsFilter): Promise<SellerProductList>;
+  getOrders(filter: SellerOrdersFilter): Promise<SellerOrderList>;
+  getSettings(): Promise<SellerSettings>;
+  updateSettings(data: UpdateSellerSettingsInput): Promise<SellerSettings>;
+  withdraw(data: SellerWithdrawInput): Promise<SellerWithdrawal>;
+  addBankAccount(data: CreateBankAccountInput): Promise<BankAccount>;
+  updateBankAccount(bankAccountId: number, data: UpdateBankAccountInput): Promise<BankAccount>;
+  deleteBankAccount(bankAccountId: number): Promise<{ message: string }>;
 }

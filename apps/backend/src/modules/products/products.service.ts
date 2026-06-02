@@ -25,11 +25,51 @@ export class ProductsService {
         price: BigInt(dto.price),
         stockQuantity: dto.stockQuantity,
         categoryId: dto.categoryId,
-        status: 'HIDDEN',
+        status: 'PENDING',
+        ...(dto.images?.length && {
+          images: {
+            create: dto.images.map((img) => ({ imageUrl: img.imageUrl })),
+          },
+        }),
       },
-
       include: {
         images: true,
+        seller: true,
+        category: true,
+      },
+    });
+  }
+
+  async update(id: number, sellerId: number, dto: UpdateProductDto) {
+    const product = await this.findOne(id);
+
+    if (product.sellerId !== sellerId) {
+      throw new ForbiddenException('Không có quyền');
+    }
+
+    return this.prisma.product.update({
+      where: { productId: id },
+      data: {
+        ...(dto.name !== undefined && { name: dto.name }),
+        ...(dto.description !== undefined && { description: dto.description }),
+        ...(dto.price !== undefined && { price: BigInt(dto.price) }),
+        ...(dto.stockQuantity !== undefined && {
+          stockQuantity: dto.stockQuantity,
+        }),
+        ...(dto.categoryId !== undefined && { categoryId: dto.categoryId }),
+        ...(dto.status !== undefined && { status: dto.status }),
+        // Nếu truyền images → xoá hết ảnh cũ, tạo lại
+        ...(dto.images !== undefined && {
+          images: {
+            deleteMany: {},
+            create: dto.images.map((img) => ({ imageUrl: img.imageUrl })),
+          },
+        }),
+      },
+      include: {
+        images: true,
+        seller: true,
+        category: true,
       },
     });
   }
@@ -177,34 +217,10 @@ export class ProductsService {
     return product;
   }
 
-  async update(id: number, sellerId: number, dto: UpdateProductDto) {
-    const product = await this.findOne(id);
-
-    if (product.sellerId !== sellerId) {
-      throw new ForbiddenException('Không có quyền');
-    }
-
-    return this.prisma.product.update({
-      where: {
-        productId: id,
-      },
-
-      data: {
-        ...dto,
-
-        price: dto.price ? BigInt(dto.price) : undefined,
-      },
-
-      include: {
-        images: true,
-      },
-    });
-  }
-
   async updateStatus(
     id: number,
     sellerId: number,
-    status: 'HIDDEN' | 'AVAILABLE' | 'OUT_OF_STOCK',
+    status: 'HIDDEN' | 'AVAILABLE' | 'OUT_OF_STOCK' | 'PENDING',
   ) {
     const product = await this.findOne(id);
     if (product.sellerId !== sellerId) {

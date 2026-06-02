@@ -19,17 +19,62 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: { sub: number; email: string; role: string }) {
-    const buyer = await this.prisma.buyerProfile.findUnique({
-      where: { userId: payload.sub },
-      select: { buyerId: true },
-    });
+    let buyerId: number | undefined;
+    let sellerId: number | undefined;
+    let shipperId: number | undefined;
+    let adminId: number | undefined;
+
+    switch (payload.role) {
+      case 'BUYER': {
+        const buyer = await this.prisma.buyerProfile.findUnique({
+          where: { userId: payload.sub },
+          select: { buyerId: true },
+        });
+
+        buyerId = buyer?.buyerId;
+        break;
+      }
+
+      case 'SELLER': {
+        const seller = await this.prisma.sellerProfile.findUnique({
+          where: { userId: payload.sub },
+          select: { sellerId: true },
+        });
+
+        sellerId = seller?.sellerId;
+        break;
+      }
+
+      case 'SHIPPER': {
+        const shipper = await this.prisma.shipperProfile.findUnique({
+          where: { userId: payload.sub },
+          select: { shipperId: true },
+        });
+
+        shipperId = shipper?.shipperId;
+        break;
+      }
+
+      case 'ADMIN': {
+        const admin = await this.prisma.adminProfile.findUnique({
+          where: { userId: payload.sub },
+          select: { adminId: true },
+        });
+
+        adminId = admin?.adminId;
+        break;
+      }
+    }
 
     return {
       userId: payload.sub,
       email: payload.email,
       role: payload.role,
-      buyerId: buyer?.buyerId ?? null,
-      sellerId: null,
+
+      buyerId,
+      sellerId,
+      shipperId,
+      adminId,
     };
   }
 }

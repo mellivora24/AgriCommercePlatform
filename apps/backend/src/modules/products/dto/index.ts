@@ -1,4 +1,19 @@
-import { IsString, IsOptional, IsNumber, IsInt, Min } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsInt,
+  Min,
+  IsUrl,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class ProductImageDto {
+  @IsUrl()
+  imageUrl!: string;
+}
 
 export class CreateProductDto {
   @IsString()
@@ -19,6 +34,12 @@ export class CreateProductDto {
   @IsOptional()
   @IsInt()
   categoryId?: number;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProductImageDto)
+  images?: ProductImageDto[];
 }
 
 export class UpdateProductDto {
@@ -43,9 +64,19 @@ export class UpdateProductDto {
   @IsOptional()
   @IsInt()
   categoryId?: number;
+
+  @IsOptional()
+  @IsString()
+  status?: 'AVAILABLE' | 'HIDDEN' | 'OUT_OF_STOCK' | 'PENDING';
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProductImageDto)
+  images?: ProductImageDto[];
 }
 
 export class CreateProductImageDto {
-  @IsString()
+  @IsUrl()
   imageUrl!: string;
 }

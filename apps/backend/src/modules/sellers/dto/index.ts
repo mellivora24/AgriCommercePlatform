@@ -1,4 +1,12 @@
-import { IsString, IsOptional, IsNumber, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  IsInt,
+  IsPositive,
+  Min,
+} from 'class-validator';
 
 export class CreateSellerDto {
   @IsString()
@@ -58,4 +66,25 @@ export class UpdateSellerBankAccountDto {
   @IsOptional()
   @IsBoolean()
   isPrimary?: boolean;
+}
+
+export class UpdateSellerSettingsDto {
+  @IsOptional()
+  @IsString()
+  storeName?: string;
+
+  @IsOptional()
+  @IsString()
+  storeDescription?: string;
+}
+
+export class SellerWithdrawDto {
+  @IsInt()
+  @IsPositive()
+  @Min(10_000)
+  amount!: number;
+
+  @IsInt()
+  @IsPositive()
+  bankAccountId!: number;
 }

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useCartStore } from "@/core/store/cart.store";
-import { getQueryClient } from "@/core/query/queryClient";
+import { queryClient } from "@/core/providers/query.provider";
 
 export interface User {
   id: string;
@@ -40,7 +40,7 @@ export const useAuthStore = create<AuthState>()(
         const cart = useCartStore.getState();
         cart.setIsGuest(false);
         await cart.mergeGuestCart();
-        getQueryClient().invalidateQueries({ queryKey: ['cart'] });
+        queryClient.invalidateQueries({ queryKey: ['cart'] });
       },
 
       clearAuth: () => {
@@ -53,7 +53,7 @@ export const useAuthStore = create<AuthState>()(
         const cart = useCartStore.getState();
         cart.clearCart();
         cart.setIsGuest(true);
-        getQueryClient().removeQueries({ queryKey: ['cart'] });
+        queryClient.removeQueries({ queryKey: ['cart'] });
       },
 
       setUser: (user) => set({ user }),

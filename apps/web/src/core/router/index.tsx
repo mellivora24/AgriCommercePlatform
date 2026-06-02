@@ -16,6 +16,10 @@ import { CheckoutPage } from '@/features/orders/presentation/pages/CheckoutPage'
 import { OrdersListPage } from '@/features/orders/presentation/pages/OrdersListPage';
 import { OrderDetailPage } from '@/features/orders/presentation/pages/OrderDetailPage';
 import { SellerPendingPage } from '@/features/auth/presentation/pages/SellerPendingPage';
+import { SellerDashboardPage } from '@/features/sellers/presentation/pages/SellerDashboardPage';
+import { SellerProductPage } from '@/features/sellers/presentation/pages/SellerProductPage';
+import { SellerOrderPage } from '@/features/sellers/presentation/pages/SellerOrderPage';
+import { SellerSettingPage } from '@/features/sellers/presentation/pages/SellerSettingPage';
 
 export const Router: React.FC = () => (
   <BrowserRouter>
@@ -67,7 +71,7 @@ export const Router: React.FC = () => (
       <Route element={<DashboardLayout />}>
         <Route
           path={ROUTES.SELLER_DASHBOARD}
-          element={<RoleGuard allowedRoles={['SELLER']}><div>Seller Dashboard</div></RoleGuard>}
+          element={<RoleGuard allowedRoles={['SELLER']}><SellerDashboardPage /></RoleGuard>}
         />
         <Route
           path={ROUTES.ADMIN_DASHBOARD}
@@ -75,15 +79,15 @@ export const Router: React.FC = () => (
         />
         <Route
           path={ROUTES.SELLER_PRODUCTS}
-          element={<RoleGuard allowedRoles={['SELLER']}><div>Seller Products</div></RoleGuard>}
+          element={<RoleGuard allowedRoles={['SELLER']}><SellerProductPage /></RoleGuard>}
         />
         <Route
           path={ROUTES.SELLER_ORDERS}
-          element={<RoleGuard allowedRoles={['SELLER']}><div>Seller Orders</div></RoleGuard>}
+          element={<RoleGuard allowedRoles={['SELLER']}><SellerOrderPage /></RoleGuard>}
         />
         <Route
           path={ROUTES.SELLER_STORE}
-          element={<RoleGuard allowedRoles={['SELLER']}><div>Seller Store</div></RoleGuard>}
+          element={<RoleGuard allowedRoles={['SELLER']}><SellerSettingPage /></RoleGuard>}
         />
         <Route
           path={ROUTES.ADMIN_USERS}
