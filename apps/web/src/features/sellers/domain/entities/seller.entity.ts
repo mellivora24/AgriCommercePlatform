@@ -7,6 +7,7 @@ import type {
   SellerStatus,
   ShipmentStatus,
   UserRole,
+  WithdrawalStatus,
 } from "@/core/types/enum";
 
 export interface Pagination {
@@ -262,4 +263,48 @@ export interface SellerSettings {
   user: SellerUser;
   bankAccounts: BankAccount[];
   wallet: SellerWallet;
+}
+
+export interface SellerWithdrawal {
+  withdrawalId: number;
+  sellerId: number;
+  bankAccountId: number;
+  amount: number;
+  withdrawalFee: number;
+  netPayout: number;
+  status: WithdrawalStatus;
+  transferReference: string | null;
+  providerResponse: string | null;
+  providerStatus: string | null;
+  failureReason: string | null;
+  retryCount: number;
+  requestedAt: Date;
+  processedAt: Date | null;
+  completedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UpdateSellerSettingsInput {
+  storeName?: string;
+  storeDescription?: string;
+}
+
+export interface SellerWithdrawInput {
+  amount: number;
+  bankAccountId: number;
+}
+
+export interface CreateBankAccountInput {
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+  isPrimary?: boolean;
+}
+
+export interface UpdateBankAccountInput {
+  bankName?: string;
+  accountNumber?: string;
+  accountName?: string;
+  isPrimary?: boolean;
 }

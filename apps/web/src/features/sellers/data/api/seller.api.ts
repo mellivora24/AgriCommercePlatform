@@ -6,6 +6,12 @@ import type {
   SellerOrdersResponseDto,
   SellerProductsResponseDto,
   SellerSettingsResponseDto,
+  UpdateSellerSettingsDto,
+  SellerWithdrawDto,
+  SellerWithdrawResponseDto,
+  CreateSellerBankAccountDto,
+  UpdateSellerBankAccountDto,
+  SellerBankAccountResponseDto,
 } from '@/features/sellers/data/dtos/seller.dto';
 
 const BASE = '/sellers';
@@ -25,5 +31,25 @@ export const sellerApi = {
 
   getSettings(): Promise<SellerSettingsResponseDto> {
     return axiosInstance.get(`${BASE}/settings`).then((res) => res.data);
+  },
+
+  updateSettings(dto: UpdateSellerSettingsDto): Promise<SellerSettingsResponseDto> {
+    return axiosInstance.patch(`${BASE}/settings`, dto).then((res) => res.data);
+  },
+
+  withdraw(dto: SellerWithdrawDto): Promise<SellerWithdrawResponseDto> {
+    return axiosInstance.post(`${BASE}/withdraw`, dto).then((res) => res.data);
+  },
+
+  addBankAccount(dto: CreateSellerBankAccountDto): Promise<SellerBankAccountResponseDto> {
+    return axiosInstance.post(`${BASE}/bank-accounts`, dto).then((res) => res.data);
+  },
+
+  updateBankAccount(bankAccountId: number, dto: UpdateSellerBankAccountDto): Promise<SellerBankAccountResponseDto> {
+    return axiosInstance.patch(`${BASE}/bank-accounts/${bankAccountId}`, dto).then((res) => res.data);
+  },
+
+  deleteBankAccount(bankAccountId: number): Promise<{ message: string }> {
+    return axiosInstance.delete(`${BASE}/bank-accounts/${bankAccountId}`).then((res) => res.data);
   },
 };

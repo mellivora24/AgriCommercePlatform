@@ -6,6 +6,7 @@ import { Button } from "@/shared/components/ui/Button";
 import { formatCurrency, formatDate } from "@/shared/utils/format";
 import { SellerStoreFormModal } from "@/features/sellers/presentation/components/SellerStoreFormModal";
 import { SellerBankAccountModal } from "@/features/sellers/presentation/components/SellerBankAccountModal";
+import { SellerWithdrawModal } from "@/features/sellers/presentation/components/SellerWithdrawModal";
 import type { BankAccount } from "@/features/sellers/domain/entities/seller.entity";
 import type { SellerStatus } from "@/core/types/enum";
 
@@ -30,6 +31,7 @@ export const SellerSettingPage: React.FC = () => {
   const { data, isLoading, error } = useSellerSettings();
   const [showStoreModal, setShowStoreModal] = useState(false);
   const [showBankModal, setShowBankModal] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [editingBank, setEditingBank] = useState<BankAccount | null>(null);
 
   const handleSetPrimaryBank = (account: BankAccount) => {
@@ -126,6 +128,8 @@ export const SellerSettingPage: React.FC = () => {
 
   if (!data) return null;
 
+  const primaryBankAccount = data.bankAccounts.find((a) => a.isPrimary) ?? data.bankAccounts[0];
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
       <h1 className="text-3xl font-bold">Cài đặt cửa hàng</h1>
@@ -152,7 +156,7 @@ export const SellerSettingPage: React.FC = () => {
             <div className="flex justify-between">
               <span className="text-gray-500">Phí nền tảng</span>
               <span className="font-semibold">
-                {(data.platformFeeRate * 100).toFixed(1)}%
+                {(data.platformFeeRate).toFixed(2)}%
               </span>
             </div>
             <div className="flex justify-between">
@@ -199,8 +203,18 @@ export const SellerSettingPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Wallet */}
       <div className="border rounded-lg p-6 space-y-4">
-        <h2 className="text-xl font-semibold">Ví của tôi</h2>
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold">Ví của tôi</h2>
+          <Button
+            variant="primary"
+            onClick={() => setShowWithdrawModal(true)}
+            disabled={data.wallet.availableBalance <= 0 || data.bankAccounts.length === 0}
+          >
+            Rút tiền
+          </Button>
+        </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
           <div>
             <p className="text-gray-500">Khả dụng</p>
@@ -227,8 +241,14 @@ export const SellerSettingPage: React.FC = () => {
             </p>
           </div>
         </div>
+        {data.bankAccounts.length === 0 && (
+          <p className="text-xs text-yellow-600">
+            Vui lòng thêm tài khoản ngân hàng trước khi rút tiền.
+          </p>
+        )}
       </div>
 
+      {/* Bank accounts */}
       <div className="border rounded-lg p-6 space-y-4">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">Tài khoản ngân hàng</h2>
@@ -315,6 +335,16 @@ export const SellerSettingPage: React.FC = () => {
           isOpen={!!editingBank}
           bankAccount={editingBank}
           onClose={() => setEditingBank(null)}
+        />
+      )}
+
+      {showWithdrawModal && (
+        <SellerWithdrawModal
+          isOpen={showWithdrawModal}
+          availableBalance={data.wallet.availableBalance}
+          bankAccounts={data.bankAccounts}
+          defaultBankAccount={primaryBankAccount}
+          onClose={() => setShowWithdrawModal(false)}
         />
       )}
     </div>

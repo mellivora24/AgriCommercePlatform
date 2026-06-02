@@ -16,24 +16,28 @@ const statusVariant: Record<
   "primary" | "secondary" | "success" | "danger" | "warning"
 > = {
   PENDING_PAYMENT: "warning",
+  PAID: "primary",
   WAITING_SELLER_CONFIRMATION: "warning",
   SELLER_CONFIRMED: "primary",
   SHIPPING: "secondary",
   DELIVERED: "success",
   COMPLETED: "success",
   CANCELLED: "danger",
-  RETURNED: "danger",
+  REFUNDED: "secondary",
+  RETURN_REQUESTED: "warning",
 };
 
 const statusLabel: Record<OrderStatus, string> = {
   PENDING_PAYMENT: "Chờ thanh toán",
+  PAID: "Đã thanh toán",
   WAITING_SELLER_CONFIRMATION: "Chờ xác nhận từ người bán",
   SELLER_CONFIRMED: "Người bán đã xác nhận",
   SHIPPING: "Đang giao hàng",
   DELIVERED: "Đã giao hàng",
   COMPLETED: "Hoàn thành",
   CANCELLED: "Đã hủy",
-  RETURNED: "Đã hoàn trả",
+  REFUNDED: "Đã hoàn tiền",
+  RETURN_REQUESTED: "Yêu cầu hoàn trả",
 };
 
 const paymentStatusVariant: Record<
@@ -42,19 +46,20 @@ const paymentStatusVariant: Record<
 > = {
   PENDING: "warning",
   WAITING_COD_COLLECTION: "warning",
+  WAITING_ONLINE_PAYMENT: "warning",
   COMPLETED: "success",
   FAILED: "danger",
   REFUNDED: "secondary",
 };
 
-const paymentStatusLabel: Record<PaymentStatus, string> = {
-  PENDING: "Chờ thanh toán",
-  WAITING_COD_COLLECTION: "Chờ thu tiền COD",
-  WAITING_ONLINE_PAYMENT: "Chờ thanh toán online",
-  COMPLETED: "Đã thanh toán",
-  FAILED: "Thất bại",
-  REFUNDED: "Đã hoàn tiền",
-};
+// const paymentStatusLabel: Record<PaymentStatus, string> = {
+//   PENDING: "Chờ thanh toán",
+//   WAITING_COD_COLLECTION: "Chờ thu tiền COD",
+//   WAITING_ONLINE_PAYMENT: "Chờ thanh toán online",
+//   COMPLETED: "Đã thanh toán",
+//   FAILED: "Thất bại",
+//   REFUNDED: "Đã hoàn tiền",
+// };
 
 const paymentMethodLabel: Record<string, string> = {
   COD: "Thanh toán khi nhận hàng (COD)",

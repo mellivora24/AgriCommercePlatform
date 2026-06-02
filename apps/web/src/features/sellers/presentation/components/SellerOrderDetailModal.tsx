@@ -209,7 +209,7 @@ export const SellerOrderDetailModal: React.FC<Props> = ({
         )}
 
         <div className="flex gap-3 justify-end border-t pt-4">
-          {order.status === "WAITING_SELLER_CONFIRMATION" &&
+          {order.status === "WAITING_SELLER_CONFIRMATION" || order.status === "PAID" &&
             !confirming &&
             !rejecting && (
               <>

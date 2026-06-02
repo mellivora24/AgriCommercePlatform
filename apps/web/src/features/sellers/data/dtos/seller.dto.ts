@@ -7,6 +7,7 @@ import type {
   ShipmentStatus,
   UserRole,
   AccountStatus,
+  WithdrawalStatus,
 } from '@/core/types/enum';
 
 export interface PaginationDto {
@@ -276,3 +277,55 @@ export interface SellerSettingsResponseDto {
   bankAccounts: BankAccountDto[];
   wallet: SellerWalletDto;
 }
+
+// ─── Settings update ─────────────────────────────────────────────────────────
+
+export interface UpdateSellerSettingsDto {
+  storeName?: string;
+  storeDescription?: string;
+}
+
+// ─── Withdraw ────────────────────────────────────────────────────────────────
+
+export interface SellerWithdrawDto {
+  amount: number;
+  bankAccountId: number;
+}
+
+export interface SellerWithdrawResponseDto {
+  withdrawalId: number;
+  sellerId: number;
+  bankAccountId: number;
+  amount: string;
+  withdrawalFee: string;
+  netPayout: string;
+  status: WithdrawalStatus;
+  transferReference: string | null;
+  providerResponse: string | null;
+  providerStatus: string | null;
+  failureReason: string | null;
+  retryCount: number;
+  requestedAt: string;
+  processedAt: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ─── Bank account ─────────────────────────────────────────────────────────────
+
+export interface CreateSellerBankAccountDto {
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+  isPrimary?: boolean;
+}
+
+export interface UpdateSellerBankAccountDto {
+  bankName?: string;
+  accountNumber?: string;
+  accountName?: string;
+  isPrimary?: boolean;
+}
+
+export type SellerBankAccountResponseDto = BankAccountDto;

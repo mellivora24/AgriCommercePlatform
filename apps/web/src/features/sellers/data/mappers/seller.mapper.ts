@@ -8,6 +8,7 @@ import type {
   PaymentDto,
   RecentOrderDto,
   RevenueChartDto,
+  SellerBankAccountResponseDto,
   SellerDashboardResponseDto,
   SellerOrderDto,
   SellerOrdersResponseDto,
@@ -15,6 +16,7 @@ import type {
   SellerProductsResponseDto,
   SellerSettingsResponseDto,
   SellerWalletDto,
+  SellerWithdrawResponseDto,
   ShipmentDto,
   TopProductDto,
 } from '@/features/sellers/data/dtos/seller.dto';
@@ -35,6 +37,7 @@ import type {
   SellerProductList,
   SellerSettings,
   SellerWallet,
+  SellerWithdrawal,
   Shipment,
   TopProduct,
 } from '@/features/sellers/domain/entities/seller.entity';
@@ -254,7 +257,7 @@ export function mapOrders(dto: SellerOrdersResponseDto): SellerOrderList {
   };
 }
 
-function mapBankAccount(dto: BankAccountDto): BankAccount {
+export function mapBankAccount(dto: BankAccountDto | SellerBankAccountResponseDto): BankAccount {
   return {
     bankAccountId: dto.bankAccountId,
     sellerId: dto.sellerId,
@@ -281,5 +284,27 @@ export function mapSettings(dto: SellerSettingsResponseDto): SellerSettings {
     user: dto.user,
     bankAccounts: dto.bankAccounts.map(mapBankAccount),
     wallet: mapWallet(dto.wallet),
+  };
+}
+
+export function mapWithdrawal(dto: SellerWithdrawResponseDto): SellerWithdrawal {
+  return {
+    withdrawalId: dto.withdrawalId,
+    sellerId: dto.sellerId,
+    bankAccountId: dto.bankAccountId,
+    amount: Number(dto.amount),
+    withdrawalFee: Number(dto.withdrawalFee),
+    netPayout: Number(dto.netPayout),
+    status: dto.status,
+    transferReference: dto.transferReference,
+    providerResponse: dto.providerResponse,
+    providerStatus: dto.providerStatus,
+    failureReason: dto.failureReason,
+    retryCount: dto.retryCount,
+    requestedAt: new Date(dto.requestedAt),
+    processedAt: dto.processedAt ? new Date(dto.processedAt) : null,
+    completedAt: dto.completedAt ? new Date(dto.completedAt) : null,
+    createdAt: new Date(dto.createdAt),
+    updatedAt: new Date(dto.updatedAt),
   };
 }

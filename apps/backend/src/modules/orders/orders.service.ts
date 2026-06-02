@@ -103,7 +103,7 @@ export class OrdersService {
           shippingAddress: dto.shippingAddress,
           receiverName: dto.receiverName,
           receiverPhone: dto.receiverPhone,
-          status: 'PENDING_PAYMENT',
+          status: 'WAITING_SELLER_CONFIRMATION',
           orderItems: {
             create: items.map((item) => ({
               productId: item.productId,

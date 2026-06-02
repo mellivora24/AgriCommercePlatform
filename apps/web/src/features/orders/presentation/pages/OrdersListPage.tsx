@@ -9,7 +9,6 @@ import { formatCurrency, formatDate } from "@/shared/utils/format";
 import { ROUTES } from "@/core/router/routes";
 import type {
   OrderStatus,
-  PaymentStatus,
 } from "../../domain/entities/order.entity";
 
 const statusVariant: Record<
@@ -17,24 +16,28 @@ const statusVariant: Record<
   "primary" | "secondary" | "success" | "danger" | "warning"
 > = {
   PENDING_PAYMENT: "warning",
+  PAID: "primary",
   WAITING_SELLER_CONFIRMATION: "warning",
   SELLER_CONFIRMED: "primary",
   SHIPPING: "secondary",
   DELIVERED: "success",
   COMPLETED: "success",
   CANCELLED: "danger",
-  RETURNED: "danger",
+  REFUNDED: "secondary",
+  RETURN_REQUESTED: "warning",
 };
 
 const statusLabel: Record<OrderStatus, string> = {
   PENDING_PAYMENT: "Chờ thanh toán",
+  PAID: "Đã thanh toán",
   WAITING_SELLER_CONFIRMATION: "Chờ xác nhận từ người bán",
   SELLER_CONFIRMED: "Đã xác nhận",
   SHIPPING: "Đang giao hàng",
   DELIVERED: "Đã giao hàng",
   COMPLETED: "Hoàn thành",
   CANCELLED: "Đã hủy",
-  RETURNED: "Đã trả lại",
+  REFUNDED: "Đã hoàn tiền",
+  RETURN_REQUESTED: "Yêu cầu hoàn trả"
 };
 
 // const paymentStatusVariant: Record<

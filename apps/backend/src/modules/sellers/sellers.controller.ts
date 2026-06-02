@@ -1,47 +1,59 @@
 import {
   Controller,
   Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  ParseIntPipe,
   Query,
   UseGuards,
   ForbiddenException,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '@module/auth/guards/jwt-auth.guard';
 import { CurrentUser } from '@common/decorator';
 import { AuthUser } from '@module/auth/types/auth.type';
 import { OrderStatus, ProductStatus } from '@prisma/client';
 import { SellersService } from './sellers.service';
+import {
+  UpdateSellerSettingsDto,
+  SellerWithdrawDto,
+  CreateSellerBankAccountDto,
+  UpdateSellerBankAccountDto,
+} from './dto';
 
 @Controller('sellers')
 export class SellersController {
   constructor(private readonly service: SellersService) {}
 
-  @Get('dashboard')
-  @UseGuards(JwtAuthGuard)
-  getDashboard(@CurrentUser() user: AuthUser) {
+  private requireSeller(user: AuthUser): number {
     if (user.role !== 'SELLER' || !user.sellerId) {
       throw new ForbiddenException('Chỉ người bán mới được truy cập');
     }
+    return Number(user.sellerId);
+  }
 
-    return this.service.getSellerDashboard(Number(user.sellerId));
+  @Get('dashboard')
+  @UseGuards(JwtAuthGuard)
+  getDashboard(@CurrentUser() user: AuthUser) {
+    return this.service.getSellerDashboard(this.requireSeller(user));
   }
 
   @Get('products')
   @UseGuards(JwtAuthGuard)
   getProducts(
     @CurrentUser() user: AuthUser,
-
     @Query('page') page = '1',
     @Query('limit') limit = '10',
     @Query('keyword') keyword?: string,
     @Query('categoryId') categoryId?: string,
     @Query('status') status?: ProductStatus,
   ) {
-    if (user.role !== 'SELLER' || !user.sellerId) {
-      throw new ForbiddenException('Chỉ người bán mới được truy cập');
-    }
-
     return this.service.getSellerProducts(
-      user.sellerId,
+      this.requireSeller(user),
       Number(page),
       Number(limit),
       keyword,
@@ -54,18 +66,13 @@ export class SellersController {
   @UseGuards(JwtAuthGuard)
   getOrders(
     @CurrentUser() user: AuthUser,
-
     @Query('page') page = '1',
     @Query('limit') limit = '10',
     @Query('status') status?: OrderStatus,
     @Query('keyword') keyword?: string,
   ) {
-    if (user.role !== 'SELLER' || !user.sellerId) {
-      throw new ForbiddenException('Chỉ người bán mới được truy cập');
-    }
-
     return this.service.getSellerOrders(
-      user.sellerId,
+      this.requireSeller(user),
       Number(page),
       Number(limit),
       status,
@@ -76,10 +83,58 @@ export class SellersController {
   @Get('settings')
   @UseGuards(JwtAuthGuard)
   getSettings(@CurrentUser() user: AuthUser) {
-    if (user.role !== 'SELLER' || !user.sellerId) {
-      throw new ForbiddenException('Chỉ người bán mới được truy cập');
-    }
+    return this.service.getSellerSettings(this.requireSeller(user));
+  }
 
-    return this.service.getSellerSettings(user.sellerId);
+  @Patch('settings')
+  @UseGuards(JwtAuthGuard)
+  updateSettings(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: UpdateSellerSettingsDto,
+  ) {
+    return this.service.updateSellerSettings(this.requireSeller(user), dto);
+  }
+
+  @Post('withdraw')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  withdraw(@CurrentUser() user: AuthUser, @Body() dto: SellerWithdrawDto) {
+    return this.service.sellerWithdraw(this.requireSeller(user), dto);
+  }
+
+  @Post('bank-accounts')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  addBankAccount(
+    @CurrentUser() user: AuthUser,
+    @Body() dto: CreateSellerBankAccountDto,
+  ) {
+    return this.service.addSellerBankAccount(this.requireSeller(user), dto);
+  }
+
+  @Patch('bank-accounts/:id')
+  @UseGuards(JwtAuthGuard)
+  updateBankAccount(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseIntPipe) bankAccountId: number,
+    @Body() dto: UpdateSellerBankAccountDto,
+  ) {
+    return this.service.updateSellerBankAccount(
+      this.requireSeller(user),
+      bankAccountId,
+      dto,
+    );
+  }
+
+  @Delete('bank-accounts/:id')
+  @UseGuards(JwtAuthGuard)
+  deleteBankAccount(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseIntPipe) bankAccountId: number,
+  ) {
+    return this.service.deleteSellerBankAccount(
+      this.requireSeller(user),
+      bankAccountId,
+    );
   }
 }
