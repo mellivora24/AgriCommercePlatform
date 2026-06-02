@@ -1,50 +1,121 @@
-import type { AxiosInstance } from 'axios';
-import type { UserListResponse, SellerListResponse, PlatformStats, SellerStats } from '../../domain/entities/admin.entity';
+import { axiosInstance } from '@/core/network';
+import type {
+  AdminDashboardDTO,
+  AdminUserDTO,
+  AdminUserDetailDTO,
+  AdminStoreDTO,
+  AdminStoreDetailDTO,
+  AdminProductDTO,
+  AdminOrderSummaryDTO,
+  AdminWithdrawalDTO,
+  AdminUserListQuery,
+  AdminStoreListQuery,
+  AdminStoreProductQuery,
+  AdminStoreOrderQuery,
+  AdminStoreWithdrawalQuery,
+  AdminProductListQuery,
+  PaginatedResponse,
+  RejectSellerDTO,
+  RejectWithdrawalDTO,
+  UpdateStoreFeeDTO,
+  SuspendUserDTO,
+  BanUserDTO,
+  CreateAdminDTO,
+} from '@/features/admin/data/dtos/admin.dto';
 
-export const createAdminApi = (axiosInstance: AxiosInstance) => ({
-  getUsers: async (page: number, limit: number, role?: string, status?: string) => {
-    const { data } = await axiosInstance.get('/admin/users', {
-      params: { page, limit, role, status },
-    });
-    return data as UserListResponse;
+export const adminApi = {
+  getDashboard: async (): Promise<AdminDashboardDTO> => {
+    const res = await axiosInstance.get<AdminDashboardDTO>('/admin/dashboard');
+    return res.data;
   },
 
-  getSellers: async (page: number, limit: number, status?: string) => {
-    const { data } = await axiosInstance.get('/admin/sellers', {
-      params: { page, limit, status },
-    });
-    return data as SellerListResponse;
+  getStores: async (query?: AdminStoreListQuery): Promise<PaginatedResponse<AdminStoreDTO>> => {
+    const res = await axiosInstance.get<PaginatedResponse<AdminStoreDTO>>('/admin/stores', { params: query });
+    return res.data;
   },
 
-  approveSeller: async (sellerId: number) => {
-    const { data } = await axiosInstance.post(`/admin/sellers/${sellerId}/approve`);
-    return data;
+  getStoreDetail: async (sellerId: number): Promise<AdminStoreDetailDTO> => {
+    const res = await axiosInstance.get<AdminStoreDetailDTO>(`/admin/stores/${sellerId}`);
+    return res.data;
   },
 
-  rejectSeller: async (sellerId: number) => {
-    const { data } = await axiosInstance.post(`/admin/sellers/${sellerId}/reject`);
-    return data;
+  getStoreProducts: async (sellerId: number, query?: AdminStoreProductQuery): Promise<PaginatedResponse<AdminProductDTO>> => {
+    const res = await axiosInstance.get<PaginatedResponse<AdminProductDTO>>(`/admin/stores/${sellerId}/products`, { params: query });
+    return res.data;
   },
 
-  suspendUser: async (userId: number) => {
-    const { data } = await axiosInstance.post(`/admin/users/${userId}/suspend`);
-    return data;
+  getStoreOrders: async (sellerId: number, query?: AdminStoreOrderQuery): Promise<PaginatedResponse<AdminOrderSummaryDTO>> => {
+    const res = await axiosInstance.get<PaginatedResponse<AdminOrderSummaryDTO>>(`/admin/stores/${sellerId}/orders`, { params: query });
+    return res.data;
   },
 
-  banUser: async (userId: number) => {
-    const { data } = await axiosInstance.post(`/admin/users/${userId}/ban`);
-    return data;
+  getStoreWithdrawals: async (sellerId: number, query?: AdminStoreWithdrawalQuery): Promise<PaginatedResponse<AdminWithdrawalDTO>> => {
+    const res = await axiosInstance.get<PaginatedResponse<AdminWithdrawalDTO>>(`/admin/stores/${sellerId}/withdrawals`, { params: query });
+    return res.data;
   },
 
-  getPlatformStats: async () => {
-    const { data } = await axiosInstance.get('/admin/stats');
-    return data as PlatformStats;
+  approveSeller: async (sellerId: number): Promise<void> => {
+    await axiosInstance.post(`/admin/stores/${sellerId}/approve`);
   },
 
-  getSellerStats: async (sellerId: number) => {
-    const { data } = await axiosInstance.get(`/admin/sellers/${sellerId}/stats`);
-    return data as SellerStats;
+  rejectSeller: async (sellerId: number, body: RejectSellerDTO): Promise<void> => {
+    await axiosInstance.post(`/admin/stores/${sellerId}/reject`, body);
   },
-});
 
-export type AdminApi = ReturnType<typeof createAdminApi>;
+  suspendSeller: async (sellerId: number): Promise<void> => {
+    await axiosInstance.post(`/admin/stores/${sellerId}/suspend`);
+  },
+
+  updateStoreFee: async (sellerId: number, body: UpdateStoreFeeDTO): Promise<AdminStoreDetailDTO> => {
+    const res = await axiosInstance.patch<AdminStoreDetailDTO>(`/admin/stores/${sellerId}/fee`, body);
+    return res.data;
+  },
+
+  getProducts: async (query?: AdminProductListQuery): Promise<PaginatedResponse<AdminProductDTO>> => {
+    const res = await axiosInstance.get<PaginatedResponse<AdminProductDTO>>('/admin/products', { params: query });
+    return res.data;
+  },
+
+  getProductDetail: async (productId: number): Promise<AdminProductDTO> => {
+    const res = await axiosInstance.get<AdminProductDTO>(`/admin/products/${productId}`);
+    return res.data;
+  },
+
+  deleteProduct: async (productId: number): Promise<void> => {
+    await axiosInstance.delete(`/admin/products/${productId}`);
+  },
+
+  getUsers: async (query?: AdminUserListQuery): Promise<PaginatedResponse<AdminUserDTO>> => {
+    const res = await axiosInstance.get<PaginatedResponse<AdminUserDTO>>('/admin/users', { params: query });
+    return res.data;
+  },
+
+  getUserDetail: async (userId: number): Promise<AdminUserDetailDTO> => {
+    const res = await axiosInstance.get<AdminUserDetailDTO>(`/admin/users/${userId}`);
+    return res.data;
+  },
+
+  suspendUser: async (userId: number, body: SuspendUserDTO): Promise<void> => {
+    await axiosInstance.post(`/admin/users/${userId}/suspend`, body);
+  },
+
+  banUser: async (userId: number, body: BanUserDTO): Promise<void> => {
+    await axiosInstance.post(`/admin/users/${userId}/ban`, body);
+  },
+
+  deleteUser: async (userId: number): Promise<void> => {
+    await axiosInstance.delete(`/admin/users/${userId}`);
+  },
+
+  approveWithdrawal: async (withdrawalId: number): Promise<void> => {
+    await axiosInstance.post(`/admin/withdrawals/${withdrawalId}/approve`);
+  },
+
+  rejectWithdrawal: async (withdrawalId: number, body: RejectWithdrawalDTO): Promise<void> => {
+    await axiosInstance.post(`/admin/withdrawals/${withdrawalId}/reject`, body);
+  },
+
+  createAdmin: async (userId: number, body: CreateAdminDTO): Promise<void> => {
+    await axiosInstance.post(`/admin/users/${userId}/make-admin`, body);
+  },
+};

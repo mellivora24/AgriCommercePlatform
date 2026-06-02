@@ -6,8 +6,6 @@ import {
   Package,
   ShoppingBag,
   Users,
-  ClipboardList,
-  ShieldCheck,
   Store,
   LogOut,
 } from "lucide-react";
@@ -62,25 +60,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
       icon: <LayoutDashboard className="h-4.5 w-4.5" />,
     },
     {
-      label: "Người dùng",
-      path: ROUTES.ADMIN_USERS,
-      icon: <Users className="h-4.5 w-4.5" />,
+      label: "Quản lý cửa hàng",
+      path: ROUTES.ADMIN_STORES,
+      icon: <Store className="h-4.5 w-4.5" />,
     },
     {
-      label: "Sản phẩm",
+      label: "Quản lý sản phẩm",
       path: ROUTES.ADMIN_PRODUCTS,
       icon: <Package className="h-4.5 w-4.5" />,
     },
     {
-      label: "Đơn hàng",
-      path: ROUTES.ADMIN_ORDERS,
-      icon: <ClipboardList className="h-4.5 w-4.5" />,
+      label: "Quản lý người dùng",
+      path: ROUTES.ADMIN_USERS,
+      icon: <Users className="h-4.5 w-4.5" />,
     },
-    {
-      label: "Kiểm duyệt",
-      path: ROUTES.ADMIN_MODERATION ?? "#",
-      icon: <ShieldCheck className="h-4.5 w-4.5" />,
-    },
+
   ];
 
   const handleLogout = () => {
