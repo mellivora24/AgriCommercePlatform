@@ -1,50 +1,46 @@
-import type { UserListResponse, SellerListResponse, PlatformStats, SellerStats } from '../entities/admin.entity';
-import type { IAdminRepository } from '../repositories/admin.repository';
+import type { IAdminRepository } from '@/features/admin/domain/repositories/admin.repository';
+import type {
+  AdminUserListQuery,
+  AdminStoreListQuery,
+  AdminStoreProductQuery,
+  AdminStoreOrderQuery,
+  AdminStoreWithdrawalQuery,
+  AdminProductListQuery,
+  RejectSellerDTO,
+  RejectWithdrawalDTO,
+  UpdateStoreFeeDTO,
+  SuspendUserDTO,
+  BanUserDTO,
+  CreateAdminDTO,
+} from '@/features/admin/data/dtos/admin.dto';
 
-export interface GetUsersUseCase {
-  execute(page: number, limit: number, role?: string, status?: string): Promise<UserListResponse>;
-}
+export const createAdminUseCases = (repo: IAdminRepository) => ({
+  getDashboard: () => repo.getDashboard(),
 
-export interface GetSellersUseCase {
-  execute(page: number, limit: number, status?: string): Promise<SellerListResponse>;
-}
+  getStores: (query?: AdminStoreListQuery) => repo.getStores(query),
+  getStoreDetail: (sellerId: number) => repo.getStoreDetail(sellerId),
+  getStoreProducts: (sellerId: number, query?: AdminStoreProductQuery) => repo.getStoreProducts(sellerId, query),
+  getStoreOrders: (sellerId: number, query?: AdminStoreOrderQuery) => repo.getStoreOrders(sellerId, query),
+  getStoreWithdrawals: (sellerId: number, query?: AdminStoreWithdrawalQuery) => repo.getStoreWithdrawals(sellerId, query),
+  approveSeller: (sellerId: number) => repo.approveSeller(sellerId),
+  rejectSeller: (sellerId: number, body: RejectSellerDTO) => repo.rejectSeller(sellerId, body),
+  suspendSeller: (sellerId: number) => repo.suspendSeller(sellerId),
+  updateStoreFee: (sellerId: number, body: UpdateStoreFeeDTO) => repo.updateStoreFee(sellerId, body),
 
-export interface ApproveSellerUseCase {
-  execute(sellerId: number): Promise<void>;
-}
+  getProducts: (query?: AdminProductListQuery) => repo.getProducts(query),
+  getProductDetail: (productId: number) => repo.getProductDetail(productId),
+  deleteProduct: (productId: number) => repo.deleteProduct(productId),
 
-export interface RejectSellerUseCase {
-  execute(sellerId: number): Promise<void>;
-}
+  getUsers: (query?: AdminUserListQuery) => repo.getUsers(query),
+  getUserDetail: (userId: number) => repo.getUserDetail(userId),
+  suspendUser: (userId: number, body: SuspendUserDTO) => repo.suspendUser(userId, body),
+  banUser: (userId: number, body: BanUserDTO) => repo.banUser(userId, body),
+  deleteUser: (userId: number) => repo.deleteUser(userId),
 
-export interface GetPlatformStatsUseCase {
-  execute(): Promise<PlatformStats>;
-}
+  approveWithdrawal: (withdrawalId: number) => repo.approveWithdrawal(withdrawalId),
+  rejectWithdrawal: (withdrawalId: number, body: RejectWithdrawalDTO) => repo.rejectWithdrawal(withdrawalId, body),
 
-export interface GetSellerStatsUseCase {
-  execute(sellerId: number): Promise<SellerStats>;
-}
-
-export const createGetUsersUseCase = (repository: IAdminRepository): GetUsersUseCase => ({
-  execute: (page, limit, role, status) => repository.getUsers(page, limit, role, status),
+  createAdmin: (userId: number, body: CreateAdminDTO) => repo.createAdmin(userId, body),
 });
 
-export const createGetSellersUseCase = (repository: IAdminRepository): GetSellersUseCase => ({
-  execute: (page, limit, status) => repository.getSellers(page, limit, status),
-});
-
-export const createApproveSellerUseCase = (repository: IAdminRepository): ApproveSellerUseCase => ({
-  execute: (sellerId) => repository.approveSeller(sellerId),
-});
-
-export const createRejectSellerUseCase = (repository: IAdminRepository): RejectSellerUseCase => ({
-  execute: (sellerId) => repository.rejectSeller(sellerId),
-});
-
-export const createGetPlatformStatsUseCase = (repository: IAdminRepository): GetPlatformStatsUseCase => ({
-  execute: () => repository.getPlatformStats(),
-});
-
-export const createGetSellerStatsUseCase = (repository: IAdminRepository): GetSellerStatsUseCase => ({
-  execute: (sellerId) => repository.getSellerStats(sellerId),
-});
+export type AdminUseCases = ReturnType<typeof createAdminUseCases>;
