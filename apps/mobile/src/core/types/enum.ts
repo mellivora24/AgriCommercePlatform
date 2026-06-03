@@ -1,0 +1,54 @@
+export enum UserRole {
+	BUYER = 'BUYER',
+	SELLER = 'SELLER',
+	ADMIN = 'ADMIN',
+	SHIPPER = 'SHIPPER',
+}
+
+export enum ProductStatus {
+	AVAILABLE = 'AVAILABLE',
+	HIDDEN = 'HIDDEN',
+	OUT_OF_STOCK = 'OUT_OF_STOCK',
+	PENDING = 'PENDING',
+}
+
+export enum OrderStatus {
+	PENDING = 'PENDING',
+	CONFIRMED = 'CONFIRMED',
+	PREPARING = 'PREPARING',
+	SHIPPED = 'SHIPPED',
+	DELIVERED = 'DELIVERED',
+	CANCELED = 'CANCELED',
+	RETURNED = 'RETURNED',
+}
+
+export enum PaymentStatus {
+	PENDING = 'PENDING',
+	PAID = 'PAID',
+	FAILED = 'FAILED',
+	REFUNDED = 'REFUNDED',
+}
+
+export enum ShipmentStatus {
+	CREATED = 'CREATED',
+	PICKED_UP = 'PICKED_UP',
+	IN_TRANSIT = 'IN_TRANSIT',
+	DELIVERED = 'DELIVERED',
+	RETURNED = 'RETURNED',
+}
+
+export enum ReturnStatus {
+	REQUESTED = 'REQUESTED',
+	APPROVED = 'APPROVED',
+	REJECTED = 'REJECTED',
+	COMPLETED = 'COMPLETED',
+}
+
+export enum WalletTransactionType {
+	TOP_UP = 'TOP_UP',
+	ORDER_PAYMENT = 'ORDER_PAYMENT',
+	REFUND = 'REFUND',
+	WITHDRAW = 'WITHDRAW',
+	COMMISSION = 'COMMISSION',
+}
+
