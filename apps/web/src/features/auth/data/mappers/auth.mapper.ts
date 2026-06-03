@@ -14,7 +14,7 @@ export class AuthMapper {
         email: dto.user.email,
         name: dto.user.name,
         avatar: dto.user.avatar,
-        role: dto.user.role as 'BUYER' | 'SELLER' | 'ADMIN',
+        role: dto.user.role as 'BUYER' | 'SELLER' | 'ADMIN' | 'SHIPPER',
         createdAt: dto.user.createdAt,
       },
     };
@@ -26,7 +26,7 @@ export class AuthMapper {
       email: dto.email,
       name: dto.name,
       avatar: dto.avatar,
-      role: dto.role as 'BUYER' | 'SELLER' | 'ADMIN',
+      role: dto.role as 'BUYER' | 'SELLER' | 'ADMIN' | 'SHIPPER',
       createdAt: dto.createdAt,
     };
   }

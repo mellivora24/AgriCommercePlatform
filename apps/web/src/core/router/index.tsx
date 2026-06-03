@@ -24,6 +24,7 @@ import AdminDashboardPage from '@/features/admin/presentation/pages/AdminDashboa
 import AdminUserPage from '@/features/admin/presentation/pages/AdminUserPage';
 import AdminStorePage from '@/features/admin/presentation/pages/AdminStorePage';
 import AdminProductListPage from '@/features/admin/presentation/pages/AdminProductListPage';
+import ShipperPage from '@/features/delivery/presentation/pages/ShipperPage';
 
 export const Router: React.FC = () => (
   <BrowserRouter>
@@ -110,6 +111,11 @@ export const Router: React.FC = () => (
           element={<RoleGuard allowedRoles={['ADMIN']}><AdminUserPage /></RoleGuard>}
         />
       </Route>
+
+        <Route
+          path={ROUTES.SHIPPER_DASHBOARD}
+          element={<RoleGuard allowedRoles={['SHIPPER']}><ShipperPage /></RoleGuard>}
+        />
 
       <Route
         path={ROUTES.NOT_FOUND}

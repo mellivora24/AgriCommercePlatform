@@ -53,4 +53,10 @@ export const QUERY_KEYS = {
   ADMIN_USERS: (page: number) => ["admin", "users", { page }] as const,
   ADMIN_PRODUCTS: (page: number) => ["admin", "products", { page }] as const,
   ADMIN_ORDERS: (page: number) => ["admin", "orders", { page }] as const,
+
+  SHIPPER_SHIPMENTS: ["shipper", "shipments"] as const,
+  SHIPPER_SHIPMENTS_LIST: (page: number, tab: string) =>
+    ["shipper", "shipments", "list", { page, tab }] as const,
+  SHIPPER_SHIPMENT_DETAIL: (id: number | string) =>
+    ["shipper", "shipments", "detail", id] as const,
 } as const;

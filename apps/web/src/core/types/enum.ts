@@ -39,6 +39,7 @@ export type PaymentMethod = 'ONLINE' | 'COD';
 
 export type PaymentStatus =
   | 'PENDING'
+  | 'PAID'
   | 'COMPLETED'
   | 'FAILED'
   | 'REFUNDED'

@@ -67,6 +67,8 @@ export const ROUTES = {
   ADMIN_SETTINGS: "/admin/settings",
   ADMIN_MODERATION: "/admin/moderation",
 
+  SHIPPER_DASHBOARD: "/shipper/dashboard",
+
   // Not Found
   NOT_FOUND: "*",
 } as const;

@@ -91,7 +91,7 @@ export class OrdersService {
         10000n;
 
       const paymentStatus =
-        dto.paymentMethod === 'COD' ? 'WAITING_COD_COLLECTION' : 'PENDING';
+        dto.paymentMethod === 'COD' ? 'WAITING_COD_COLLECTION' : 'PAID';
 
       const order = await this.prisma.order.create({
         data: {
