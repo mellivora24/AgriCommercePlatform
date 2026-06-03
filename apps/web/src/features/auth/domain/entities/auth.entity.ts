@@ -20,6 +20,6 @@ export interface AuthUser {
   email: string;
   name: string;
   avatar?: string;
-  role: 'BUYER' | 'SELLER' | 'ADMIN';
+  role: 'BUYER' | 'SELLER' | 'ADMIN' | 'SHIPPER';
   createdAt: string;
 }

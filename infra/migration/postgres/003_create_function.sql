@@ -607,3 +607,29 @@ CREATE TRIGGER trg_create_seller_profile_on_register
 AFTER INSERT ON users
 FOR EACH ROW
 EXECUTE FUNCTION fn_create_seller_profile_on_register();
+
+CREATE OR REPLACE FUNCTION fn_create_shipper_profile_on_register()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF NEW.role = 'SHIPPER' THEN
+        INSERT INTO shipper_profiles (user_id, status)
+        VALUES (NEW.user_id, 'WORKING')
+        ON CONFLICT (user_id) DO NOTHING;
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER trg_create_shipper_profile_on_register
+AFTER INSERT ON users
+FOR EACH ROW
+EXECUTE FUNCTION fn_create_shipper_profile_on_register();
+
+INSERT INTO shipper_profiles (user_id, status)
+SELECT user_id, 'WORKING'
+FROM users
+WHERE role = 'SHIPPER'
+ON CONFLICT (user_id) DO NOTHING;

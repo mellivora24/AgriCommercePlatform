@@ -6,9 +6,10 @@ import {
   Delete,
   Body,
   UseGuards,
-  Request,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '@module/auth/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '@module/auth/guards/optional-jwt-auth.guard';
 import { CurrentUser } from '@common/decorator';
 import { AuthUser } from '@module/auth/types/auth.type';
 import { CartService } from './cart.service';
@@ -21,34 +22,46 @@ export class CartController {
   @Get()
   @UseGuards(JwtAuthGuard)
   getCart(@CurrentUser() user: AuthUser) {
-    return this.service.getCart(user.buyerId!);
+    if (!user.buyerId)
+      throw new BadRequestException('Chỉ người mua mới có giỏ hàng');
+    return this.service.getCart(user.buyerId);
   }
 
   @Get('total')
   @UseGuards(JwtAuthGuard)
   getTotal(@CurrentUser() user: AuthUser) {
-    return this.service.getCartTotal(user.buyerId!);
+    if (!user.buyerId)
+      throw new BadRequestException('Chỉ người mua mới có giỏ hàng');
+    return this.service.getCartTotal(user.buyerId);
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
-  async addToCart(@Request() req: any, @Body() dto: CartDto) {
-    const user: AuthUser | undefined = req.user;
+  @UseGuards(OptionalJwtAuthGuard)
+  async addToCart(
+    @CurrentUser() user: AuthUser | undefined,
+    @Body() dto: CartDto,
+  ) {
     if (!user) {
       return this.service.getProductForCart(dto.productId);
     }
-    return this.service.addToCart(user.buyerId!, dto);
+    if (!user.buyerId)
+      throw new BadRequestException('Chỉ người mua mới có giỏ hàng');
+    return this.service.addToCart(user.buyerId, dto);
   }
 
   @Put()
   @UseGuards(JwtAuthGuard)
   updateItem(@CurrentUser() user: AuthUser, @Body() dto: CartDto) {
-    return this.service.updateCartItem(user.buyerId!, dto);
+    if (!user.buyerId)
+      throw new BadRequestException('Chỉ người mua mới có giỏ hàng');
+    return this.service.updateCartItem(user.buyerId, dto);
   }
 
   @Delete('items')
   @UseGuards(JwtAuthGuard)
   removeItem(@CurrentUser() user: AuthUser, @Body() dto: DeleteCartItemDto) {
-    return this.service.removeFromCart(user.buyerId!, dto.itemId);
+    if (!user.buyerId)
+      throw new BadRequestException('Chỉ người mua mới có giỏ hàng');
+    return this.service.removeFromCart(user.buyerId, dto.itemId);
   }
 }
