@@ -31,13 +31,13 @@ export class PaymentsService {
   async confirmPayment(paymentId: number, dto: ConfirmPaymentDto) {
     const payment = await this.getPayment(paymentId);
 
-    if (payment.status === 'COMPLETED')
+    if (payment.status === 'PAID')
       throw new BadRequestException('Thanh toán đã được xác nhận');
 
     const updated = await this.prisma.payment.update({
       where: { paymentId },
       data: {
-        status: 'COMPLETED',
+        status: 'PAID',
         transactionId: dto.transactionId,
       },
     });

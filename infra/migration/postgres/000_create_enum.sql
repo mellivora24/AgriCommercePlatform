@@ -89,6 +89,7 @@ CREATE TYPE payment_method AS ENUM (
 
 CREATE TYPE payment_status AS ENUM (
     'PENDING',
+    'PAID',
     'COMPLETED',
     'FAILED',
     'REFUNDED',

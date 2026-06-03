@@ -5,7 +5,10 @@ import { Button } from "@/shared/components/ui/Button";
 import { formatCurrency, formatDate } from "@/shared/utils/format";
 import type { SellerOrder } from "@/features/sellers/domain/entities/seller.entity";
 import type { OrderStatus, PaymentStatus } from "@/core/types/enum";
-import { useConfirmOrder, useCancelOrder } from "@/features/orders/presentation/hooks/useOrders";
+import {
+  useConfirmOrder,
+  useCancelOrder,
+} from "@/features/orders/presentation/hooks/useOrders";
 
 const orderStatusVariant: Record<
   OrderStatus,
@@ -40,6 +43,7 @@ const paymentStatusLabel: Record<PaymentStatus, string> = {
   PENDING: "Chờ thanh toán",
   WAITING_COD_COLLECTION: "Chờ thu tiền COD",
   COMPLETED: "Đã thanh toán",
+  PAID: "Đã thanh toán",
   FAILED: "Thất bại",
   REFUNDED: "Đã hoàn trả",
 };
@@ -153,7 +157,9 @@ export const SellerOrderDetailModal: React.FC<Props> = ({
                     </div>
                   </td>
                   <td className="px-4 py-3">{item.quantity}</td>
-                  <td className="px-4 py-3">{formatCurrency(item.unitPrice)}</td>
+                  <td className="px-4 py-3">
+                    {formatCurrency(item.unitPrice)}
+                  </td>
                   <td className="px-4 py-3 font-semibold">
                     {formatCurrency(item.unitPrice * item.quantity)}
                   </td>
@@ -209,7 +215,8 @@ export const SellerOrderDetailModal: React.FC<Props> = ({
         )}
 
         <div className="flex gap-3 justify-end border-t pt-4">
-          {order.status === "WAITING_SELLER_CONFIRMATION" || order.status === "PAID" &&
+          {(order.status === "WAITING_SELLER_CONFIRMATION" ||
+            order.status === "PAID") &&
             !confirming &&
             !rejecting && (
               <>
@@ -286,7 +293,11 @@ export const SellerOrderDetailModal: React.FC<Props> = ({
           )}
 
           {!confirming && !rejecting && (
-            <Button variant="secondary" onClick={onClose} disabled={isActioning}>
+            <Button
+              variant="secondary"
+              onClick={onClose}
+              disabled={isActioning}
+            >
               Đóng
             </Button>
           )}

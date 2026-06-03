@@ -98,7 +98,7 @@ enum PaymentMethod {
 
 enum PaymentStatus {
   PENDING
-  COMPLETED
+  PAID
   FAILED
   REFUNDED
   WAITING_COD_COLLECTION
