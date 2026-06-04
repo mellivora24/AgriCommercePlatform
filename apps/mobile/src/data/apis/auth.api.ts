@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/core/network';
+import { axiosInstance } from '@/core/axios/axiosInstance';
 import type { AuthResponseDTO, LoginRequestDTO, RegisterRequestDTO } from '../dtos/auth.dto';
 
 export const authApi = {

@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/core/network';
+import { axiosInstance } from '@/core/axios/axiosInstance';
 import type { CartDto, DeleteCartItemDto, CartResponseDto } from '../dtos/cart.dto';
 
 export const cartApi = {

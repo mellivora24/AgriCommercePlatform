@@ -1,9 +1,9 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createJSONStorage, persist } from 'zustand/middleware';
-import { create } from 'zustand';
-import { useCartStore } from './cart-store';
-import { queryClient } from '@/core/providers';
-import type { UserRole } from '@/core/types/enum';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { create } from "zustand";
+import { useCartStore } from "./cart-store";
+import { queryClient } from "@/core/providers/query-client";
+import type { UserRole } from "@/core/types/enum";
 
 export interface User {
   id: string;
@@ -20,7 +20,11 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   isHydrated: boolean;
-  setAuth: (accessToken: string, refreshToken: string, user: User) => Promise<void>;
+  setAuth: (
+    accessToken: string,
+    refreshToken: string,
+    user: User,
+  ) => Promise<void>;
   clearAuth: () => void;
   setUser: (user: User) => void;
   setHydrated: (hydrated: boolean) => void;
@@ -40,20 +44,25 @@ export const useAuthStore = create<AuthState>()(
         const cart = useCartStore.getState();
         cart.setIsGuest(false);
         await cart.mergeGuestCart();
-        queryClient.invalidateQueries({ queryKey: ['cart'] });
+        queryClient.invalidateQueries({ queryKey: ["cart"] });
       },
       clearAuth: () => {
-        set({ accessToken: null, refreshToken: null, user: null, isAuthenticated: false });
+        set({
+          accessToken: null,
+          refreshToken: null,
+          user: null,
+          isAuthenticated: false,
+        });
         const cart = useCartStore.getState();
         cart.clearCart();
         cart.setIsGuest(true);
-        queryClient.removeQueries({ queryKey: ['cart'] });
+        queryClient.removeQueries({ queryKey: ["cart"] });
       },
       setUser: (user) => set({ user }),
       setHydrated: (hydrated) => set({ isHydrated: hydrated }),
     }),
     {
-      name: 'auth-store',
+      name: "auth-store",
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         accessToken: state.accessToken,
@@ -62,9 +71,11 @@ export const useAuthStore = create<AuthState>()(
         isAuthenticated: state.isAuthenticated,
       }),
       onRehydrateStorage: () => (state) => {
-        state?.setHydrated(true);
-        if (state?.isAuthenticated) {
-          useCartStore.getState().setIsGuest(false);
+        if (state) {
+          useAuthStore.setState({ isHydrated: true });
+          if (state.isAuthenticated) {
+            useCartStore.getState().setIsGuest(false);
+          }
         }
       },
     },

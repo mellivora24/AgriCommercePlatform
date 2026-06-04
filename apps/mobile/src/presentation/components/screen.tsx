@@ -10,7 +10,7 @@ export const Screen: React.FC<ScreenProps> = ({ children, scroll = true }) => {
   const Container = scroll ? ScrollView : View;
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <Container
         style={scroll ? styles.scrollView : styles.view}
         contentContainerStyle={scroll ? styles.content : undefined}
@@ -18,7 +18,7 @@ export const Screen: React.FC<ScreenProps> = ({ children, scroll = true }) => {
       >
         {children}
       </Container>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -33,8 +33,5 @@ const styles = StyleSheet.create({
   view: {
     flex: 1,
   },
-  content: {
-    flexGrow: 1,
-    padding: 16,
-  },
+  content: {},
 });

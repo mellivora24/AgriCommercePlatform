@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/core/network';
+import { axiosInstance } from '@/core/axios/axiosInstance';
 import type { OrderDto, OrderListResponseDto } from '../dtos/order.dto';
 
 export const ordersApi = {

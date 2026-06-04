@@ -29,13 +29,15 @@ export const AuthGate: React.FC<PropsWithChildren> = ({ children }) => {
 export const GuestGate: React.FC<PropsWithChildren> = ({ children }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isHydrated = useAuthStore((state) => state.isHydrated);
+  const role = useAuthStore((state) => state.user?.role);
 
-  if (!isHydrated) {
-    return <LoadingGate />;
-  }
+  if (!isHydrated) return <LoadingGate />;
 
   if (isAuthenticated) {
-    return <Redirect href={ROUTES.HOME_PAGE} />;
+    if (role === UserRole.SELLER) return <Redirect href={ROUTES.SELLER_DASHBOARD} />;
+    if (role === UserRole.ADMIN) return <Redirect href={ROUTES.ADMIN_DASHBOARD} />;
+    if (role === UserRole.SHIPPER) return <Redirect href={ROUTES.SHIPPER_DASHBOARD} />;
+    return <Redirect href={ROUTES.PRODUCTS} />;
   }
 
   return <>{children}</>;

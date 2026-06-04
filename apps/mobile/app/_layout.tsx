@@ -2,12 +2,13 @@ import React from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { AppProvider } from '@/core/providers';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@/core/providers/query-client';
 
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <AppProvider>
+      <QueryClientProvider client={queryClient}>
         <StatusBar style="dark" />
         <Stack
           screenOptions={{
@@ -15,7 +16,7 @@ export default function RootLayout() {
             contentStyle: { backgroundColor: '#f3f7f1' },
           }}
         />
-      </AppProvider>
+      </QueryClientProvider>
     </GestureHandlerRootView>
   );
 }
