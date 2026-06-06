@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   ActivityIndicator,
+  Animated,
   FlatList,
   Image,
   Pressable,
@@ -32,49 +33,82 @@ const STATUS_BADGE: Record<Product['status'], { label: string; color: string }> 
 
 const PLACEHOLDER = 'https://placehold.co/600x400/png?text=Product';
 
-const ProductCard: React.FC<{ item: Product; onPress: () => void }> = ({ item, onPress }) => {
+const ProductCard: React.FC<{ item: Product; onPress: () => void; index: number }> = ({
+  item,
+  onPress,
+  index,
+}) => {
   const badge = STATUS_BADGE[item.status];
   const imageUri = item.images?.[0]?.imageUrl || PLACEHOLDER;
   const hasRating = item.rating !== null && item.rating !== undefined;
 
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(24)).current;
+
+  useEffect(() => {
+    const delay = index * 60;
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 360, delay, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 360, delay, useNativeDriver: true }),
+    ]).start();
+  }, []);
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, { toValue: 0.96, useNativeDriver: true, speed: 30 }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 20 }).start();
+  };
+
   return (
-    <Pressable
-      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
-      onPress={onPress}
+    <Animated.View
+      style={[
+        styles.cardWrapper,
+        { opacity: fadeAnim, transform: [{ translateY: slideAnim }, { scale: scaleAnim }] },
+      ]}
     >
-      {/* Image + badge */}
-      <View style={styles.imageWrapper}>
-        <Image source={{ uri: imageUri }} style={styles.image} />
-        <View style={[styles.badge, { backgroundColor: badge.color + '22' }]}>
-          <Text style={[styles.badgeText, { color: badge.color }]}>{badge.label}</Text>
-        </View>
-      </View>
-
-      {/* Info */}
-      <View style={styles.cardBody}>
-        <Text numberOfLines={2} style={styles.name}>
-          {item.name}
-        </Text>
-
-        <Text style={styles.store} numberOfLines={1}>
-          🏪 {item.seller?.storeName || 'Cửa hàng'}
-        </Text>
-
-        {hasRating && (
-          <View style={styles.ratingRow}>
-            <Text style={styles.star}>★</Text>
-            <Text style={styles.ratingValue}>
-              {item.rating!.toFixed(1)}
-              <Text style={styles.ratingCount}> ({item.reviews})</Text>
-            </Text>
+      <Pressable
+        style={styles.card}
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+      >
+        <View style={styles.imageWrapper}>
+          <Image source={{ uri: imageUri }} style={styles.image} />
+          <View style={styles.imageOverlay} />
+          <View style={[styles.badge, { backgroundColor: badge.color + '22' }]}>
+            <View style={[styles.badgeDot, { backgroundColor: badge.color }]} />
+            <Text style={[styles.badgeText, { color: badge.color }]}>{badge.label}</Text>
           </View>
-        )}
+        </View>
 
-        <Text style={styles.price}>{formatCurrency(item.price)}</Text>
+        <View style={styles.cardBody}>
+          <Text numberOfLines={2} style={styles.name}>
+            {item.name}
+          </Text>
 
-        <AppButton title="Xem chi tiết" fullWidth onPress={onPress} variant="ghost" />
-      </View>
-    </Pressable>
+          <Text style={styles.store} numberOfLines={1}>
+            🏪 {item.seller?.storeName || 'Cửa hàng'}
+          </Text>
+
+          {hasRating && (
+            <View style={styles.ratingRow}>
+              <Text style={styles.star}>★</Text>
+              <Text style={styles.ratingValue}>
+                {item.rating!.toFixed(1)}
+                <Text style={styles.ratingCount}> ({item.reviews})</Text>
+              </Text>
+            </View>
+          )}
+
+          <Text style={styles.price}>{formatCurrency(item.price)}</Text>
+
+          <AppButton title="Xem chi tiết" fullWidth onPress={onPress} variant="ghost" />
+        </View>
+      </Pressable>
+    </Animated.View>
   );
 };
 
@@ -85,6 +119,15 @@ const Pagination: React.FC<{
 }> = ({ page, totalPages, onPageChange }) => {
   if (totalPages <= 1) return null;
 
+  const dots = Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+    let pageNum = i + 1;
+    if (totalPages > 5) {
+      const start = Math.max(1, Math.min(page - 2, totalPages - 4));
+      pageNum = start + i;
+    }
+    return pageNum;
+  });
+
   return (
     <View style={styles.pagination}>
       <Pressable
@@ -92,21 +135,55 @@ const Pagination: React.FC<{
         onPress={() => onPageChange(Math.max(1, page - 1))}
         disabled={page <= 1}
       >
-        <Text style={styles.pageBtnText}>‹ Trước</Text>
+        <Text style={styles.pageBtnText}>‹</Text>
       </Pressable>
 
-      <Text style={styles.pageInfo}>
-        {page} / {totalPages}
-      </Text>
+      <View style={styles.pageDots}>
+        {dots.map((p) => (
+          <Pressable
+            key={p}
+            onPress={() => onPageChange(p)}
+            style={[styles.pageDot, p === page && styles.pageDotActive]}
+          >
+            <Text style={p === page ? styles.pageDotActiveText : styles.pageDotText}>{p}</Text>
+          </Pressable>
+        ))}
+      </View>
 
       <Pressable
         style={[styles.pageBtn, page >= totalPages && styles.pageBtnDisabled]}
         onPress={() => onPageChange(Math.min(totalPages, page + 1))}
         disabled={page >= totalPages}
       >
-        <Text style={styles.pageBtnText}>Tiếp ›</Text>
+        <Text style={styles.pageBtnText}>›</Text>
       </Pressable>
     </View>
+  );
+};
+
+const SkeletonCard: React.FC<{ index: number }> = ({ index }) => {
+  const shimmer = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(shimmer, { toValue: 1, duration: 900, delay: index * 100, useNativeDriver: true }),
+        Animated.timing(shimmer, { toValue: 0, duration: 900, useNativeDriver: true }),
+      ])
+    ).start();
+  }, []);
+
+  const opacity = shimmer.interpolate({ inputRange: [0, 1], outputRange: [0.4, 0.85] });
+
+  return (
+    <Animated.View style={[styles.cardWrapper, styles.skeletonCard, { opacity }]}>
+      <View style={styles.skeletonImage} />
+      <View style={styles.skeletonBody}>
+        <View style={styles.skeletonLine} />
+        <View style={[styles.skeletonLine, { width: '60%' }]} />
+        <View style={[styles.skeletonLine, { width: '40%', backgroundColor: '#d9f99d' }]} />
+      </View>
+    </Animated.View>
   );
 };
 
@@ -125,21 +202,29 @@ export const ProductsListPage: React.FC<ProductsListPageProps> = ({
   const goToDetail = (productId: number) =>
     router.push(`${ROUTES.PRODUCTS}/${productId}` as never);
 
-  // ── Loading ──
   if (isLoading) {
     return (
-      <View style={styles.centerWrapper}>
-        <ActivityIndicator size="large" color="#65a30d" />
-        <Text style={styles.muted}>Đang tải sản phẩm...</Text>
+      <View>
+        <View style={styles.skeletonCountBar} />
+        <View style={styles.column}>
+          {[0, 1, 2, 3].map((i) => (
+            <SkeletonCard key={i} index={i} />
+          ))}
+        </View>
+        <View style={styles.centerWrapper}>
+          <ActivityIndicator size="small" color="#65a30d" />
+          <Text style={styles.muted}>Đang tải sản phẩm...</Text>
+        </View>
       </View>
     );
   }
 
-  // ── Empty ──
   if (!data?.items?.length) {
     return (
       <View style={styles.centerWrapper}>
-        <Text style={styles.emptyIcon}>📦</Text>
+        <View style={styles.emptyIconWrapper}>
+          <Text style={styles.emptyIcon}>📦</Text>
+        </View>
         <Text style={styles.emptyText}>{emptyMessage}</Text>
         {emptySubMessage && <Text style={styles.muted}>{emptySubMessage}</Text>}
       </View>
@@ -153,11 +238,14 @@ export const ProductsListPage: React.FC<ProductsListPageProps> = ({
       numColumns={2}
       columnWrapperStyle={styles.column}
       scrollEnabled={false}
-      renderItem={({ item }) => (
-        <ProductCard item={item} onPress={() => goToDetail(item.productId)} />
+      renderItem={({ item, index }) => (
+        <ProductCard item={item} onPress={() => goToDetail(item.productId)} index={index} />
       )}
       ListHeaderComponent={
-        <Text style={styles.resultCount}>{data.total} sản phẩm</Text>
+        <View style={styles.listHeader}>
+          <View style={styles.listHeaderAccent} />
+          <Text style={styles.resultCount}>{data.total} sản phẩm</Text>
+        </View>
       }
       ListFooterComponent={
         page !== undefined && onPageChange ? (
@@ -178,77 +266,113 @@ const styles = StyleSheet.create({
     color: '#64748b',
     fontSize: 13,
   },
+  emptyIconWrapper: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#f0fdf4',
+    borderWidth: 2,
+    borderColor: '#bbf7d0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
   emptyIcon: {
-    fontSize: 40,
+    fontSize: 34,
   },
   emptyText: {
     color: '#0f172a',
     fontWeight: '700',
-    fontSize: 16,
+    fontSize: 18,
   },
-
-  // Summary
+  listHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  listHeaderAccent: {
+    width: 4,
+    height: 18,
+    borderRadius: 2,
+    backgroundColor: '#84cc16',
+  },
   resultCount: {
-    fontSize: 12,
+    fontSize: 15,
     color: '#64748b',
-    fontWeight: '500',
-    marginBottom: 8,
+    fontWeight: '700',
   },
   column: {
     gap: 12,
+    marginBottom: 0,
+  },
+  cardWrapper: {
+    flex: 1,
+    marginBottom: 12,
   },
   card: {
     flex: 1,
-    borderRadius: 18,
+    borderRadius: 20,
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#d9f99d',
     overflow: 'hidden',
-    marginBottom: 12,
-    shadowColor: '#84cc16',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  cardPressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.98 }],
+    shadowColor: '#65a30d',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 4,
   },
   imageWrapper: {
     position: 'relative',
   },
   image: {
     width: '100%',
-    height: 130,
+    height: 140,
     backgroundColor: '#e2e8f0',
+  },
+  imageOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 40,
+    backgroundColor: 'rgba(255,255,255,0.15)',
   },
   badge: {
     position: 'absolute',
     top: 8,
     left: 8,
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    borderRadius: 8,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  badgeDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
   },
   badgeText: {
     fontSize: 10,
     fontWeight: '700',
   },
   cardBody: {
-    padding: 10,
+    padding: 12,
     gap: 6,
   },
   name: {
     color: '#0f172a',
     fontWeight: '800',
-    fontSize: 13,
-    minHeight: 36,
-    lineHeight: 18,
+    fontSize: 14,
+    minHeight: 38,
+    lineHeight: 19,
   },
   store: {
     color: '#64748b',
-    fontSize: 11,
+    fontSize: 12,
   },
   ratingRow: {
     flexDirection: 'row',
@@ -271,38 +395,90 @@ const styles = StyleSheet.create({
   price: {
     color: '#b91c1c',
     fontWeight: '900',
-    fontSize: 14,
+    fontSize: 15,
   },
-
-  // Pagination
+  skeletonCard: {
+    borderRadius: 20,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#d9f99d',
+    overflow: 'hidden',
+  },
+  skeletonCountBar: {
+    height: 14,
+    width: 100,
+    borderRadius: 7,
+    backgroundColor: '#e2e8f0',
+    marginBottom: 12,
+  },
+  skeletonImage: {
+    width: '100%',
+    height: 140,
+    backgroundColor: '#e9f5dc',
+  },
+  skeletonBody: {
+    padding: 12,
+    gap: 8,
+  },
+  skeletonLine: {
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#e2e8f0',
+  },
   pagination: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 16,
-    paddingVertical: 16,
+    gap: 8,
+    paddingVertical: 20,
   },
   pageBtn: {
+    width: 36,
+    height: 36,
     backgroundColor: '#f0fdf4',
     borderWidth: 1,
     borderColor: '#bbf7d0',
     borderRadius: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   pageBtnDisabled: {
-    opacity: 0.4,
+    opacity: 0.35,
   },
   pageBtnText: {
     color: '#15803d',
     fontWeight: '700',
-    fontSize: 13,
+    fontSize: 18,
+    lineHeight: 22,
   },
-  pageInfo: {
+  pageDots: {
+    flexDirection: 'row',
+    gap: 4,
+    alignItems: 'center',
+  },
+  pageDot: {
+    minWidth: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+    backgroundColor: '#f0fdf4',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  pageDotActive: {
+    backgroundColor: '#16a34a',
+    borderColor: '#16a34a',
+  },
+  pageDotText: {
     color: '#64748b',
     fontSize: 13,
     fontWeight: '600',
-    minWidth: 48,
-    textAlign: 'center',
+  },
+  pageDotActiveText: {
+    color: '#ffffff',
+    fontSize: 13,
+    fontWeight: '700',
   },
 });
