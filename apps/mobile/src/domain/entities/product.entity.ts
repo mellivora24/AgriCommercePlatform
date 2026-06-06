@@ -1,4 +1,4 @@
-import type { Category } from './category.entity';
+import type { Category } from "./category.entity";
 
 export interface ProductImage {
   imageId?: number;
@@ -14,14 +14,19 @@ export interface ProductSeller {
 export interface Product {
   productId: number;
   name: string;
-  description?: string;
+  description: string;
   price: number;
   stockQuantity: number;
-  rating?: number;
-  sku?: string;
-  images?: ProductImage[];
-  seller?: ProductSeller;
-  category?: Category;
+  status: "AVAILABLE" | "HIDDEN" | "OUT_OF_STOCK" | "PENDING";
+  rating: number | null;
+  reviews: number;
+  sellerId: number;
+  categoryId: number | null;
+  images: ProductImage[];
+  seller: ProductSeller;
+  category: Category | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ProductListResponse {

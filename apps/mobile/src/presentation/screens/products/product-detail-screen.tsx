@@ -30,7 +30,7 @@ export const ProductDetailScreen: React.FC = () => {
       price: product.price,
       quantity: 1,
       image: product.images?.[0]?.imageUrl,
-      sku: product.sku,
+      sku: product.productId.toString(),
     });
 
     toast.success(`${product.name} đã được thêm vào giỏ hàng`);

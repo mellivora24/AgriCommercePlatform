@@ -1,18 +1,26 @@
-import type { ProductDTO, ProductListResponseDTO } from '../dtos/product.dto';
-import type { Product, ProductListResponse } from '@/domain/entities/product.entity';
+import type { ProductDTO, ProductListResponseDTO } from "../dtos/product.dto";
+import type {
+  Product,
+  ProductListResponse,
+} from "@/domain/entities/product.entity";
 
 export const ProductMapper = {
   toEntity: (dto: ProductDTO): Product => ({
     productId: dto.productId,
     name: dto.name,
     description: dto.description,
-    price: dto.price,
+    price: Number(dto.price),
     stockQuantity: dto.stockQuantity,
+    status: dto.status,
     rating: dto.rating,
-    sku: dto.sku,
+    reviews: dto.reviews,
+    sellerId: dto.sellerId,
+    categoryId: dto.categoryId,
     images: dto.images,
     seller: dto.seller,
     category: dto.category,
+    createdAt: new Date(dto.createdAt),
+    updatedAt: new Date(dto.updatedAt),
   }),
   toListEntity: (dto: ProductListResponseDTO): ProductListResponse => ({
     items: dto.items.map((item) => ProductMapper.toEntity(item)),

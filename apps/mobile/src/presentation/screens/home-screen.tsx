@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Card, SectionHeader, AppButton, Screen } from '@/presentation/components';
+import { Card, SectionHeader, AppButton, Screen, SearchBar } from '@/presentation/components';
 import { useAuthStore, useCartStore } from '@/core/store';
 import { useCategories, useProducts } from '@/presentation/hooks';
 import { formatCurrency } from '@/core/utils';
@@ -45,7 +45,6 @@ const BANNERS = [
   },
 ];
 
-// ─── Banner Component ──────────────────────────────────────────────────────────
 const BannerCarousel: React.FC<{ onShopPress: () => void }> = ({ onShopPress }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
@@ -79,7 +78,6 @@ const BannerCarousel: React.FC<{ onShopPress: () => void }> = ({ onShopPress }) 
         }}
         renderItem={({ item }) => (
           <View style={[banner.slide, { backgroundColor: item.gradient[0] }]}>
-            {/* Decorative circle */}
             <View style={banner.circle} />
             <View style={banner.content}>
               <View style={banner.textBlock}>
@@ -98,7 +96,6 @@ const BannerCarousel: React.FC<{ onShopPress: () => void }> = ({ onShopPress }) 
           </View>
         )}
       />
-      {/* Dots */}
       <View style={banner.dots}>
         {BANNERS.map((_, i) => (
           <Pressable key={i} onPress={() => {
@@ -113,7 +110,6 @@ const BannerCarousel: React.FC<{ onShopPress: () => void }> = ({ onShopPress }) 
   );
 };
 
-// ─── Product Card ──────────────────────────────────────────────────────────────
 const ProductCard: React.FC<{
   product: any;
   onPress: () => void;
@@ -179,7 +175,6 @@ const ProductCard: React.FC<{
   );
 };
 
-// ─── Main HomeScreen ───────────────────────────────────────────────────────────
 export const HomeScreen: React.FC = () => {
   const router = useRouter();
   const toast = useToast();
@@ -187,6 +182,22 @@ export const HomeScreen: React.FC = () => {
   const addItem = useCartStore((state) => state.addItem);
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { data: products, isLoading: productsLoading } = useProducts(1, 8);
+
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
+  };
+
+  const handleSearchSubmit = () => {
+    const q = searchQuery.trim();
+    if (!q) return;
+    router.push(`${ROUTES.PRODUCTS}?q=${encodeURIComponent(q)}` as never);
+  };
+
+  const handleClear = () => {
+    setSearchQuery('');
+  };
 
   const handleAddToCart = (product: any) => {
     addItem({
@@ -207,10 +218,19 @@ export const HomeScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={s.page}
       >
-        {/* ── BANNER ── */}
         <BannerCarousel onShopPress={() => router.push(ROUTES.PRODUCTS)} />
 
-        {/* ── CATEGORIES ── */}
+        <View style={s.searchSection}>
+          <SearchBar
+            value={searchQuery}
+            onChangeText={handleSearch}
+            onClear={handleClear}
+            placeholder="Tìm kiếm nông sản, rau củ, trái cây..."
+            onSubmitEditing={handleSearchSubmit}
+            returnKeyType="search"
+          />
+        </View>
+
         <View style={s.section}>
           <SectionHeader
             title="Danh mục sản phẩm"
@@ -232,7 +252,7 @@ export const HomeScreen: React.FC = () => {
               renderItem={({ item }) => (
                 <Pressable
                   style={s.catChip}
-                  onPress={() => router.push(`${ROUTES.PRODUCTS}?categoryId=${item.categoryId}`)}
+                  onPress={() => router.push(`${ROUTES.PRODUCTS}?categoryId=${item.categoryId}` as never)}
                 >
                   <Text style={s.catText}>{item.name}</Text>
                 </Pressable>
@@ -241,7 +261,6 @@ export const HomeScreen: React.FC = () => {
           )}
         </View>
 
-        {/* ── FEATURED PRODUCTS ── */}
         <View style={s.section}>
           <SectionHeader
             title="Sản phẩm nổi bật"
@@ -260,7 +279,7 @@ export const HomeScreen: React.FC = () => {
                 <ProductCard
                   key={product.productId}
                   product={product}
-                  onPress={() => router.push(`${ROUTES.PRODUCTS}/${product.productId}`)}
+                  onPress={() => router.push(`${ROUTES.PRODUCTS}/${product.productId}` as never)}
                   onAddToCart={() => handleAddToCart(product)}
                 />
               ))}
@@ -268,7 +287,7 @@ export const HomeScreen: React.FC = () => {
           )}
         </View>
 
-        <Text style={{ textAlign: 'center', color: '#94a3b8', marginVertical: 20, paddingHorizontal: 32 }}>
+        <Text style={{ textAlign: 'center', color: '#94a3b8', marginVertical: 20, paddingHorizontal: 26 }}>
           Bạn đã xem hết sản phẩm nổi bật. Hãy khám phá thêm nhiều sản phẩm khác trong cửa hàng!
         </Text>
       </ScrollView>
@@ -276,7 +295,6 @@ export const HomeScreen: React.FC = () => {
   );
 };
 
-// ─── Styles ────────────────────────────────────────────────────────────────────
 const banner = StyleSheet.create({
   wrapper: {
     marginHorizontal: 0,
@@ -285,7 +303,6 @@ const banner = StyleSheet.create({
     width: SCREEN_WIDTH,
     height: 230,
     overflow: 'hidden',
-    // position: 'relative',
   },
   circle: {
     position: 'absolute',
@@ -466,6 +483,11 @@ const s = StyleSheet.create({
   page: {
     paddingTop: 0,
     gap: 0,
+  },
+  searchSection: {
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 2,
   },
   section: {
     paddingHorizontal: 16,

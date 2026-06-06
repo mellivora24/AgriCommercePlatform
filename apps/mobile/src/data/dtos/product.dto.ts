@@ -1,4 +1,4 @@
-import type { CategoryDTO } from './category.dto';
+import type { CategoryDTO } from "./category.dto";
 
 export interface ProductImageDTO {
   imageId?: number;
@@ -6,22 +6,31 @@ export interface ProductImageDTO {
 }
 
 export interface ProductSellerDTO {
-  sellerId?: number;
-  storeName?: string;
-  name?: string;
+  sellerId: number;
+  userId: number;
+  storeName: string;
+  storeDescription: string | null;
+  platformFeeRate: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ProductDTO {
   productId: number;
   name: string;
-  description?: string;
-  price: number;
+  description: string;
+  price: string;
   stockQuantity: number;
-  rating?: number;
-  sku?: string;
-  images?: ProductImageDTO[];
-  seller?: ProductSellerDTO;
-  category?: CategoryDTO;
+  status: "AVAILABLE" | "HIDDEN" | "OUT_OF_STOCK" | "PENDING";
+  rating: number | null;
+  reviews: number;
+  sellerId: number;
+  categoryId: number;
+  images: ProductImageDTO[];
+  seller: ProductSellerDTO;
+  category: CategoryDTO | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ProductListResponseDTO {
