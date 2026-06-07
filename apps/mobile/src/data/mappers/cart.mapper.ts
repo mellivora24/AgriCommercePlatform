@@ -1,19 +1,20 @@
-import type { CartItemDto, CartResponseDto } from '../dtos/cart.dto';
+import type { CartItemResponseDto, CartResponseDto } from '../dtos/cart.dto';
 import type { CartItem, CartResponse } from '@/domain/entities/cart.entity';
 
 export const CartMapper = {
-  toEntity: (dto: CartItemDto): CartItem => ({
+  toItemEntity: (dto: CartItemResponseDto): CartItem => ({
+    itemId: dto.itemId,
     productId: dto.productId,
-    sellerId: dto.sellerId,
-    name: dto.name,
-    price: dto.price,
     quantity: dto.quantity,
-    image: dto.image,
-    sku: dto.sku,
+    name: dto.product.name,
+    price: Number(dto.product.price),
+    stockQuantity: dto.product.stockQuantity,
+    image: dto.product.images?.[0]?.imageUrl,
+    storeName: dto.product.seller?.storeName,
   }),
+
   toResponseEntity: (dto: CartResponseDto): CartResponse => ({
-    items: dto.items.map((item) => CartMapper.toEntity(item)),
-    totalItems: dto.totalItems,
-    subtotal: dto.subtotal,
+    cartId: dto.cartId,
+    items: dto.items.map(CartMapper.toItemEntity),
   }),
 };
