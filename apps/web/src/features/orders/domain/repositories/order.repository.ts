@@ -15,6 +15,7 @@ export interface IOrderRepository {
     request: UpdateOrderStatusRequest,
   ): Promise<Order>;
   confirmOrder(orderId: number): Promise<Order>;
+  completeOrder(orderId: number): Promise<Order>;
   cancelOrder(orderId: number): Promise<Order>;
   listSellerOrders(params?: GetSellerOrdersParams): Promise<PaginatedOrderList>;
   getSellerOrderStats(): Promise<OrderStats>;

@@ -14,7 +14,7 @@ echo "Tạo container PostgreSQL..."
 cd "$ROOT_DIR/docker"
 docker compose up -d
 
-until docker exec postgres pg_isready -U postgres_user > /dev/null 2>&1
+until docker exec tmdt_postgres pg_isready -U postgres_user > /dev/null 2>&1
 do
   sleep 1
 done
@@ -23,7 +23,7 @@ echo "Bắt đầu migration database..."
 for file in "$SCRIPT_DIR/postgres"/*.sql
 do
   echo "Running: $(basename "$file")"
-  docker exec -i postgres psql \
+  docker exec -i tmdt_postgres psql \
     -U postgres_user \
     -d tmdt_database \
     < "$file"

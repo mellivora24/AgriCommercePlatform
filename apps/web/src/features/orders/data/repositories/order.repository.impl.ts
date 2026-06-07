@@ -45,6 +45,11 @@ export const createOrderRepository = (
     return OrderMapper.toEntity(dto);
   },
 
+  completeOrder: async (orderId: number): Promise<Order> => {
+    const dto = await ordersApi.completeOrder(orderId);
+    return OrderMapper.toEntity(dto);
+  },
+
   cancelOrder: async (orderId: number): Promise<Order> => {
     const dto = await ordersApi.cancelOrder(orderId);
     return OrderMapper.toEntity(dto);

@@ -31,6 +31,11 @@ export const createOrdersApi = (axiosInstance: AxiosInstance) => ({
     return data;
   },
 
+  completeOrder: async (orderId: number): Promise<OrderDTO> => {
+    const { data } = await axiosInstance.post<OrderDTO>(`/orders/${orderId}/complete`);
+    return data;
+  },
+
   cancelOrder: async (orderId: number): Promise<OrderDTO> => {
     const { data } = await axiosInstance.post<OrderDTO>(`/orders/${orderId}/cancel`);
     return data;

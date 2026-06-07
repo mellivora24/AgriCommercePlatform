@@ -30,6 +30,10 @@ export interface ConfirmOrderUseCase {
   execute(orderId: number): Promise<Order>;
 }
 
+export interface CompleteOrderUseCase {
+  execute(orderId: number): Promise<Order>;
+}
+
 export interface ListSellerOrdersUseCase {
   execute(params?: GetSellerOrdersParams): Promise<PaginatedOrderList>;
 }
@@ -67,6 +71,12 @@ export const createConfirmOrderUseCase = (
   repository: IOrderRepository,
 ): ConfirmOrderUseCase => ({
   execute: (orderId: number) => repository.confirmOrder(orderId),
+});
+
+export const createCompleteOrderUseCase = (
+  repository: IOrderRepository,
+): CompleteOrderUseCase => ({
+  execute: (orderId: number) => repository.completeOrder(orderId),
 });
 
 export const createGetSellerOrderStatsUseCase = (
