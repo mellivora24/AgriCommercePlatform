@@ -7,6 +7,7 @@ import { AppButton, AppInput, Card, Screen } from '@/presentation/components';
 import { useRegister, useToast } from '@/presentation/hooks';
 import { registerSchema, type RegisterFormData } from '@/domain/validators/auth.validator';
 import { ROUTES } from '@/core/router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const RegisterScreen: React.FC = () => {
   const router = useRouter();
@@ -39,7 +40,7 @@ export const RegisterScreen: React.FC = () => {
   };
 
   return (
-    <Screen>
+    <SafeAreaView style={{ flex: 1 }}>
       <Modal visible={showSellerModal} transparent animationType="fade" onRequestClose={() => setShowSellerModal(false)}>
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
@@ -134,7 +135,7 @@ export const RegisterScreen: React.FC = () => {
           </Pressable>
         </View>
       </View>
-    </Screen>
+    </SafeAreaView>
   );
 };
 
@@ -143,6 +144,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     gap: 18,
+    paddingHorizontal: 16,
   },
   header: {
     gap: 8,
