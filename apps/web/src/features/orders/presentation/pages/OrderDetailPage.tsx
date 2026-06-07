@@ -10,6 +10,7 @@ import type {
   OrderStatus,
   PaymentStatus,
 } from "@/features/orders/domain/entities/order.entity";
+import { useCompleteOrder } from "../hooks/useOrders";
 
 const statusVariant: Record<
   OrderStatus,
@@ -267,12 +268,30 @@ export const OrderDetailPage: React.FC = () => {
             </Button>
           )}
           {order.status === "DELIVERED" && (
-            <Button onClick={() => {}} className="w-full" variant="primary">
-              Yêu cầu hoàn trả
-            </Button>
+            <div className="space-y-2">
+              <Button onClick={() => {}} className="w-full" variant="primary">
+                Yêu cầu hoàn trả
+              </Button>
+              <ConfirmReceivedButton orderId={order.orderId} />
+            </div>
           )}
         </div>
       </div>
     </div>
+  );
+};
+
+const ConfirmReceivedButton: React.FC<{ orderId: number }> = ({ orderId }) => {
+  const mutation = useCompleteOrder();
+  const isLoading = (mutation as any).isLoading || false;
+  return (
+    <Button
+      variant="primary"
+      className="w-full"
+      onClick={() => mutation.mutate(orderId)}
+      disabled={isLoading}
+    >
+      {isLoading ? 'Đang xác nhận...' : 'Xác nhận đã nhận hàng'}
+    </Button>
   );
 };

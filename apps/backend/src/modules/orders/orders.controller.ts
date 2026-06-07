@@ -83,4 +83,14 @@ export class OrdersController {
   ) {
     return this.service.cancelOrder(id, user.sellerId!);
   }
+
+  @Post(':id/complete')
+  @UseGuards(JwtAuthGuard)
+  completeOrder(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    // buyer confirms they've received the goods
+    return this.service.completeOrder(id, user.buyerId!);
+  }
 }

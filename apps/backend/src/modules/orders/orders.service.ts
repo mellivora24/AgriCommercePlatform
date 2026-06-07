@@ -262,6 +262,24 @@ export class OrdersService {
     });
   }
 
+  async completeOrder(orderId: number, buyerId: number) {
+    const order = await this.getOrder(orderId);
+
+    if (order.buyerId !== buyerId) throw new BadRequestException('Không có quyền');
+
+    if (order.status !== 'DELIVERED') {
+      throw new BadRequestException(
+        `Không thể hoàn thành đơn ở trạng thái "${order.status}"`,
+      );
+    }
+
+    return this.prisma.order.update({
+      where: { orderId },
+      data: { status: 'COMPLETED' },
+      include: ORDER_INCLUDE,
+    });
+  }
+
   async getOrderStats(sellerId: number) {
     // Dùng groupBy thay vì load toàn bộ records vào memory
     const grouped = await this.prisma.order.groupBy({

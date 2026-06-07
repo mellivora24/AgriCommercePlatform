@@ -16,6 +16,7 @@ import {
   createCancelOrderUseCase,        // ✅ thêm import
   createListSellerOrdersUseCase,
   createGetSellerOrderStatsUseCase,
+  createCompleteOrderUseCase,
 } from "@/features/orders/domain/use-cases/order.use-case";
 import { QUERY_KEYS } from "@/core/constants/query-keys";
 
@@ -108,5 +109,20 @@ export const useSellerOrderStats = () => {
   return useQuery({
     queryKey: QUERY_KEYS.SELLER_ORDER_STATS,
     queryFn: () => useCase.execute(),
+  });
+};
+
+export const useCompleteOrder = () => {
+  const queryClient = useQueryClient();
+  const useCase = createCompleteOrderUseCase(orderRepository);
+
+  return useMutation({
+    mutationFn: (orderId: number) => useCase.execute(orderId),
+    onSuccess: (_, orderId) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ORDERS_DETAIL(orderId) });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ORDERS_LIST });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SELLER_ORDERS_LIST });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.SELLER_ORDER_STATS });
+    },
   });
 };
