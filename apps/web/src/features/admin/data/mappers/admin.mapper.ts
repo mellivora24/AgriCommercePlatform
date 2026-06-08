@@ -7,7 +7,8 @@ import type {
   AdminProductDTO,
   AdminOrderSummaryDTO,
   AdminWithdrawalDTO,
-} from '@/features/admin/data/dtos/admin.dto';
+  AdminShipperStatDTO,
+} from "@/features/admin/data/dtos/admin.dto";
 import type {
   DashboardStats,
   AdminUser,
@@ -16,7 +17,8 @@ import type {
   AdminProduct,
   OrderSummary,
   WithdrawalRequest,
-} from '@/features/admin/domain/entities/admin.entity';
+  ShipperStat,
+} from "@/features/admin/domain/entities/admin.entity";
 
 const n = (v: string | undefined | null): number => Number(v ?? 0);
 
@@ -81,12 +83,18 @@ export const adminMapper = {
             wallet: dto.sellerProfile.wallet
               ? {
                   pendingBalance: n(dto.sellerProfile.wallet.pendingBalance),
-                  availableBalance: n(dto.sellerProfile.wallet.availableBalance),
+                  availableBalance: n(
+                    dto.sellerProfile.wallet.availableBalance,
+                  ),
                   reservedBalance: n(dto.sellerProfile.wallet.reservedBalance),
-                  withdrawingBalance: n(dto.sellerProfile.wallet.withdrawingBalance),
+                  withdrawingBalance: n(
+                    dto.sellerProfile.wallet.withdrawingBalance,
+                  ),
                   onHoldBalance: n(dto.sellerProfile.wallet.onHoldBalance),
                   lifetimeEarned: n(dto.sellerProfile.wallet.lifetimeEarned),
-                  lifetimeWithdrawn: n(dto.sellerProfile.wallet.lifetimeWithdrawn),
+                  lifetimeWithdrawn: n(
+                    dto.sellerProfile.wallet.lifetimeWithdrawn,
+                  ),
                 }
               : null,
             productCount: dto.sellerProfile._count.products,
@@ -130,7 +138,16 @@ export const adminMapper = {
   },
 
   toStoreDetail(dto: AdminStoreDetailDTO): StoreDetail {
-    const base = adminMapper.toStore({ ...dto, orderStats: { totalRevenue: '0', platformFeeEarned: '0', totalOrders: 0, completedOrders: 0, cancelledOrders: 0 } });
+    const base = adminMapper.toStore({
+      ...dto,
+      orderStats: {
+        totalRevenue: "0",
+        platformFeeEarned: "0",
+        totalOrders: 0,
+        completedOrders: 0,
+        cancelledOrders: 0,
+      },
+    });
     return {
       ...base,
       bankAccounts: dto.bankAccounts,
@@ -203,5 +220,8 @@ export const adminMapper = {
       completedAt: dto.completedAt ? new Date(dto.completedAt) : null,
       bankAccount: dto.bankAccount,
     };
+  },
+  toShipperStat(dto: AdminShipperStatDTO): ShipperStat {
+    return { ...dto };
   },
 };

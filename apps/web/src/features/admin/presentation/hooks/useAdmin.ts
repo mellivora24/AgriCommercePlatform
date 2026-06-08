@@ -14,6 +14,7 @@ import type {
   SuspendUserDTO,
   BanUserDTO,
   CreateAdminDTO,
+  AdminShipperLeaderboardQuery,
 } from "@/features/admin/data/dtos/admin.dto";
 
 const repo = new AdminRepositoryImpl();
@@ -33,6 +34,7 @@ const KEYS = {
   productDetail: (id: number) => ["admin", "products", id] as const,
   users: (q?: AdminUserListQuery) => ["admin", "users", q] as const,
   userDetail: (id: number) => ["admin", "users", id] as const,
+  shipperLeaderboard: (q?: AdminShipperLeaderboardQuery) => ["admin", "shippers", "leaderboard", q] as const,
 };
 
 export const useAdminDashboard = () =>
@@ -247,3 +249,11 @@ export const useCreateAdmin = () => {
     },
   });
 };
+
+export const useAdminShipperLeaderboard = (
+  query?: AdminShipperLeaderboardQuery,
+) =>
+  useQuery({
+    queryKey: KEYS.shipperLeaderboard(query),
+    queryFn: () => useCases.getShipperLeaderboard(query),
+  });

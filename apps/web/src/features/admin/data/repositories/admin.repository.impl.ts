@@ -1,6 +1,6 @@
-import { adminApi } from '@/features/admin/data/api/admin.api';
-import { adminMapper } from '@/features/admin/data/mappers/admin.mapper';
-import type { IAdminRepository } from '@/features/admin/domain/repositories/admin.repository';
+import { adminApi } from "@/features/admin/data/api/admin.api";
+import { adminMapper } from "@/features/admin/data/mappers/admin.mapper";
+import type { IAdminRepository } from "@/features/admin/domain/repositories/admin.repository";
 import type {
   DashboardStats,
   AdminUser,
@@ -10,7 +10,8 @@ import type {
   OrderSummary,
   WithdrawalRequest,
   Paginated,
-} from '@/features/admin/domain/entities/admin.entity';
+  ShipperStat,
+} from "@/features/admin/domain/entities/admin.entity";
 import type {
   AdminUserListQuery,
   AdminStoreListQuery,
@@ -24,7 +25,8 @@ import type {
   SuspendUserDTO,
   BanUserDTO,
   CreateAdminDTO,
-} from '@/features/admin/data/dtos/admin.dto';
+  AdminShipperLeaderboardQuery,
+} from "@/features/admin/data/dtos/admin.dto";
 
 export class AdminRepositoryImpl implements IAdminRepository {
   async getDashboard(): Promise<DashboardStats> {
@@ -42,17 +44,26 @@ export class AdminRepositoryImpl implements IAdminRepository {
     return adminMapper.toStoreDetail(dto);
   }
 
-  async getStoreProducts(sellerId: number, query?: AdminStoreProductQuery): Promise<Paginated<AdminProduct>> {
+  async getStoreProducts(
+    sellerId: number,
+    query?: AdminStoreProductQuery,
+  ): Promise<Paginated<AdminProduct>> {
     const res = await adminApi.getStoreProducts(sellerId, query);
     return { data: res.data.map(adminMapper.toProduct), meta: res.meta };
   }
 
-  async getStoreOrders(sellerId: number, query?: AdminStoreOrderQuery): Promise<Paginated<OrderSummary>> {
+  async getStoreOrders(
+    sellerId: number,
+    query?: AdminStoreOrderQuery,
+  ): Promise<Paginated<OrderSummary>> {
     const res = await adminApi.getStoreOrders(sellerId, query);
     return { data: res.data.map(adminMapper.toOrderSummary), meta: res.meta };
   }
 
-  async getStoreWithdrawals(sellerId: number, query?: AdminStoreWithdrawalQuery): Promise<Paginated<WithdrawalRequest>> {
+  async getStoreWithdrawals(
+    sellerId: number,
+    query?: AdminStoreWithdrawalQuery,
+  ): Promise<Paginated<WithdrawalRequest>> {
     const res = await adminApi.getStoreWithdrawals(sellerId, query);
     return { data: res.data.map(adminMapper.toWithdrawal), meta: res.meta };
   }
@@ -69,12 +80,17 @@ export class AdminRepositoryImpl implements IAdminRepository {
     await adminApi.suspendSeller(sellerId);
   }
 
-  async updateStoreFee(sellerId: number, body: UpdateStoreFeeDTO): Promise<StoreDetail> {
+  async updateStoreFee(
+    sellerId: number,
+    body: UpdateStoreFeeDTO,
+  ): Promise<StoreDetail> {
     const dto = await adminApi.updateStoreFee(sellerId, body);
     return adminMapper.toStoreDetail(dto);
   }
 
-  async getProducts(query?: AdminProductListQuery): Promise<Paginated<AdminProduct>> {
+  async getProducts(
+    query?: AdminProductListQuery,
+  ): Promise<Paginated<AdminProduct>> {
     const res = await adminApi.getProducts(query);
     return { data: res.data.map(adminMapper.toProduct), meta: res.meta };
   }
@@ -114,11 +130,23 @@ export class AdminRepositoryImpl implements IAdminRepository {
     await adminApi.approveWithdrawal(withdrawalId);
   }
 
-  async rejectWithdrawal(withdrawalId: number, body: RejectWithdrawalDTO): Promise<void> {
+  async rejectWithdrawal(
+    withdrawalId: number,
+    body: RejectWithdrawalDTO,
+  ): Promise<void> {
     await adminApi.rejectWithdrawal(withdrawalId, body);
   }
 
   async createAdmin(userId: number, body: CreateAdminDTO): Promise<void> {
     await adminApi.createAdmin(userId, body);
+  }
+  async getShipperLeaderboard(
+    query?: AdminShipperLeaderboardQuery,
+  ): Promise<Paginated<ShipperStat>> {
+    const res = await adminApi.getShipperLeaderboard(query);
+    return {
+      data: res.items.map(adminMapper.toShipperStat),
+      meta: res.meta,
+    };
   }
 }

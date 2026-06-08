@@ -65,4 +65,9 @@ export class DeliveryController {
     const shipperId = this.requireShipper(user);
     return this.service.updateShipmentStatus(shipperId, id, dto.status);
   }
+
+  @Get('admin/shippers/leaderboard')
+  getShipperLeaderboard(@Query() query: { page?: number; limit?: number }) {
+    return this.service.getShipperLeaderboard(query);
+  }
 }

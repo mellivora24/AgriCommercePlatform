@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/core/network';
+import { axiosInstance } from "@/core/network";
 import type {
   AdminDashboardDTO,
   AdminUserDTO,
@@ -21,36 +21,62 @@ import type {
   SuspendUserDTO,
   BanUserDTO,
   CreateAdminDTO,
-} from '@/features/admin/data/dtos/admin.dto';
+  PaginationMeta,
+  AdminShipperStatDTO,
+} from "@/features/admin/data/dtos/admin.dto";
 
 export const adminApi = {
   getDashboard: async (): Promise<AdminDashboardDTO> => {
-    const res = await axiosInstance.get<AdminDashboardDTO>('/admin/dashboard');
+    const res = await axiosInstance.get<AdminDashboardDTO>("/admin/dashboard");
     return res.data;
   },
 
-  getStores: async (query?: AdminStoreListQuery): Promise<PaginatedResponse<AdminStoreDTO>> => {
-    const res = await axiosInstance.get<PaginatedResponse<AdminStoreDTO>>('/admin/stores', { params: query });
+  getStores: async (
+    query?: AdminStoreListQuery,
+  ): Promise<PaginatedResponse<AdminStoreDTO>> => {
+    const res = await axiosInstance.get<PaginatedResponse<AdminStoreDTO>>(
+      "/admin/stores",
+      { params: query },
+    );
     return res.data;
   },
 
   getStoreDetail: async (sellerId: number): Promise<AdminStoreDetailDTO> => {
-    const res = await axiosInstance.get<AdminStoreDetailDTO>(`/admin/stores/${sellerId}`);
+    const res = await axiosInstance.get<AdminStoreDetailDTO>(
+      `/admin/stores/${sellerId}`,
+    );
     return res.data;
   },
 
-  getStoreProducts: async (sellerId: number, query?: AdminStoreProductQuery): Promise<PaginatedResponse<AdminProductDTO>> => {
-    const res = await axiosInstance.get<PaginatedResponse<AdminProductDTO>>(`/admin/stores/${sellerId}/products`, { params: query });
+  getStoreProducts: async (
+    sellerId: number,
+    query?: AdminStoreProductQuery,
+  ): Promise<PaginatedResponse<AdminProductDTO>> => {
+    const res = await axiosInstance.get<PaginatedResponse<AdminProductDTO>>(
+      `/admin/stores/${sellerId}/products`,
+      { params: query },
+    );
     return res.data;
   },
 
-  getStoreOrders: async (sellerId: number, query?: AdminStoreOrderQuery): Promise<PaginatedResponse<AdminOrderSummaryDTO>> => {
-    const res = await axiosInstance.get<PaginatedResponse<AdminOrderSummaryDTO>>(`/admin/stores/${sellerId}/orders`, { params: query });
+  getStoreOrders: async (
+    sellerId: number,
+    query?: AdminStoreOrderQuery,
+  ): Promise<PaginatedResponse<AdminOrderSummaryDTO>> => {
+    const res = await axiosInstance.get<
+      PaginatedResponse<AdminOrderSummaryDTO>
+    >(`/admin/stores/${sellerId}/orders`, { params: query });
     return res.data;
   },
 
-  getStoreWithdrawals: async (sellerId: number, query?: AdminStoreWithdrawalQuery): Promise<PaginatedResponse<AdminWithdrawalDTO>> => {
-    const res = await axiosInstance.get<PaginatedResponse<AdminWithdrawalDTO>>(`/admin/stores/${sellerId}/withdrawals`, { params: query });
+  getStoreWithdrawals: async (
+    sellerId: number,
+    query?: AdminStoreWithdrawalQuery,
+  ): Promise<PaginatedResponse<AdminWithdrawalDTO>> => {
+    const res = await axiosInstance.get<PaginatedResponse<AdminWithdrawalDTO>>(
+      `/admin/stores/${sellerId}/withdrawals`,
+      { params: query },
+    );
     return res.data;
   },
 
@@ -58,7 +84,10 @@ export const adminApi = {
     await axiosInstance.post(`/admin/stores/${sellerId}/approve`);
   },
 
-  rejectSeller: async (sellerId: number, body: RejectSellerDTO): Promise<void> => {
+  rejectSeller: async (
+    sellerId: number,
+    body: RejectSellerDTO,
+  ): Promise<void> => {
     await axiosInstance.post(`/admin/stores/${sellerId}/reject`, body);
   },
 
@@ -66,18 +95,31 @@ export const adminApi = {
     await axiosInstance.post(`/admin/stores/${sellerId}/suspend`);
   },
 
-  updateStoreFee: async (sellerId: number, body: UpdateStoreFeeDTO): Promise<AdminStoreDetailDTO> => {
-    const res = await axiosInstance.patch<AdminStoreDetailDTO>(`/admin/stores/${sellerId}/fee`, body);
+  updateStoreFee: async (
+    sellerId: number,
+    body: UpdateStoreFeeDTO,
+  ): Promise<AdminStoreDetailDTO> => {
+    const res = await axiosInstance.patch<AdminStoreDetailDTO>(
+      `/admin/stores/${sellerId}/fee`,
+      body,
+    );
     return res.data;
   },
 
-  getProducts: async (query?: AdminProductListQuery): Promise<PaginatedResponse<AdminProductDTO>> => {
-    const res = await axiosInstance.get<PaginatedResponse<AdminProductDTO>>('/admin/products', { params: query });
+  getProducts: async (
+    query?: AdminProductListQuery,
+  ): Promise<PaginatedResponse<AdminProductDTO>> => {
+    const res = await axiosInstance.get<PaginatedResponse<AdminProductDTO>>(
+      "/admin/products",
+      { params: query },
+    );
     return res.data;
   },
 
   getProductDetail: async (productId: number): Promise<AdminProductDTO> => {
-    const res = await axiosInstance.get<AdminProductDTO>(`/admin/products/${productId}`);
+    const res = await axiosInstance.get<AdminProductDTO>(
+      `/admin/products/${productId}`,
+    );
     return res.data;
   },
 
@@ -85,13 +127,20 @@ export const adminApi = {
     await axiosInstance.delete(`/admin/products/${productId}`);
   },
 
-  getUsers: async (query?: AdminUserListQuery): Promise<PaginatedResponse<AdminUserDTO>> => {
-    const res = await axiosInstance.get<PaginatedResponse<AdminUserDTO>>('/admin/users', { params: query });
+  getUsers: async (
+    query?: AdminUserListQuery,
+  ): Promise<PaginatedResponse<AdminUserDTO>> => {
+    const res = await axiosInstance.get<PaginatedResponse<AdminUserDTO>>(
+      "/admin/users",
+      { params: query },
+    );
     return res.data;
   },
 
   getUserDetail: async (userId: number): Promise<AdminUserDetailDTO> => {
-    const res = await axiosInstance.get<AdminUserDetailDTO>(`/admin/users/${userId}`);
+    const res = await axiosInstance.get<AdminUserDetailDTO>(
+      `/admin/users/${userId}`,
+    );
     return res.data;
   },
 
@@ -111,11 +160,29 @@ export const adminApi = {
     await axiosInstance.post(`/admin/withdrawals/${withdrawalId}/approve`);
   },
 
-  rejectWithdrawal: async (withdrawalId: number, body: RejectWithdrawalDTO): Promise<void> => {
+  rejectWithdrawal: async (
+    withdrawalId: number,
+    body: RejectWithdrawalDTO,
+  ): Promise<void> => {
     await axiosInstance.post(`/admin/withdrawals/${withdrawalId}/reject`, body);
   },
 
   createAdmin: async (userId: number, body: CreateAdminDTO): Promise<void> => {
     await axiosInstance.post(`/admin/users/${userId}/make-admin`, body);
+  },
+  getShipperLeaderboard: async (query?: {
+    page?: number;
+    limit?: number;
+  }): Promise<{
+    items: AdminShipperStatDTO[];
+    meta: PaginationMeta;
+  }> => {
+    const res = await axiosInstance.get(
+      "/delivery/admin/shippers/leaderboard",
+      {
+        params: query,
+      },
+    );
+    return res.data;
   },
 };

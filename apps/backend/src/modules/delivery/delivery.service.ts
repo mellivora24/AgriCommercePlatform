@@ -143,4 +143,66 @@ export class DeliveryService {
       return updated;
     });
   }
+
+  async getShipperLeaderboard(query: { page?: number; limit?: number }) {
+    const { page = 1, limit = 20 } = query;
+    const skip = (page - 1) * limit;
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.shipperProfile.findMany({
+        include: {
+          user: {
+            select: {
+              userId: true,
+              nickname: true,
+              phone: true,
+              status: true,
+            },
+          },
+          _count: {
+            select: { shipments: true },
+          },
+          shipments: {
+            select: { status: true },
+          },
+        },
+        orderBy: {
+          shipments: { _count: 'desc' },
+        },
+        skip,
+        take: limit,
+      }),
+      this.prisma.shipperProfile.count(),
+    ]);
+
+    const mapped = items.map((s) => {
+      const delivered = s.shipments.filter(
+        (sh) => sh.status === 'DELIVERED',
+      ).length;
+      const active = s.shipments.filter((sh) =>
+        ['PICKED_UP', 'DELIVERING'].includes(sh.status),
+      ).length;
+      const returning = s.shipments.filter((sh) =>
+        ['RETURNING', 'RETURNED'].includes(sh.status),
+      ).length;
+
+      return {
+        shipperId: s.shipperId,
+        userId: s.user.userId,
+        nickname: s.user.nickname,
+        phone: s.user.phone,
+        userStatus: s.user.status,
+        shipperStatus: s.status,
+        totalShipments: s._count.shipments,
+        deliveredShipments: delivered,
+        activeShipments: active,
+        returningShipments: returning,
+      };
+    });
+
+    return {
+      items: mapped,
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    };
+  }
 }

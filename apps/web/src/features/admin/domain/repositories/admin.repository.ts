@@ -7,6 +7,7 @@ import type {
   OrderSummary,
   WithdrawalRequest,
   Paginated,
+  ShipperStat,
 } from '@/features/admin/domain/entities/admin.entity';
 import type {
   AdminUserListQuery,
@@ -21,6 +22,7 @@ import type {
   SuspendUserDTO,
   BanUserDTO,
   CreateAdminDTO,
+  AdminShipperLeaderboardQuery,
 } from '@/features/admin/data/dtos/admin.dto';
 
 export interface IAdminRepository {
@@ -50,4 +52,5 @@ export interface IAdminRepository {
   rejectWithdrawal(withdrawalId: number, body: RejectWithdrawalDTO): Promise<void>;
 
   createAdmin(userId: number, body: CreateAdminDTO): Promise<void>;
+  getShipperLeaderboard(query?: AdminShipperLeaderboardQuery): Promise<Paginated<ShipperStat>>;
 }

@@ -239,3 +239,17 @@ export interface BanUserDTO {
 export interface CreateAdminDTO {
   role: 'SUPER_ADMIN' | 'SUPPORT_ADMIN' | 'FINANCE_ADMIN';
 }
+export interface AdminShipperStatDTO {
+  shipperId: number;
+  userId: number;
+  nickname: string | null;
+  phone: string | null;
+  userStatus: string;
+  shipperStatus: string;
+  totalShipments: number;
+  deliveredShipments: number;
+  activeShipments: number;
+  returningShipments: number;
+}
+
+export interface AdminShipperLeaderboardQuery extends PaginationQuery {}

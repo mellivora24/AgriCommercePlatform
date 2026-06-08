@@ -12,6 +12,7 @@ import type {
   SuspendUserDTO,
   BanUserDTO,
   CreateAdminDTO,
+  AdminShipperLeaderboardQuery,
 } from '@/features/admin/data/dtos/admin.dto';
 
 export const createAdminUseCases = (repo: IAdminRepository) => ({
@@ -41,6 +42,8 @@ export const createAdminUseCases = (repo: IAdminRepository) => ({
   rejectWithdrawal: (withdrawalId: number, body: RejectWithdrawalDTO) => repo.rejectWithdrawal(withdrawalId, body),
 
   createAdmin: (userId: number, body: CreateAdminDTO) => repo.createAdmin(userId, body),
+  getShipperLeaderboard: (query?: AdminShipperLeaderboardQuery) =>
+  repo.getShipperLeaderboard(query),
 });
 
 export type AdminUseCases = ReturnType<typeof createAdminUseCases>;

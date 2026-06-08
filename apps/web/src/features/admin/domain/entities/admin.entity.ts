@@ -169,3 +169,15 @@ export interface WithdrawalRequest {
   completedAt: Date | null;
   bankAccount: BankAccount;
 }
+export interface ShipperStat {
+  shipperId: number;
+  userId: number;
+  nickname: string | null;
+  phone: string | null;
+  userStatus: string;
+  shipperStatus: string;
+  totalShipments: number;
+  deliveredShipments: number;
+  activeShipments: number;
+  returningShipments: number;
+}
