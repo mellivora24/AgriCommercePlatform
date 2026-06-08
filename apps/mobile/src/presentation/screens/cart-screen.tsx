@@ -190,7 +190,7 @@ export const CartScreen: React.FC = () => {
               </View>
               <AppButton
                 title={
-                  isAuthenticated ? "Thanh toán" : "Đăng nhập để thanh toán"
+                  isAuthenticated ? "Đặt hàng" : "Đăng nhập để thanh toán"
                 }
                 onPress={() =>
                   router.push(isAuthenticated ? ROUTES.CHECKOUT : ROUTES.LOGIN)
