@@ -1,9 +1,8 @@
-import type { AuthCredentials, AuthResponse, AuthUser, RegisterData } from '../entities/auth.entity';
+import type { CartResponse } from '../entities/cart.entity';
 
-export interface IAuthRepository {
-  login(credentials: AuthCredentials): Promise<AuthResponse>;
-  register(data: RegisterData): Promise<AuthResponse>;
-  logout(): Promise<void>;
-  getCurrentUser(): Promise<AuthUser>;
-  refreshToken(refreshToken: string): Promise<AuthResponse>;
+export interface ICartRepository {
+  getCartItems(): Promise<CartResponse>;
+  addToCart(item: { productId: number; quantity: number }): Promise<CartResponse>;
+  updateCartItem(item: { productId: number; quantity: number }): Promise<CartResponse>;
+  removeFromCart(itemId: number): Promise<CartResponse>;
 }

@@ -1,15 +1,15 @@
 export interface CartItem {
+  itemId: number;
   productId: number;
-  sellerId: number;
   name: string;
   price: number;
   quantity: number;
+  stockQuantity: number;
   image?: string;
-  sku?: string;
+  storeName?: string;
 }
 
 export interface CartResponse {
+  cartId: number;
   items: CartItem[];
-  totalItems: number;
-  subtotal: number;
 }

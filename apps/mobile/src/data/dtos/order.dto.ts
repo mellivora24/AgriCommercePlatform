@@ -1,32 +1,79 @@
-import type { OrderStatus, PaymentStatus } from '@/core/types/enum';
-import type { CartItemDto } from './cart.dto';
+import type { OrderStatus, PaymentMethod, PaymentStatus, ShipmentStatus } from '@/core/types/enum';
+
+export interface OrderItemProductDto {
+  productId: number;
+  name: string;
+  images: { url: string }[];
+}
+
+export interface OrderItemDto {
+  orderItemId: number;
+  productId: number;
+  quantity: number;
+  unitPrice: number | string;
+  product: OrderItemProductDto;
+}
+
+export interface OrderShipmentDto {
+  shipmentId: number;
+  status: ShipmentStatus;
+}
+
+export interface OrderPaymentDto {
+  paymentId: number;
+  method: PaymentMethod;
+  status: PaymentStatus;
+  amount: number | string;
+}
+
+export interface OrderBuyerDto {
+  buyerId: number;
+  fullName: string;
+  user: { email: string };
+}
 
 export interface OrderDto {
   orderId: number;
+  buyerId: number;
+  sellerId: number;
   status: OrderStatus;
-  paymentStatus?: PaymentStatus;
-  totalAmount: number;
-  createdAt?: string;
-  items?: CartItemDto[];
+  paymentMethod: PaymentMethod;
+  totalAmount: number | string;
+  platformFee: number | string;
+  shippingAddress: string;
+  receiverName: string;
+  receiverPhone: string;
+  createdAt: string;
+  orderItems: OrderItemDto[];
+  shipment: OrderShipmentDto | null;
+  payments: OrderPaymentDto[];
+  buyer?: OrderBuyerDto;
+  seller?: { sellerId: number; shopName: string };
 }
 
 export interface OrderListResponseDto {
   items: OrderDto[];
-  total: number;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
-import type { OrderStatus, PaymentStatus } from '@/core/types/enum';
-import type { CartItemDto } from './cart.dto';
 
-export interface OrderDto {
-  orderId: number;
+export interface OrderStatItemDto {
   status: OrderStatus;
-  paymentStatus?: PaymentStatus;
-  totalAmount: number;
-  createdAt?: string;
-  items?: CartItemDto[];
+  count: number;
 }
 
-export interface OrderListResponseDto {
-  items: OrderDto[];
+export interface OrderStatsDto {
   total: number;
+  statistics: OrderStatItemDto[];
+}
+
+export interface CreateOrderRequestDto {
+  paymentMethod: 'ONLINE' | 'COD';
+  shippingAddress: string;
+  receiverName: string;
+  receiverPhone: string;
 }

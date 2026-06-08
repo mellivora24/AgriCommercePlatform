@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   Animated,
   Dimensions,
@@ -11,13 +11,12 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Card, SectionHeader, AppButton, Screen, SearchBar } from '@/presentation/components';
+import { useQueryClient } from '@tanstack/react-query';
+import { SectionHeader, Screen, SearchBar } from '@/presentation/components';
 import { useAuthStore, useCartStore } from '@/core/store';
-import { useCategories, useProducts } from '@/presentation/hooks';
+import { useCategories, useProducts, useToast, commerceActions } from '@/presentation/hooks';
 import { formatCurrency } from '@/core/utils';
 import { ROUTES } from '@/core/router';
-import { UserRole } from '@/core/types/enum';
-import { useToast } from '@/presentation/hooks';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -178,10 +177,13 @@ const ProductCard: React.FC<{
 export const HomeScreen: React.FC = () => {
   const router = useRouter();
   const toast = useToast();
-  const user = useAuthStore((state) => state.user);
+  const queryClient = useQueryClient();
+  const { isAuthenticated, user } = useAuthStore();
   const addItem = useCartStore((state) => state.addItem);
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { data: products, isLoading: productsLoading } = useProducts(1, 8);
+
+  const isBuyer = isAuthenticated && user?.role === 'BUYER';
 
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -199,17 +201,27 @@ export const HomeScreen: React.FC = () => {
     setSearchQuery('');
   };
 
-  const handleAddToCart = (product: any) => {
-    addItem({
-      productId: Number(product.productId),
-      sellerId: Number(product.seller?.sellerId || 0),
-      name: product.name,
-      price: Number(product.price),
-      quantity: 1,
-      image: product.images?.[0]?.imageUrl,
-      sku: product.sku,
-    });
-    toast.success(`${product.name} đã được thêm vào giỏ hàng`);
+  const handleAddToCart = async (product: any) => {
+    if (isBuyer) {
+      try {
+        await commerceActions.addToCart(product.productId, 1);
+        queryClient.invalidateQueries({ queryKey: ['cart'] });
+        toast.success(`${product.name} đã được thêm vào giỏ hàng`);
+      } catch {
+        toast.error('Không thể thêm vào giỏ hàng. Vui lòng thử lại.');
+      }
+    } else {
+      addItem({
+        productId: Number(product.productId),
+        sellerId: Number(product.seller?.sellerId || 0),
+        name: product.name,
+        price: Number(product.price),
+        quantity: 1,
+        image: product.images?.[0]?.imageUrl,
+        sku: product.sku,
+      });
+      toast.success(`${product.name} đã được thêm vào giỏ hàng`);
+    }
   };
 
   return (

@@ -7,6 +7,7 @@ import { AppButton, AppInput, Card, Screen } from '@/presentation/components';
 import { useLogin, useToast } from '@/presentation/hooks';
 import { loginSchema, type LoginFormData } from '@/domain/validators/auth.validator';
 import { ROUTES } from '@/core/router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const LoginScreen: React.FC = () => {
   const router = useRouter();
@@ -21,7 +22,7 @@ export const LoginScreen: React.FC = () => {
   };
 
   return (
-    <Screen>
+    <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.container}>
         <Card>
           <View style={styles.header}>
@@ -78,7 +79,7 @@ export const LoginScreen: React.FC = () => {
           <Text style={styles.guestLink}>Tiếp tục với tư cách khách</Text>
         </Pressable>
       </View>
-    </Screen>
+    </SafeAreaView>
   );
 };
 
@@ -87,6 +88,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     gap: 18,
+    paddingHorizontal: 16,
   },
   header: {
     gap: 8,
